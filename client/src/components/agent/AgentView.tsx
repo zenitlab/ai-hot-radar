@@ -132,7 +132,7 @@ export function AgentView() {
               className={cn(
                 'flex flex-col items-center gap-1 py-2.5 px-3 rounded-xl transition-all',
                 active
-                  ? 'bg-[var(--card-bg)] text-[var(--accent-blue)] dark:text-blue-400 shadow-sm border border-[var(--accent-blue)]/20 dark:border-blue-500/20 font-medium'
+                  ? 'bg-[var(--accent-blue)]/15 text-[var(--accent-blue)] dark:bg-blue-500/20 dark:text-blue-300 border border-[var(--accent-blue)]/25 dark:border-blue-500/30 font-medium'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)]',
               )}
             >

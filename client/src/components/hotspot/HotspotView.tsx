@@ -189,8 +189,8 @@ export function HotspotView() {
             className={cn(
               'flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-opacity',
               isChecking
-                ? 'bg-[var(--accent-blue)]/60 text-white cursor-wait'
-                : 'bg-[var(--accent-blue)] text-white hover:opacity-90 shadow-sm',
+                ? 'bg-[var(--accent-blue)]/40 text-white cursor-wait'
+                : 'bg-[var(--accent-blue)]/85 text-white hover:bg-[var(--accent-blue)] shadow-sm',
             )}
           >
             <RefreshCw className={cn('w-4 h-4', isChecking && 'animate-spin')} />
