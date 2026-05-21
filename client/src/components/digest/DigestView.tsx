@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
-import { ExternalLink, RefreshCw, Zap, CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  ExternalLink, RefreshCw, Zap, CalendarDays, ChevronDown, ChevronRight,
+  Flame, Cpu, Globe2, Globe, Package, Users, BookOpen,
+} from 'lucide-react';
 import { digestApi } from '../../services/api';
 import { digestJobs } from '../../services/digestJobs';
 import { cn } from '../../lib/utils';
@@ -51,14 +54,30 @@ const CHANGE_COLOR: Record<string, string> = {
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
 
-function Section({ icon, title, count, children }: {
-  icon: string; title: string; count?: number; children: React.ReactNode;
+function Section({ icon, title, count, children, accent = 'blue' }: {
+  icon: React.ReactNode;
+  title: string;
+  count?: number;
+  children: React.ReactNode;
+  accent?: 'red' | 'blue' | 'emerald' | 'amber' | 'purple' | 'cyan' | 'pink';
 }) {
+  const accentClass = {
+    red:     'bg-red-500/10 text-red-500 dark:text-red-400',
+    blue:    'bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] dark:bg-blue-500/10 dark:text-blue-400',
+    emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+    amber:   'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+    purple:  'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+    cyan:    'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
+    pink:    'bg-pink-500/10 text-pink-600 dark:text-pink-400',
+  }[accent];
+
   return (
     <div>
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-lg leading-none">{icon}</span>
-        <h2 className="font-bold text-[var(--text-primary)] text-base">{title}</h2>
+      <div className="flex items-center gap-2.5 mb-3">
+        <span className={cn('flex items-center justify-center w-7 h-7 rounded-lg', accentClass)}>
+          {icon}
+        </span>
+        <h2 className="font-bold text-[var(--text-primary)] text-base tracking-tight">{title}</h2>
         {count !== undefined && count > 0 && (
           <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-[var(--input-bg)] text-[var(--text-muted)]">
             {count}
@@ -456,7 +475,7 @@ export function DigestView() {
 
               {/* 今日重点 */}
               {data!.highlights?.length > 0 && (
-                <Section icon="🔥" title="今日重点" count={data!.highlights.length}>
+                <Section icon={<Flame className="w-4 h-4" />} title="今日重点" count={data!.highlights.length} accent="red">
                   <div className="space-y-3">
                     {data!.highlights.map((h, i) => <HighlightCard key={i} item={h} />)}
                   </div>
@@ -465,7 +484,7 @@ export function DigestView() {
 
               {/* 模型情报 */}
               {data!.modelIntel?.length > 0 && (
-                <Section icon="🤖" title="模型情报" count={data!.modelIntel.length}>
+                <Section icon={<Cpu className="w-4 h-4" />} title="模型情报" count={data!.modelIntel.length} accent="blue">
                   <ModelIntelTable items={data!.modelIntel} />
                 </Section>
               )}
@@ -474,14 +493,14 @@ export function DigestView() {
               {(data!.domestic?.length > 0 || data!.international?.length > 0) && (
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                   {data!.domestic?.length > 0 && (
-                    <Section icon="🌍" title="国内动态" count={data!.domestic.length}>
+                    <Section icon={<Globe2 className="w-4 h-4" />} title="国内动态" count={data!.domestic.length} accent="emerald">
                       <div className="space-y-2">
                         {data!.domestic.map((item, i) => <SimpleItem key={i} item={item} />)}
                       </div>
                     </Section>
                   )}
                   {data!.international?.length > 0 && (
-                    <Section icon="🌎" title="国外动态" count={data!.international.length}>
+                    <Section icon={<Globe className="w-4 h-4" />} title="国外动态" count={data!.international.length} accent="cyan">
                       <div className="space-y-2">
                         {data!.international.map((item, i) => <SimpleItem key={i} item={item} />)}
                       </div>
@@ -492,7 +511,7 @@ export function DigestView() {
 
               {/* AI 产品 */}
               {data!.products?.length > 0 && (
-                <Section icon="🧩" title="AI 产品动态" count={data!.products.length}>
+                <Section icon={<Package className="w-4 h-4" />} title="AI 产品动态" count={data!.products.length} accent="purple">
                   <div className="space-y-2">
                     {data!.products.map((item, i) => <SimpleItem key={i} item={item} />)}
                   </div>
@@ -501,7 +520,7 @@ export function DigestView() {
 
               {/* 社区热议 */}
               {data!.community?.length > 0 && (
-                <Section icon="👥" title="社区热议" count={data!.community.length}>
+                <Section icon={<Users className="w-4 h-4" />} title="社区热议" count={data!.community.length} accent="amber">
                   <div className="space-y-2">
                     {data!.community.map((item, i) => <SimpleItem key={i} item={item} />)}
                   </div>
@@ -510,7 +529,7 @@ export function DigestView() {
 
               {/* 论文趋势 */}
               {data!.papers?.length > 0 && (
-                <Section icon="📄" title="论文 & 技术趋势" count={data!.papers.length}>
+                <Section icon={<BookOpen className="w-4 h-4" />} title="论文 & 技术趋势" count={data!.papers.length} accent="pink">
                   <div className="space-y-2">
                     {data!.papers.map((item, i) => <PaperItem key={i} item={item} />)}
                   </div>

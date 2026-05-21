@@ -187,10 +187,10 @@ export function HotspotView() {
             onClick={handleManualCheck}
             disabled={isChecking}
             className={cn(
-              'px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all border',
+              'flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-opacity',
               isChecking
-                ? 'bg-[var(--input-bg)] text-[var(--text-secondary)] border-[var(--input-border)] cursor-wait'
-                : 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--card-border)] hover:border-[var(--accent-blue)]/50 hover:bg-[var(--card-bg-hover)] shadow-sm hover:shadow',
+                ? 'bg-[var(--accent-blue)]/60 text-white cursor-wait'
+                : 'bg-[var(--accent-blue)] text-white hover:opacity-90 shadow-sm',
             )}
           >
             <RefreshCw className={cn('w-4 h-4', isChecking && 'animate-spin')} />

@@ -43,10 +43,10 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
     <div
       onClick={onClick}
       className={cn(
-        'p-4 rounded-xl border cursor-pointer transition-all duration-200',
-        'hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(59,130,246,0.12)]',
+        'p-4 rounded-2xl border cursor-pointer transition-all duration-200',
+        'hover:-translate-y-0.5',
         isSelected
-          ? 'bg-blue-500/8 border-blue-500/30'
+          ? 'bg-[var(--accent-blue)]/8 border-[var(--accent-blue)]/40 dark:bg-blue-500/12 dark:border-blue-500/45 shadow-md shadow-[var(--accent-blue)]/10 ring-1 ring-[var(--accent-blue)]/20 dark:ring-blue-500/20'
           : 'bg-[var(--card-bg)] border-[var(--card-border)] hover:border-[var(--card-border-hover)]',
       )}
     >

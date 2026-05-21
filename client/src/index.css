@@ -23,11 +23,12 @@
   --accent-emerald: #10b981;
   --accent-amber: #f59e0b;
   --accent-red: #ef4444;
-  /* Adaptive tokens — dark defaults */
-  --card-bg: rgba(255,255,255,0.02);
-  --card-bg-hover: rgba(255,255,255,0.04);
-  --card-border: rgba(255,255,255,0.05);
-  --card-border-hover: rgba(255,255,255,0.10);
+  /* Adaptive tokens — dark defaults. Cards lifted higher than canvas
+     (#050510) so stacked cards are visually separable. */
+  --card-bg: rgba(255,255,255,0.045);
+  --card-bg-hover: rgba(255,255,255,0.075);
+  --card-border: rgba(255,255,255,0.08);
+  --card-border-hover: rgba(255,255,255,0.16);
   --input-bg: rgba(255,255,255,0.05);
   --input-border: rgba(255,255,255,0.10);
   --tab-active-bg: rgba(255,255,255,0.10);
@@ -75,8 +76,9 @@
 
 [data-theme="light"] {
   /* Anthropic-inspired palette — desaturated warm cream so the page reads
-     as "off-white paper", not yellow. Cards are near-pure white so content
-     visually lifts off the canvas. */
+     as "off-white paper", not yellow. Cards use a slightly tinted off-white
+     so they sit naturally on the canvas without the harsh "sticker on paper"
+     look that pure #fff produces. */
   --bg-base: #efece4;       /* canvas — soft, low-saturation cream */
   --bg-surface: #f6f3eb;    /* sidebar / topbar */
   --bg-elevated: #e7e1d2;   /* tab bars, code blocks */
@@ -92,21 +94,22 @@
   --accent-emerald: #6e7f4a;
   --accent-amber: #c08b3f;
   --accent-red: #b14a3e;
-  /* Cards: clean near-white that visibly lifts off the cream canvas */
-  --card-bg: #ffffff;
-  --card-bg-hover: #fbfaf5;
-  --card-border: rgba(60, 41, 24, 0.07);
-  --card-border-hover: rgba(204, 120, 92, 0.32);
-  --input-bg: #ffffff;
+  /* Cards: tinted off-white — visibly lifted from canvas but not stark white,
+     keeps the page cohesive instead of looking like white stickers on cream */
+  --card-bg: #faf7ef;
+  --card-bg-hover: #f6f1e3;
+  --card-border: rgba(60, 41, 24, 0.09);
+  --card-border-hover: rgba(204, 120, 92, 0.34);
+  --input-bg: #faf7ef;
   --input-border: rgba(60, 41, 24, 0.14);
   /* Tabs use warm coral, not blue */
   --tab-active-bg: rgba(204, 120, 92, 0.13);
   --tab-active-text: #a85c43;
   --tab-active-border: rgba(204, 120, 92, 0.32);
   --tab-hover-bg: rgba(60, 41, 24, 0.04);
-  --dropdown-bg: #ffffff;
+  --dropdown-bg: #faf7ef;
   --dropdown-item-hover: rgba(60, 41, 24, 0.05);
-  --sort-bar-bg: #ffffff;
+  --sort-bar-bg: #f0eadc;
   --sort-bar-border: rgba(60, 41, 24, 0.09);
   --toggle-inactive: #d6cdb9;
 }
