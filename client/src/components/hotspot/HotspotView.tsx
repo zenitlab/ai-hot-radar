@@ -190,7 +190,7 @@ export function HotspotView() {
               'px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all border',
               isChecking
                 ? 'bg-[var(--input-bg)] text-[var(--text-secondary)] border-[var(--input-border)] cursor-wait'
-                : 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] shadow-sm',
+                : 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--card-border)] hover:border-[var(--accent-blue)]/50 hover:bg-[var(--card-bg-hover)] shadow-sm hover:shadow',
             )}
           >
             <RefreshCw className={cn('w-4 h-4', isChecking && 'animate-spin')} />
@@ -217,7 +217,7 @@ export function HotspotView() {
               onChange={e => setSearchInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSearch()}
               placeholder="搜索标题/摘要…"
-              className="w-full lg:w-44 pl-3 pr-7 py-1.5 rounded-lg text-sm bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-all"
+              className="w-full lg:w-44 pl-3 pr-7 py-1.5 rounded-xl text-sm bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-active)] transition-all"
             />
             {searchInput && (
               <button
@@ -230,7 +230,7 @@ export function HotspotView() {
           </div>
           <button
             onClick={handleSearch}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-[var(--sort-bar-bg)] border border-[var(--input-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--tab-hover-bg)] transition-all flex-shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm bg-[var(--card-bg)] border border-[var(--input-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-all flex-shrink-0"
           >
             <Search className="w-3.5 h-3.5" />
             搜索
@@ -258,7 +258,7 @@ export function HotspotView() {
           <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
         </div>
       ) : hotspots.length === 0 ? (
-        <div className="text-center py-16 rounded-2xl border border-dashed border-[var(--card-border-hover)]">
+        <div className="text-center py-16 rounded-3xl border border-dashed border-[var(--border-default)] bg-[var(--card-bg)]/40">
           <p className="text-[var(--text-secondary)]">尚未发现热点</p>
           <p className="text-sm text-[var(--text-muted)] mt-1">添加监控关键词开始追踪</p>
         </div>
@@ -307,7 +307,7 @@ export function HotspotView() {
                   className={cn(
                     'w-8 h-8 rounded-lg text-xs font-medium transition-all',
                     currentPage === page
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                      ? 'bg-[var(--tab-active-bg)] text-[var(--tab-active-text)] border border-[var(--tab-active-border)]'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--tab-hover-bg)]',
                   )}
                 >

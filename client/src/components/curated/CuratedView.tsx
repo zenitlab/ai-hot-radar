@@ -40,13 +40,13 @@ function CuratedCard({ item }: { item: Hotspot }) {
   const importanceClass = IMPORTANCE_COLOR[item.importance] || IMPORTANCE_COLOR.low;
 
   return (
-    <div className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 hover:shadow-[0_6px_24px_rgba(59,130,246,0.13)] transition-all duration-200 group">
+    <div className="p-5 rounded-3xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200 group">
       <div className="flex items-start justify-between gap-2 mb-2">
         <a
           href={item.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-medium text-[var(--text-primary)] hover:text-blue-400 transition-colors leading-snug flex-1"
+          className="font-medium text-[var(--text-primary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors leading-snug flex-1"
         >
           {item.title}
         </a>
@@ -75,7 +75,7 @@ function CuratedCard({ item }: { item: Hotspot }) {
           )}
           <span className="text-xs text-[var(--text-muted)]">{getSourceLabel(item.source)}</span>
           {item.qualityScore != null && (
-            <span className="text-xs text-blue-400 font-mono">{Math.round(item.qualityScore)}分</span>
+            <span className="text-xs text-[var(--accent-blue)] dark:text-blue-400 font-mono">{Math.round(item.qualityScore)}分</span>
           )}
           <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
             <Clock className="w-3 h-3" />
@@ -132,15 +132,15 @@ export function CuratedView() {
             AI 质量评分筛选，{total} 条精选内容
           </p>
         </div>
-        <div className="flex gap-1 p-1 bg-[var(--bg-elevated)] rounded-lg">
+        <div className="flex gap-1 p-1 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-subtle)]">
           {(['today', 'week'] as Period[]).map(p => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
               className={cn(
-                'px-3 py-1.5 rounded-md text-sm transition-colors',
+                'px-3 py-1.5 rounded-lg text-sm transition-colors',
                 period === p
-                  ? 'bg-blue-500 text-white'
+                  ? 'bg-[var(--card-bg)] text-[var(--text-primary)] shadow-sm font-medium'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               )}
             >
@@ -165,7 +165,7 @@ export function CuratedView() {
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="搜索标题/摘要"
-              className="w-full lg:w-44 pl-8 pr-7 py-1.5 rounded-lg text-xs bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/40"
+              className="w-full lg:w-44 pl-8 pr-7 py-1.5 rounded-xl text-xs bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--border-active)]"
             />
             {searchInput && (
               <button
@@ -178,7 +178,7 @@ export function CuratedView() {
           </div>
           <button
             onClick={handleSearch}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30 hover:bg-blue-500/25 transition-all flex-shrink-0"
+            className="px-3 py-1.5 rounded-xl text-xs font-medium bg-[var(--card-bg)] border border-[var(--input-border)] text-[var(--text-primary)] hover:border-[var(--accent-blue)]/50 hover:bg-[var(--card-bg-hover)] transition-all flex-shrink-0"
           >
             搜索
           </button>
@@ -187,7 +187,7 @@ export function CuratedView() {
 
       {appliedSearch && (
         <div className="mb-3 text-xs text-[var(--text-muted)]">
-          搜索: <span className="text-blue-400">"{appliedSearch}"</span>
+          搜索: <span className="text-[var(--accent-blue)] dark:text-blue-400">"{appliedSearch}"</span>
           <button onClick={handleClearSearch} className="ml-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
             清除
           </button>
@@ -197,12 +197,12 @@ export function CuratedView() {
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-28 rounded-xl bg-[var(--bg-elevated)] animate-pulse" />
+            <div key={i} className="h-28 rounded-3xl bg-[var(--bg-elevated)] animate-pulse" />
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="text-center py-16 text-[var(--text-muted)]">
-          {appliedSearch ? '没有匹配的精选内容' : '暂无精选内容，等待系统抓取...'}
+        <div className="text-center py-16 rounded-3xl border border-dashed border-[var(--border-default)] text-[var(--text-muted)]">
+          {appliedSearch ? '没有匹配的精选内容' : '暂无精选内容，等待系统抓取…'}
         </div>
       ) : (
         <div className="space-y-3">
