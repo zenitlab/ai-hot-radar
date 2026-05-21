@@ -126,7 +126,7 @@ function Dropdown({
         className={cn(
           "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap",
           isActive
-            ? "bg-blue-500/15 text-blue-400 border border-blue-500/30"
+            ? "bg-[var(--tab-active-bg)] text-[var(--tab-active-text)] border border-[var(--tab-active-border)]"
             : "bg-[var(--input-bg)] text-[var(--text-secondary)] border border-[var(--input-border)] hover:border-[var(--card-border-hover)] hover:text-[var(--text-primary)]"
         )}
       >
@@ -152,7 +152,7 @@ function Dropdown({
                   className={cn(
                     "w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors text-left",
                     value === option.value
-                      ? "bg-blue-500/10 text-blue-400"
+                      ? "bg-[var(--tab-active-bg)] text-[var(--tab-active-text)]"
                       : "text-[var(--text-secondary)] hover:bg-[var(--dropdown-item-hover)] hover:text-[var(--text-primary)]"
                   )}
                 >
@@ -253,7 +253,7 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
               <button
                 onClick={handleSortScrollRight}
                 aria-label="向右滚动查看更多排序"
-                className="absolute top-1/2 -translate-y-1/2 right-1.5 z-10 w-6 h-6 rounded-full flex items-center justify-center bg-[var(--card-bg)] border border-[var(--card-border-hover)] text-[var(--text-secondary)] hover:text-blue-400 shadow-sm transition-colors"
+                className="absolute top-1/2 -translate-y-1/2 right-1.5 z-10 w-6 h-6 rounded-full flex items-center justify-center bg-[var(--card-bg)] border border-[var(--card-border-hover)] text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 shadow-sm transition-colors"
               >
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
@@ -267,14 +267,14 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
           className={cn(
             "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all",
             showFilters || activeFilterCount > 0
-              ? "bg-blue-500/15 text-blue-400 border border-blue-500/30"
+              ? "bg-[var(--tab-active-bg)] text-[var(--tab-active-text)] border border-[var(--tab-active-border)]"
               : "bg-[var(--input-bg)] text-[var(--text-secondary)] border border-[var(--input-border)] hover:border-[var(--card-border-hover)]"
           )}
         >
           <Filter className="w-3.5 h-3.5" />
           筛选
           {activeFilterCount > 0 && (
-            <span className="w-4 h-4 rounded-full bg-blue-500 text-[10px] text-white flex items-center justify-center font-bold">
+            <span className="w-4 h-4 rounded-full bg-[var(--accent-blue)] dark:bg-blue-500 text-[10px] text-white flex items-center justify-center font-bold">
               {activeFilterCount}
             </span>
           )}
@@ -353,7 +353,7 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
 
 function FilterTag({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-500/10 text-blue-400 text-[10px] font-medium border border-blue-500/20">
+    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] dark:bg-blue-500/10 dark:text-blue-400 text-[10px] font-medium border border-[var(--accent-blue)]/20 dark:border-blue-500/20">
       {label}
       <button onClick={onRemove} className="hover:text-white transition-colors">
         <X className="w-2.5 h-2.5" />

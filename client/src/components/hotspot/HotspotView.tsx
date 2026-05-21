@@ -241,7 +241,7 @@ export function HotspotView() {
       {/* Applied search hint */}
       {appliedSearch && (
         <div className="flex items-center gap-2 mb-3 text-xs text-[var(--text-secondary)]">
-          <span>搜索：<span className="text-blue-400 font-medium">"{appliedSearch}"</span></span>
+          <span>搜索：<span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">"{appliedSearch}"</span></span>
           <button onClick={handleClearSearch} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors underline">
             清空
           </button>
@@ -255,7 +255,7 @@ export function HotspotView() {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[var(--accent-blue)]/30 border-t-[var(--accent-blue)] dark:border-blue-500/30 dark:border-t-blue-500 rounded-full animate-spin" />
         </div>
       ) : hotspots.length === 0 ? (
         <div className="text-center py-16 rounded-3xl border border-dashed border-[var(--border-default)] bg-[var(--card-bg)]/40">

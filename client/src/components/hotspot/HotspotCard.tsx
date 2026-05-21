@@ -335,7 +335,7 @@ export function HotspotCard({
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <p className="text-xs text-[var(--text-secondary)] mt-1 pl-4 border-l-2 border-blue-500/20">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1 pl-4 border-l-2 border-[var(--accent-blue)]/20 dark:border-blue-500/20">
                       {hotspot.relevanceReason}
                     </p>
                   </motion.div>

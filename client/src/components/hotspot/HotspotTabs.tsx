@@ -73,7 +73,7 @@ export function HotspotTabs({ activeTab, onChange }: HotspotTabsProps) {
           <button
             onClick={handleScrollRight}
             aria-label="向右滚动查看更多"
-            className="absolute top-1/2 -translate-y-1/2 right-0 z-10 w-6 h-6 rounded-full flex items-center justify-center bg-[var(--card-bg)] border border-[var(--card-border-hover)] text-[var(--text-secondary)] hover:text-blue-400 shadow-sm transition-colors"
+            className="absolute top-1/2 -translate-y-1/2 right-0 z-10 w-6 h-6 rounded-full flex items-center justify-center bg-[var(--card-bg)] border border-[var(--card-border-hover)] text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 shadow-sm transition-colors"
           >
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
