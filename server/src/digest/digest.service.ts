@@ -239,8 +239,18 @@ ${numbered}
         .slice(0, 8)
         .map((h) => ({ title: h.title, summary: h.summary ?? '', source: h.source, url: h.url }));
 
+    // Build a fallback summary that actually conveys what happened today by
+    // pulling the top 1–2 hotspot titles instead of just reporting a count.
+    const top = items.slice(0, 2).map((h) => h.title?.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const summary =
+      top.length === 0
+        ? `共收录 ${items.length} 条 AI 资讯`
+        : top.length === 1
+          ? `${top[0]}（共 ${items.length} 条）`
+          : `${top[0]}；${top[1]}（共 ${items.length} 条）`;
+
     return {
-      summary: `今日收录 ${items.length} 条 AI 资讯`,
+      summary,
       highlights: items.slice(0, 5).map((h) => ({
         title: h.title,
         summary: h.summary ?? '',
