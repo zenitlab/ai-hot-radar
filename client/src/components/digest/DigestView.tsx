@@ -42,7 +42,7 @@ function dayLabel(date: string): string {
 // ── Change badge colors ───────────────────────────────────────────────────────
 
 const CHANGE_COLOR: Record<string, string> = {
-  新发布: 'bg-blue-500/15 text-blue-400',
+  新发布: 'bg-[var(--accent-blue)]/15 text-[var(--accent-blue)] dark:bg-blue-500/15 dark:text-blue-400',
   降价:   'bg-green-500/15 text-green-400',
   涨价:   'bg-red-500/15 text-red-400',
   性能提升: 'bg-purple-500/15 text-purple-400',
@@ -74,11 +74,11 @@ function Section({ icon, title, count, children }: {
 
 function HighlightCard({ item }: { item: DigestHighlight }) {
   return (
-    <div className="rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] overflow-hidden">
-      <div className="p-4 border-l-[3px] border-l-blue-500">
+    <div className="rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] overflow-hidden">
+      <div className="p-4 border-l-[3px] border-l-[var(--accent-blue)] dark:border-l-blue-500">
         <a href={item.url} target="_blank" rel="noopener noreferrer"
           className="group/link flex items-start gap-1.5">
-          <span className="text-sm font-semibold text-[var(--text-primary)] group-hover/link:text-blue-400 transition-colors leading-snug">
+          <span className="text-sm font-semibold text-[var(--text-primary)] group-hover/link:text-[var(--accent-blue)] dark:group-hover/link:text-blue-400 transition-colors leading-snug">
             {item.title}
           </span>
           <ExternalLink className="w-3 h-3 text-[var(--text-muted)] shrink-0 mt-0.5 opacity-0 group-hover/link:opacity-100 transition-opacity" />
@@ -89,8 +89,8 @@ function HighlightCard({ item }: { item: DigestHighlight }) {
         )}
 
         {item.whyImportant && (
-          <div className="mt-3 px-3 py-2 rounded-lg bg-blue-500/6 border border-blue-500/15">
-            <p className="text-[11px] font-semibold text-blue-400 mb-1 flex items-center gap-1">
+          <div className="mt-3 px-3 py-2 rounded-xl bg-[var(--accent-blue)]/8 border border-[var(--accent-blue)]/20 dark:bg-blue-500/6 dark:border-blue-500/15">
+            <p className="text-[11px] font-semibold text-[var(--accent-blue)] dark:text-blue-400 mb-1 flex items-center gap-1">
               <Zap className="w-3 h-3" /> 为什么重要
             </p>
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{item.whyImportant}</p>
@@ -101,7 +101,7 @@ function HighlightCard({ item }: { item: DigestHighlight }) {
           <div className="flex flex-wrap gap-1.5 mt-3">
             {item.affects.map((a) => (
               <span key={a}
-                className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/8 text-blue-400 border border-blue-500/15 font-medium">
+                className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] border border-[var(--accent-blue)]/20 dark:bg-blue-500/8 dark:text-blue-400 dark:border-blue-500/15 font-medium">
                 {a}
               </span>
             ))}
@@ -119,9 +119,9 @@ function HighlightCard({ item }: { item: DigestHighlight }) {
 function SimpleItem({ item }: { item: DigestSimpleItem }) {
   return (
     <a href={item.url} target="_blank" rel="noopener noreferrer"
-      className="flex items-start gap-2 p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] transition-all group">
+      className="flex items-start gap-2 p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] transition-all group">
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-[var(--text-primary)] group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
+        <p className="text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
           {item.title}
         </p>
         {item.summary && (
@@ -175,8 +175,8 @@ function ModelIntelTable({ items }: { items: DigestModelItem[] }) {
 function PaperItem({ item }: { item: DigestPaperItem }) {
   return (
     <a href={item.url} target="_blank" rel="noopener noreferrer"
-      className="block p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] transition-all group">
-      <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-blue-400 transition-colors line-clamp-2">
+      className="block p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] transition-all group">
+      <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors line-clamp-2">
         {item.title}
       </p>
       {item.summary && (
