@@ -14,19 +14,16 @@ const RSS_FEEDS = [
     label: '精选资讯 RSS',
     url: `${BASE_URL}/api/agent/rss/curated.xml`,
     desc: '经 AI 五维评分筛选的高质量内容，每条都值得读',
-    color: 'from-blue-500/20 to-cyan-500/10',
   },
   {
     label: '全部资讯 RSS',
     url: `${BASE_URL}/api/agent/rss/all.xml`,
     desc: '不做筛选，所有抓取到的 AI 资讯，适合需要全量信息的场景',
-    color: 'from-purple-500/20 to-pink-500/10',
   },
   {
     label: 'AI 日报 RSS',
     url: `${BASE_URL}/api/agent/rss/digest.xml`,
     desc: '每日凌晨自动生成的 AI 行业日报，覆盖模型 / 产品 / 行业 / 论文',
-    color: 'from-amber-500/20 to-orange-500/10',
   },
 ];
 
@@ -154,16 +151,18 @@ export function AgentView() {
       {/* ── Skill ─────────────────────────────────────────── */}
       {activeTab === 'skill' && (
         <div className="space-y-4">
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-gradient-to-br from-blue-500/8 to-purple-500/5 p-5">
+          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-[var(--accent-blue)] dark:text-blue-400" />
+              <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] dark:bg-blue-500/15 dark:text-blue-400">
+                <Sparkles className="w-4 h-4" />
+              </span>
               <h2 className="font-semibold text-[var(--text-primary)]">什么是 Skill？</h2>
             </div>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4">
               Skill 是给 AI 助手（如 Claude Code、Cursor）用的「能力包」。安装一次后，
               你的 AI 助手就拥有「查 AI 日报、查精选、按关键词搜索」等能力，自然语言提问即可调用。
             </p>
-            <div className="rounded-lg bg-[var(--bg-base)] border border-[var(--card-border)] p-3">
+            <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--card-border)] p-3">
               <div className="flex items-center justify-between gap-2 mb-1.5">
                 <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                   在 AI 助手中粘贴这一行
@@ -210,9 +209,11 @@ export function AgentView() {
       {/* ── RSS ───────────────────────────────────────────── */}
       {activeTab === 'rss' && (
         <div className="space-y-4">
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-gradient-to-br from-emerald-500/8 to-cyan-500/5 p-5">
+          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5">
             <div className="flex items-center gap-2 mb-2">
-              <Rss className="w-4 h-4 text-emerald-400" />
+              <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <Rss className="w-4 h-4" />
+              </span>
               <h2 className="font-semibold text-[var(--text-primary)]">RSS 订阅</h2>
             </div>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -225,11 +226,7 @@ export function AgentView() {
             {RSS_FEEDS.map((feed) => (
               <div
                 key={feed.url}
-                className={cn(
-                  'p-4 rounded-xl border border-[var(--border-subtle)] bg-gradient-to-br',
-                  feed.color,
-                  'hover:border-[var(--card-border-hover)] transition-colors',
-                )}
+                className="p-4 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] transition-colors"
               >
                 <div className="flex items-center justify-between gap-3 mb-1.5">
                   <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
@@ -262,9 +259,11 @@ export function AgentView() {
       {/* ── API ───────────────────────────────────────────── */}
       {activeTab === 'api' && (
         <div className="space-y-4">
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-gradient-to-br from-purple-500/8 to-pink-500/5 p-5">
+          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5">
             <div className="flex items-center gap-2 mb-2">
-              <Code2 className="w-4 h-4 text-purple-400" />
+              <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                <Code2 className="w-4 h-4" />
+              </span>
               <h2 className="font-semibold text-[var(--text-primary)]">REST API</h2>
             </div>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
@@ -287,7 +286,7 @@ export function AgentView() {
             {API_DOCS.map((api) => (
               <div
                 key={api.path}
-                className="p-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[var(--card-border-hover)] transition-colors"
+                className="p-3 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] transition-colors"
               >
                 <div className="flex items-center gap-2 flex-wrap">
                   <span
@@ -313,7 +312,7 @@ export function AgentView() {
             ))}
           </div>
 
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
+          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--bg-elevated)] p-4">
             <p className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">
               示例
             </p>
