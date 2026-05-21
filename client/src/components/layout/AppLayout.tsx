@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Star, Radio, Bookmark, CalendarDays } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 
@@ -13,10 +13,10 @@ interface AppLayoutProps {
 }
 
 const MOBILE_NAV = [
-  { path: '/curated', label: '精选',  icon: '📰' },
-  { path: '/hotspot', label: '热点',  icon: '📡' },
-  { path: '/keywords', label: '关注', icon: '🔖' },
-  { path: '/digest',  label: '日报',  icon: '📅' },
+  { path: '/curated',  label: '精选', Icon: Star },
+  { path: '/hotspot',  label: '热点', Icon: Radio },
+  { path: '/keywords', label: '关注', Icon: Bookmark },
+  { path: '/digest',   label: '日报', Icon: CalendarDays },
 ];
 
 export function AppLayout({ unreadCount, theme, onThemeToggle, children }: AppLayoutProps) {
@@ -70,18 +70,21 @@ export function AppLayout({ unreadCount, theme, onThemeToggle, children }: AppLa
 
         {/* Mobile Bottom Nav */}
         <div className="fixed bottom-0 left-0 right-0 z-40 flex lg:hidden border-t border-[var(--border-subtle)] bg-[var(--bg-surface)]">
-          {MOBILE_NAV.map(item => (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center justify-center flex-1 py-2 text-xs gap-1 transition-colors ${
-                location.pathname === item.path ? 'text-blue-400' : 'text-[var(--text-secondary)]'
-              }`}
-            >
-              <span className="text-base">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
+          {MOBILE_NAV.map(({ path, label, Icon }) => {
+            const active = location.pathname === path;
+            return (
+              <button
+                key={path}
+                onClick={() => navigate(path)}
+                className={`flex flex-col items-center justify-center flex-1 py-2 text-xs gap-1 transition-colors ${
+                  active ? 'text-[var(--accent-blue)] dark:text-blue-400' : 'text-[var(--text-secondary)]'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span>{label}</span>
+              </button>
+            );
+          })}
         </div>
 
         <main className="flex-1 overflow-y-scroll pb-16 lg:pb-0">

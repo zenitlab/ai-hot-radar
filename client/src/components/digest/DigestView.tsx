@@ -359,7 +359,7 @@ export function DigestView() {
                     className={cn(
                       'w-full text-left px-4 py-2.5 transition-all border-b border-[var(--border-subtle)]/40',
                       isSelected
-                        ? 'bg-blue-500/10 border-l-2 border-l-blue-500'
+                        ? 'bg-[var(--accent-blue)]/10 border-l-2 border-l-[var(--accent-blue)] dark:bg-blue-500/10 dark:border-l-blue-500'
                         : 'hover:bg-[var(--card-bg)]',
                     )}
                   >
@@ -367,21 +367,21 @@ export function DigestView() {
                       {/* Day number */}
                       <span className={cn(
                         'text-sm font-mono font-bold shrink-0 w-8',
-                        isSelected ? 'text-blue-400' : isToday ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]',
+                        isSelected ? 'text-[var(--accent-blue)] dark:text-blue-400' : isToday ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]',
                       )}>
                         {dayLabel(date)}
                       </span>
 
                       {/* Today badge */}
                       {isToday && (
-                        <span className="shrink-0 text-[9px] px-1 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold leading-none">
+                        <span className="shrink-0 text-[9px] px-1 py-0.5 rounded bg-[var(--accent-blue)]/20 text-[var(--accent-blue)] dark:bg-blue-500/20 dark:text-blue-400 font-bold leading-none">
                           今
                         </span>
                       )}
 
                       {/* Has-data indicator */}
                       {!isToday && hasDigest && (
-                        <div className="w-1 h-1 rounded-full bg-blue-400 shrink-0" />
+                        <div className="w-1 h-1 rounded-full bg-[var(--accent-blue)] dark:bg-blue-400 shrink-0" />
                       )}
                     </div>
 
@@ -389,7 +389,7 @@ export function DigestView() {
                     {hasDigest && summary ? (
                       <p className={cn(
                         'text-[11px] leading-snug mt-0.5 truncate',
-                        isSelected ? 'text-blue-300/80' : 'text-[var(--text-muted)]',
+                        isSelected ? 'text-[var(--accent-blue)]/80 dark:text-blue-300/80' : 'text-[var(--text-muted)]',
                       )}>
                         {summary}
                       </p>
