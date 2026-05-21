@@ -424,7 +424,7 @@ export function DigestView() {
             <button
               onClick={handleGenerate}
               disabled={generating}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--input-bg)] text-[var(--text-secondary)] border border-[var(--card-border)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-all disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-[var(--card-bg)] text-[var(--text-secondary)] border border-[var(--card-border)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-all disabled:opacity-50"
             >
               <RefreshCw className={cn('w-3 h-3', generating && 'animate-spin')} />
               {generating ? '生成中...' : '重新生成'}
@@ -444,11 +444,11 @@ export function DigestView() {
             />
           ) : (
             <>
-              {/* Summary banner */}
+              {/* Summary banner — soft accent bar in light mode, gradient in dark */}
               {data!.summary && (
-                <div className="px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/8 border border-blue-500/20">
-                  <p className="text-sm text-[var(--text-primary)]">
-                    <span className="text-[var(--text-muted)] text-xs mr-2">今日一句话</span>
+                <div className="px-4 py-3 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] border-l-4 border-l-[var(--accent-blue)] dark:bg-gradient-to-r dark:from-blue-500/10 dark:to-purple-500/8 dark:border dark:border-blue-500/20">
+                  <p className="text-sm text-[var(--text-primary)] leading-relaxed">
+                    <span className="text-[var(--text-muted)] text-xs mr-2 font-medium">今日一句话</span>
                     {data!.summary}
                   </p>
                 </div>

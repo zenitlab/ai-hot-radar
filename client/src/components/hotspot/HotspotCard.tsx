@@ -208,7 +208,7 @@ export function HotspotCard({
             href={hotspot.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block font-medium text-[var(--text-primary)] mb-2 line-clamp-2 hover:text-blue-400 transition-colors cursor-pointer"
+            className="block font-semibold text-[15px] text-[var(--text-primary)] mb-2 line-clamp-2 hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors cursor-pointer leading-snug"
           >
             {hotspot.title}
           </a>
