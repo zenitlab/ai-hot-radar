@@ -236,7 +236,7 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
                   className={cn(
                     "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap flex-shrink-0",
                     filters.sortBy === opt.value
-                      ? "bg-blue-500/15 text-blue-400 shadow-sm"
+                      ? "bg-[var(--tab-active-bg)] text-[var(--tab-active-text)] border border-[var(--tab-active-border)]"
                       : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                   )}
                 >

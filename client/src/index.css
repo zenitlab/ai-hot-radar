@@ -75,39 +75,82 @@
 
 [data-theme="light"] {
   /* Anthropic-inspired warm cream palette — softer than pure white,
-     reduces glare and makes long-form reading more comfortable. */
-  --bg-base: #f4efe6;       /* main canvas — warm cream */
-  --bg-surface: #faf6ec;    /* sidebar / topbar — slightly lighter */
-  --bg-elevated: #ece4d3;   /* tab bars, code blocks */
-  --bg-hover: #e6dcc8;
-  --border-subtle: rgba(60, 41, 24, 0.06);
-  --border-default: rgba(60, 41, 24, 0.12);
+     reduces glare and makes long-form reading more comfortable.
+     Cards are noticeably lighter than the canvas so content visually
+     "lifts" off the page. */
+  --bg-base: #ebe3d2;       /* main canvas — warm cream, slightly deeper */
+  --bg-surface: #f5efe1;    /* sidebar / topbar */
+  --bg-elevated: #e0d6bf;   /* tab bars, code blocks */
+  --bg-hover: #d8cdb3;
+  --border-subtle: rgba(60, 41, 24, 0.08);
+  --border-default: rgba(60, 41, 24, 0.14);
   --border-active: rgba(204, 120, 92, 0.4);
-  --text-primary: #1f1d1a;     /* warm near-black */
+  --text-primary: #1f1d1a;
   --text-secondary: #5c5650;
   --text-muted: #8a847d;
-  /* Accent shifts from blue → Anthropic warm coral */
   --accent-blue: #cc785c;
   --accent-cyan: #b8755a;
   --accent-emerald: #6e7f4a;
   --accent-amber: #c08b3f;
   --accent-red: #b14a3e;
-  /* Cards: cream-tinted white instead of stark white */
-  --card-bg: #fbf8f0;
-  --card-bg-hover: #f6f0e0;
+  /* Cards: nearly white, distinctly brighter than canvas — clear hierarchy */
+  --card-bg: #fdfbf3;
+  --card-bg-hover: #faf6e8;
   --card-border: rgba(60, 41, 24, 0.08);
-  --card-border-hover: rgba(204, 120, 92, 0.25);
+  --card-border-hover: rgba(204, 120, 92, 0.28);
   --input-bg: rgba(60, 41, 24, 0.04);
   --input-border: rgba(60, 41, 24, 0.12);
-  --tab-active-bg: rgba(204, 120, 92, 0.12);
-  --tab-active-text: #cc785c;
-  --tab-active-border: rgba(204, 120, 92, 0.3);
+  /* Tabs: warm earth tone, not cold blue */
+  --tab-active-bg: rgba(204, 120, 92, 0.13);
+  --tab-active-text: #a85c43;
+  --tab-active-border: rgba(204, 120, 92, 0.32);
   --tab-hover-bg: rgba(60, 41, 24, 0.04);
   --dropdown-bg: #faf6ec;
   --dropdown-item-hover: rgba(60, 41, 24, 0.05);
-  --sort-bar-bg: rgba(60, 41, 24, 0.03);
-  --sort-bar-border: rgba(60, 41, 24, 0.07);
+  --sort-bar-bg: rgba(60, 41, 24, 0.04);
+  --sort-bar-border: rgba(60, 41, 24, 0.08);
   --toggle-inactive: #d6cdb9;
+}
+
+/* Light-mode tints for the bright Tailwind palette so badges stay readable
+   on cream — pure /15 alpha gets washed out against #ebe3d2. We deepen the
+   colors so importance/source/heat chips remain legible. */
+[data-theme="light"] .bg-red-500\/15      { background: rgba(177, 74, 62, 0.18); }
+[data-theme="light"] .text-red-400         { color: #b14a3e; }
+[data-theme="light"] .bg-orange-500\/15   { background: rgba(192, 95, 47, 0.18); }
+[data-theme="light"] .text-orange-400      { color: #b8632c; }
+[data-theme="light"] .bg-amber-500\/15    { background: rgba(180, 130, 60, 0.18); }
+[data-theme="light"] .text-amber-400       { color: #a87c2d; }
+[data-theme="light"] .bg-emerald-500\/15  { background: rgba(96, 113, 65, 0.18); }
+[data-theme="light"] .text-emerald-400     { color: #5d6e3f; }
+[data-theme="light"] .bg-blue-500\/15     { background: rgba(74, 110, 145, 0.18); }
+[data-theme="light"] .text-blue-400        { color: #4a6e91; }
+[data-theme="light"] .bg-purple-500\/15   { background: rgba(120, 88, 130, 0.18); }
+[data-theme="light"] .text-purple-400      { color: #785882; }
+[data-theme="light"] .bg-yellow-500\/10   { background: rgba(180, 130, 60, 0.16); }
+[data-theme="light"] .text-yellow-500      { color: #a87c2d; }
+[data-theme="light"] .border-red-500\/20    { border-color: rgba(177, 74, 62, 0.3); }
+[data-theme="light"] .border-orange-500\/20 { border-color: rgba(192, 95, 47, 0.3); }
+[data-theme="light"] .border-amber-500\/20  { border-color: rgba(180, 130, 60, 0.3); }
+[data-theme="light"] .border-emerald-500\/20 { border-color: rgba(96, 113, 65, 0.3); }
+[data-theme="light"] .border-blue-500\/20   { border-color: rgba(74, 110, 145, 0.28); }
+[data-theme="light"] .border-purple-500\/20 { border-color: rgba(120, 88, 130, 0.3); }
+[data-theme="light"] .border-yellow-500\/20 { border-color: rgba(180, 130, 60, 0.28); }
+
+/* Subtle paper grain on the canvas — not on cards — for depth without noise */
+[data-theme="light"] body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 15% 5%, rgba(204, 120, 92, 0.05) 0%, transparent 35%),
+    radial-gradient(circle at 85% 95%, rgba(110, 127, 74, 0.04) 0%, transparent 35%);
+  z-index: 0;
+}
+
+/* Cards in light mode get a soft drop shadow so they feel lifted */
+[data-theme="light"] .bg-\[var\(--card-bg\)\] {
+  box-shadow: 0 1px 2px rgba(60, 41, 24, 0.04), 0 1px 3px rgba(60, 41, 24, 0.05);
 }
 
 /* In light mode, headings get the Fraunces serif for that editorial,
@@ -211,15 +254,6 @@ body {
 
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(60, 41, 24, 0.15); }
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(204, 120, 92, 0.4); }
-
-/* Subtle paper texture in light mode for that warm Anthropic feel.
-   A radial gradient is cheaper than an actual image and looks great. */
-[data-theme="light"] body {
-  background-image:
-    radial-gradient(circle at 20% 10%, rgba(204, 120, 92, 0.04) 0%, transparent 50%),
-    radial-gradient(circle at 80% 90%, rgba(110, 127, 74, 0.03) 0%, transparent 50%);
-  background-attachment: fixed;
-}
 
 /* Hide scrollbar but keep scrollability — used on horizontal tab/sort strips
    so the global thin-scrollbar style doesn't show up under them. */

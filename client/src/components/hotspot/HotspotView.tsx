@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { Radio, RefreshCw, ChevronsUpDown, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
+import { Radio, RefreshCw, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
 import { hotspotsApi, triggerHotspotCheck, getScanStatus, keywordsApi } from '../../services/api';
 import { onNewHotspot, onNotification, onScanStatus, onScanProgress, subscribeToKeywords } from '../../services/socket';
 import FilterSortBar, { defaultFilterState, type FilterState } from '../FilterSortBar';
@@ -23,10 +23,9 @@ export function HotspotView() {
   const [totalPages, setTotalPages] = useState(1);
   const [activeTab, setActiveTab] = useState<HotspotTab>('all');
 
-  // expand/collapse state
+  // expand/collapse state — each card decides for itself; no "expand all" toggle.
   const [expandedReasons, setExpandedReasons] = useState<Set<string>>(new Set());
   const [expandedContents, setExpandedContents] = useState<Set<string>>(new Set());
-  const [allReasonsExpanded, setAllReasonsExpanded] = useState(false);
 
   // Search
   const [searchInput, setSearchInput] = useState('');
@@ -100,24 +99,26 @@ export function HotspotView() {
       }
     });
     const unsubProgress = onScanProgress((p) => {
+      // Translate raw pipeline phases into reader-friendly status text.
+      // Avoid leaking internal counters like "0/N" into the UI.
       switch (p.phase) {
         case 'sources_start':
-          setScanProgress('抓取信息源...');
+          setScanProgress('正在收集最新资讯…');
           break;
         case 'sources_done':
-          setScanProgress('信息源完成');
+          setScanProgress('正在分析内容质量…');
           break;
         case 'keywords_skipped':
-          setScanProgress('无关键词');
+          setScanProgress('整理结果…');
           break;
         case 'keywords_start':
-          setScanProgress(`关键词 0/${p.total}`);
+          setScanProgress('为你筛选相关热点…');
           break;
         case 'keyword_done':
-          setScanProgress(`关键词 ${p.done}/${p.total} · ${p.keyword}`);
+          setScanProgress('为你筛选相关热点…');
           break;
         case 'keywords_done':
-          setScanProgress('完成中...');
+          setScanProgress('即将完成…');
           break;
       }
     });
@@ -168,15 +169,6 @@ export function HotspotView() {
     });
   };
 
-  const toggleAllReasons = () => {
-    if (allReasonsExpanded) {
-      setExpandedReasons(new Set());
-    } else {
-      setExpandedReasons(new Set(hotspots.filter(h => h.relevanceReason).map(h => h.id)));
-    }
-    setAllReasonsExpanded(!allReasonsExpanded);
-  };
-
   return (
     <div className="px-4 py-6 max-w-4xl mx-auto">
       {/* Header */}
@@ -195,14 +187,14 @@ export function HotspotView() {
             onClick={handleManualCheck}
             disabled={isChecking}
             className={cn(
-              'px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all',
+              'px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all border',
               isChecking
-                ? 'bg-blue-500/20 text-blue-400 cursor-wait'
-                : 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40',
+                ? 'bg-[var(--input-bg)] text-[var(--text-secondary)] border-[var(--input-border)] cursor-wait'
+                : 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] shadow-sm',
             )}
           >
             <RefreshCw className={cn('w-4 h-4', isChecking && 'animate-spin')} />
-            {isChecking ? (scanProgress || '扫描中...') : '立即扫描'}
+            {isChecking ? (scanProgress || '正在扫描…') : '立即扫描'}
           </button>
         </div>
       </div>
@@ -272,17 +264,6 @@ export function HotspotView() {
         </div>
       ) : (
         <div className="space-y-3">
-          {hotspots.some(h => h.relevanceReason) && (
-            <div className="flex justify-end">
-              <button
-                onClick={toggleAllReasons}
-                className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-blue-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-[var(--tab-hover-bg)]"
-              >
-                <ChevronsUpDown className="w-3.5 h-3.5" />
-                {allReasonsExpanded ? '折叠所有理由' : '展开所有理由'}
-              </button>
-            </div>
-          )}
           {hotspots.map((hotspot, index) => (
             <HotspotCard
               key={hotspot.id}
