@@ -114,7 +114,7 @@ const TAG_STYLES: Record<
 > = {
   feature: {
     label: "新功能",
-    className: "bg-blue-500/15 text-blue-400 border-blue-500/20",
+    className: "bg-[var(--accent-blue)]/15 text-[var(--accent-blue)] border-[var(--accent-blue)]/25 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/20",
   },
   fix: {
     label: "修复",
@@ -147,9 +147,9 @@ export function ChangelogView() {
           {CHANGELOG.map((entry, i) => (
             <li key={i} className="relative pl-8">
               {/* dot */}
-              <span className="absolute left-[3px] top-2 w-2.5 h-2.5 rounded-full bg-blue-500 ring-4 ring-[var(--bg-base)]" />
+              <span className="absolute left-[3px] top-2 w-2.5 h-2.5 rounded-full bg-[var(--accent-blue)] dark:bg-blue-500 ring-4 ring-[var(--bg-base)]" />
 
-              <div className="rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] p-5">
+              <div className="rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] p-5">
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   <span className="text-sm font-semibold text-[var(--text-primary)]">
                     {entry.date}
@@ -174,7 +174,7 @@ export function ChangelogView() {
                   {entry.items.map((item, j) => (
                     <li
                       key={j}
-                      className="text-sm text-[var(--text-secondary)] pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-blue-400/60"
+                      className="text-sm text-[var(--text-secondary)] pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-[var(--accent-blue)]/60 dark:before:text-blue-400/60"
                     >
                       {item}
                     </li>

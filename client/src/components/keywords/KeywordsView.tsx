@@ -221,7 +221,7 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
               <ChevronLeft className="w-5 h-5" />
             </button>
             <div className="flex-1 min-w-0 flex items-center gap-2">
-              <Bookmark className="w-4 h-4 text-blue-400 flex-shrink-0" />
+              <Bookmark className="w-4 h-4 text-[var(--accent-blue)] dark:text-blue-400 flex-shrink-0" />
               <span className="text-sm font-semibold text-[var(--text-primary)] truncate">
                 {selectedEntity.keyword.text}
               </span>
@@ -320,7 +320,7 @@ function DetailPanel({ entity, detail }: { entity: EntityCardSummary; detail: En
         </div>
         {selectedNode && (
           <p className="text-[11px] text-[var(--text-muted)] mt-1.5 text-center">
-            已选中节点：<span className="text-blue-400 font-medium">{selectedNode}</span>
+            已选中节点：<span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">{selectedNode}</span>
             <button
               onClick={() => handleNodeClick(null)}
               className="ml-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
@@ -375,7 +375,7 @@ function DetailPanel({ entity, detail }: { entity: EntityCardSummary; detail: En
                 className="flex items-start gap-2 p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] transition-all group"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-[var(--text-primary)] group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
+                  <p className="text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
                     {n.title}
                   </p>
                   <div className="flex items-center gap-2 mt-1 text-[11px] text-[var(--text-muted)]">

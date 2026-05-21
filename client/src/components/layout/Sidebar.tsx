@@ -55,7 +55,7 @@ interface SidebarProps {
  */
 function BrandMark() {
   return (
-    <span className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/25">
+    <span className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-blue)] to-[var(--accent-amber)] dark:from-blue-500 dark:to-purple-600 shadow-lg shadow-[var(--accent-blue)]/25">
       <svg viewBox="0 0 32 32" className="w-6 h-6">
         {/* concentric range rings */}
         <circle cx="16" cy="16" r="12" fill="none" stroke="white" strokeWidth="1" opacity="0.35" />
@@ -72,7 +72,7 @@ function BrandMark() {
         <circle cx="16" cy="16" r="1.6" fill="white" />
       </svg>
       {/* faint pulse ring */}
-      <span className="absolute inset-0 rounded-xl ring-2 ring-blue-400/30 animate-pulse" />
+      <span className="absolute inset-0 rounded-xl ring-2 ring-[var(--accent-blue)]/30 animate-pulse" />
     </span>
   );
 }
@@ -85,7 +85,7 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
         <div className="flex items-center gap-3">
           <BrandMark />
           <div className="flex flex-col leading-tight">
-            <span className="text-[15px] font-bold tracking-wide bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="text-[15px] font-bold tracking-wide bg-gradient-to-r from-[var(--accent-blue)] via-[var(--accent-cyan)] to-[var(--accent-amber)] dark:from-blue-400 dark:via-cyan-400 dark:to-purple-400 bg-clip-text text-transparent">
               AI&nbsp;RADAR
             </span>
             <span className="text-[10px] text-[var(--text-muted)] tracking-wider uppercase">
@@ -112,7 +112,7 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
                     cn(
                       "group relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all w-full text-left",
                       isActive
-                        ? "bg-blue-500/10 text-blue-400 font-medium"
+                        ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] dark:bg-blue-500/10 dark:text-blue-400 font-medium"
                         : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]",
                     )
                   }
@@ -123,14 +123,14 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
                       <span
                         className={cn(
                           "absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full transition-all",
-                          isActive ? "bg-blue-400" : "bg-transparent",
+                          isActive ? "bg-[var(--accent-blue)] dark:bg-blue-400" : "bg-transparent",
                         )}
                       />
                       <span
                         className={cn(
                           "transition-colors shrink-0",
                           isActive
-                            ? "text-blue-400"
+                            ? "text-[var(--accent-blue)] dark:text-blue-400"
                             : cn(
                                 item.accent ?? "text-[var(--text-muted)]",
                                 "opacity-70 group-hover:opacity-100",
@@ -155,7 +155,7 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
           <Bell className="w-4 h-4" />
           <span>通知</span>
           {unreadCount > 0 && (
-            <span className="ml-auto text-[10px] font-bold bg-blue-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+            <span className="ml-auto text-[10px] font-bold bg-[var(--accent-blue)] dark:bg-blue-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
