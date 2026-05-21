@@ -64,7 +64,7 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
             onClick={onRefresh}
             title="刷新"
             disabled={isRefreshing}
-            className="p-1 rounded text-[var(--text-muted)] hover:text-blue-400 transition-colors disabled:opacity-40"
+            className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors disabled:opacity-40"
           >
             <RefreshCw className={cn('w-3.5 h-3.5', isRefreshing && 'animate-spin')} />
           </button>
@@ -134,7 +134,7 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="block text-[11px] text-[var(--text-secondary)] hover:text-blue-400 transition-colors truncate leading-snug"
+              className="block text-[11px] text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors truncate leading-snug"
             >
               • {n.title}
             </a>
