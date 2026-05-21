@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -73,32 +74,50 @@
 }
 
 [data-theme="light"] {
-  --bg-base: #f5f7fc;
-  --bg-surface: #ffffff;
-  --bg-elevated: #eef1f8;
-  --bg-hover: #e4e8f4;
-  --border-subtle: rgba(59, 130, 246, 0.10);
-  --border-default: rgba(59, 130, 246, 0.22);
-  --border-active: rgba(59, 130, 246, 0.4);
-  --text-primary: #1a1d2e;
-  --text-secondary: #4b5563;
-  --text-muted: #9ca3af;
-  /* Adaptive tokens — light overrides */
-  --card-bg: #ffffff;
-  --card-bg-hover: #f0f3fa;
-  --card-border: rgba(0,0,0,0.09);
-  --card-border-hover: rgba(0,0,0,0.16);
-  --input-bg: rgba(0,0,0,0.04);
-  --input-border: rgba(0,0,0,0.14);
-  --tab-active-bg: rgba(59,130,246,0.12);
-  --tab-active-text: #2563eb;
-  --tab-active-border: rgba(59,130,246,0.28);
-  --tab-hover-bg: rgba(0,0,0,0.04);
-  --dropdown-bg: #ffffff;
-  --dropdown-item-hover: rgba(0,0,0,0.05);
-  --sort-bar-bg: rgba(0,0,0,0.03);
-  --sort-bar-border: rgba(0,0,0,0.08);
-  --toggle-inactive: #cbd5e1;
+  /* Anthropic-inspired warm cream palette — softer than pure white,
+     reduces glare and makes long-form reading more comfortable. */
+  --bg-base: #f4efe6;       /* main canvas — warm cream */
+  --bg-surface: #faf6ec;    /* sidebar / topbar — slightly lighter */
+  --bg-elevated: #ece4d3;   /* tab bars, code blocks */
+  --bg-hover: #e6dcc8;
+  --border-subtle: rgba(60, 41, 24, 0.06);
+  --border-default: rgba(60, 41, 24, 0.12);
+  --border-active: rgba(204, 120, 92, 0.4);
+  --text-primary: #1f1d1a;     /* warm near-black */
+  --text-secondary: #5c5650;
+  --text-muted: #8a847d;
+  /* Accent shifts from blue → Anthropic warm coral */
+  --accent-blue: #cc785c;
+  --accent-cyan: #b8755a;
+  --accent-emerald: #6e7f4a;
+  --accent-amber: #c08b3f;
+  --accent-red: #b14a3e;
+  /* Cards: cream-tinted white instead of stark white */
+  --card-bg: #fbf8f0;
+  --card-bg-hover: #f6f0e0;
+  --card-border: rgba(60, 41, 24, 0.08);
+  --card-border-hover: rgba(204, 120, 92, 0.25);
+  --input-bg: rgba(60, 41, 24, 0.04);
+  --input-border: rgba(60, 41, 24, 0.12);
+  --tab-active-bg: rgba(204, 120, 92, 0.12);
+  --tab-active-text: #cc785c;
+  --tab-active-border: rgba(204, 120, 92, 0.3);
+  --tab-hover-bg: rgba(60, 41, 24, 0.04);
+  --dropdown-bg: #faf6ec;
+  --dropdown-item-hover: rgba(60, 41, 24, 0.05);
+  --sort-bar-bg: rgba(60, 41, 24, 0.03);
+  --sort-bar-border: rgba(60, 41, 24, 0.07);
+  --toggle-inactive: #d6cdb9;
+}
+
+/* In light mode, headings get the Fraunces serif for that editorial,
+   reading-first feel. Buttons / metadata stay sans-serif. */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3 {
+  font-family: 'Fraunces', 'Source Serif 4', 'Noto Serif SC', Georgia, serif;
+  font-feature-settings: 'ss01' on, 'ss02' on;
+  letter-spacing: -0.01em;
 }
 
 /* ===== Animations ===== */
@@ -175,12 +194,13 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Inter', 'Geist Variable', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', 'Segoe UI', system-ui, sans-serif;
   background: var(--bg-base);
   color: var(--text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 /* ===== Scrollbar ===== */
@@ -188,6 +208,18 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.15); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.3); }
+
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(60, 41, 24, 0.15); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(204, 120, 92, 0.4); }
+
+/* Subtle paper texture in light mode for that warm Anthropic feel.
+   A radial gradient is cheaper than an actual image and looks great. */
+[data-theme="light"] body {
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(204, 120, 92, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 90%, rgba(110, 127, 74, 0.03) 0%, transparent 50%);
+  background-attachment: fixed;
+}
 
 /* Hide scrollbar but keep scrollability — used on horizontal tab/sort strips
    so the global thin-scrollbar style doesn't show up under them. */
