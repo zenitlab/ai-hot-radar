@@ -169,7 +169,7 @@ export function HotspotCard({
               {getSourceLabel(hotspot.source)}
             </span>
             {hotspot.keyword && (
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] border border-[var(--accent-blue)]/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
                 {hotspot.keyword.text}
               </span>
             )}
@@ -245,7 +245,7 @@ export function HotspotCard({
                 {hotspot.authorUsername && <span className="text-[var(--text-muted)] ml-1">@{hotspot.authorUsername}</span>}
               </span>
               {hotspot.authorVerified && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400">✓ 认证</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--accent-blue)]/15 text-[var(--accent-blue)] dark:bg-blue-500/15 dark:text-blue-400">✓ 认证</span>
               )}
               {hotspot.authorFollowers != null && hotspot.authorFollowers > 0 && (
                 <span className="text-[10px] text-[var(--text-muted)]">{hotspot.authorFollowers.toLocaleString()} 粉丝</span>
