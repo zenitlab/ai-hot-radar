@@ -57,7 +57,7 @@ export class AgentService {
   <channel>
     <title>${escape(title)}</title>
     <description>${escape(description)}</description>
-    <link>https://github.com/aihot</link>
+    <link>https://github.com/zhangzhenchang/ai-hot-radar</link>
     <language>zh-CN</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>${itemsXml}
   </channel>

@@ -15,7 +15,7 @@ export class RssService {
   private readonly logger = new Logger(RssService.name);
   private readonly parser = new Parser({
     timeout: 5000,
-    headers: { 'User-Agent': 'AIHOT-RSS-Reader/1.0' },
+    headers: { 'User-Agent': 'AI-Hot-Radar-RSS-Reader/1.0' },
   });
 
   /** Fetch a single RSS feed, returns empty array on failure */

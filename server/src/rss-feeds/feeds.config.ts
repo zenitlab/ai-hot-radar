@@ -221,7 +221,7 @@ export const X_ACCOUNTS: XAccountConfig[] = [
   { username: 'rohanpaul_ai',    name: 'Rohan Paul',      tier: 'T2', region: 'international', defaultCategory: 'community' },
   { username: 'kimmonismus',     name: 'Chubby (kimmonismus)', tier: 'T2', region: 'international', defaultCategory: 'community' },
 
-  // ===== T2: Chinese AI KOLs (高频出现于 AIHOT) =====
+  // ===== T2: Chinese AI KOLs =====
   { username: 'vista8',          name: 'vista8',          tier: 'T2', region: 'domestic', defaultCategory: 'community' },
   { username: 'dotey',           name: 'dotey (宝玉)',    tier: 'T2', region: 'domestic', defaultCategory: 'tips' },
   { username: 'op7418',          name: 'op7418',          tier: 'T2', region: 'domestic', defaultCategory: 'community' },

@@ -43,8 +43,8 @@ export class AgentController {
   async getCuratedRss(@Res() res: any) {
     const items = await this.agentService.getCurated(50, 0);
     const xml = this.agentService.buildRssXml(
-      'AIHOT 精选 AI 资讯',
-      '经过 AI 质量评分精选的 AI 行业资讯',
+      'AI Hot Radar · 精选资讯',
+      '经过 AI 五维评分精选的 AI 行业资讯',
       items,
     );
     res.type('application/xml').send(xml);
@@ -58,7 +58,7 @@ export class AgentController {
       take: 100,
     });
     const xml = this.agentService.buildRssXml(
-      'AIHOT 全部 AI 资讯',
+      'AI Hot Radar · 全部资讯',
       '所有 AI 相关资讯（含关键词监控和 RSS 信源）',
       items,
     );
@@ -72,15 +72,16 @@ export class AgentController {
       orderBy: { date: 'desc' },
       take: 7,
     });
+    const baseUrl = process.env.PUBLIC_URL || 'http://localhost:5173';
     const items = digests.map((d) => ({
       title: `AI 日报 ${d.date}`,
-      url: `https://aihot.example.com/digest/${d.date}`,
+      url: `${baseUrl}/digest?date=${d.date}`,
       summary: `${d.date} 的 AI 行业精选日报`,
       publishedAt: d.createdAt,
-      source: 'AIHOT Daily Digest',
+      source: 'AI Hot Radar Daily',
     }));
     const xml = this.agentService.buildRssXml(
-      'AIHOT AI 日报',
+      'AI Hot Radar · AI 日报',
       '每日 AI 行业精选资讯日报',
       items,
     );
@@ -92,9 +93,9 @@ export class AgentController {
   @Get('aihot-skill')
   getSkill() {
     return {
-      name: 'AIHOT',
+      name: 'AI Hot Radar',
       version: '1.0',
-      description: 'AI 热点监控数据查询 - 精选 AI 行业资讯、每日日报、关键词搜索',
+      description: 'AI 热点雷达数据查询 - 精选 AI 行业资讯、每日日报、关键词搜索',
       endpoints: [
         {
           path: '/api/agent/curated',

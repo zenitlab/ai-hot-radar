@@ -14,15 +14,26 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-21",
+    version: "v0.6.0",
+    tag: "feature",
+    items: [
+      "Agent 接入页改版：Skill / RSS / API 三个 tab 重新设计，加入接入说明与示例",
+      "网站 favicon 更换为雷达图标，浏览器标签更易识别",
+      "AI 日报生成状态在切换页面后仍保持，回到日报页可继续看到「生成中」提示",
+      "全站文档与 README 重写，更聚焦产品本身",
+    ],
+  },
+  {
     date: "2026-05-20",
     version: "v0.5.0",
     tag: "feature",
     items: [
-      "左侧栏品牌从 AIHOT 改为 AI * RADAR",
-      "新增更新日志页",
-      "我的关注页默认展开第一个关键词",
-      '隐藏顶栏冗余的"生成日报"按钮（与"立即生成日报"重复）',
-      '移除左侧"搜索"入口（功能合并到热点雷达搜索栏）',
+      "新增「更新日志」页，按时间记录产品迭代",
+      "「我的关注」页默认展开第一个关键词，无需多点一次",
+      "左侧栏品牌从 AIHOT 改为 AI ✦ RADAR",
+      "顶栏精简：去掉与「立即生成日报」重复的按钮",
+      "搜索功能并入「热点雷达」搜索栏，左侧导航更干净",
     ],
   },
   {
@@ -30,9 +41,9 @@ const CHANGELOG: ChangelogEntry[] = [
     version: "v0.4.2",
     tag: "tweak",
     items: [
-      "Twitter 来源标签改为 X（与 x.com 跳转一致）",
-      "同事件多卡片中，B 站视频排在文字源后面",
-      "B 站抓取按 totalrank 排序 + 质量过滤（粉丝/播放/点赞门槛）",
+      "Twitter 来源标签统一显示为 X",
+      "同事件下，B 站视频排在文字源后面，先看新闻再看视频",
+      "B 站抓取按热度排序并加入质量门槛，过滤低粉低播放视频",
     ],
   },
   {
@@ -40,9 +51,8 @@ const CHANGELOG: ChangelogEntry[] = [
     version: "v0.4.1",
     tag: "feature",
     items: [
-      "新增 X 账号订阅通道（17 个 KOL 直接拉最新推文）",
-      "新增 RSS 源：Google DeepMind Blog、Where's Your Ed At、IT之家、雪球",
-      "从 AIHOT 反推补齐主流信源",
+      "新增 X 账号订阅通道，覆盖 17 位 AI 头部 KOL，重要更新第一时间到达",
+      "新增 RSS 信源：Google DeepMind Blog、Where's Your Ed At、IT之家、雪球",
     ],
   },
   {
@@ -50,9 +60,9 @@ const CHANGELOG: ChangelogEntry[] = [
     version: "v0.4.0",
     tag: "feature",
     items: [
-      "AI 评分改为两阶段：便宜模型预筛 + 完整评分",
-      "关键词预过滤跳过非 AI 内容（IT之家/36氪/财联社等综合源）",
-      "热点雷达列表标签按发布主题分类（不再按来源国别）",
+      "AI 评分改为两阶段（便宜模型预筛 + 完整评分），节省调用成本",
+      "综合资讯源（IT之家、36氪、财联社等）加入关键词预过滤，跳过非 AI 内容",
+      "热点雷达列表标签改为按主题分类（模型 / 产品 / 行业 / 论文），不再按来源国别",
     ],
   },
   {
@@ -60,9 +70,9 @@ const CHANGELOG: ChangelogEntry[] = [
     version: "v0.3.0",
     tag: "tweak",
     items: [
-      "Bing 搜索结果增加日期解析，旧文章不再误判 urgent",
-      "搜索结果新鲜度过滤收紧（只保留 2 天内）",
-      "AI 评分 prompt 加入发布时间上下文，旧内容自动降权",
+      "Bing 搜索结果加入日期解析，旧文章不再被误判为「紧急」",
+      "搜索结果新鲜度收紧，只保留 2 天内的内容",
+      "AI 评分提示词加入发布时间上下文，旧内容自动降权",
     ],
   },
   {
@@ -70,9 +80,9 @@ const CHANGELOG: ChangelogEntry[] = [
     version: "v0.2.5",
     tag: "tweak",
     items: [
-      "关键词处理从串行改成并行批处理（5 倍加速）",
-      '"立即扫描" 改成异步触发（接口立即返回，按钮通过 WebSocket 监听完成）',
-      "新增扫描进度事件：抓取信息源 → 关键词 i/N → 完成",
+      "关键词处理改为并行批处理，扫描速度提升约 5 倍",
+      "「立即扫描」改为异步触发：接口立即返回，按钮通过 WebSocket 监听完成",
+      "新增扫描进度提示：抓取信息源 → 关键词 i/N → 完成",
     ],
   },
   {
@@ -80,9 +90,9 @@ const CHANGELOG: ChangelogEntry[] = [
     version: "v0.2.0",
     tag: "feature",
     items: [
-      "同一事件多源去重时，按权威性挑主条（OpenAI Blog 优于 V2EX 转发）",
-      "默认排序按真实发布时间，而非数据库写入时间",
-      "每天凌晨 03:30 自动清理 30 天前的数据",
+      "同事件多源去重时按权威性挑主条（OpenAI 官方博客优先于 V2EX 转发）",
+      "默认按真实发布时间排序，不再受数据库写入时间影响",
+      "每天凌晨 03:30 自动清理 30 天前的数据，控制本地体积",
     ],
   },
   {
@@ -90,9 +100,10 @@ const CHANGELOG: ChangelogEntry[] = [
     version: "v0.1.0",
     tag: "feature",
     items: [
-      "初始版本：RSS / 搜索源 / Twitter 多通道抓取",
-      "AI 五维评分 + tier 加成 + 阈值过滤",
-      "热点雷达 / 精选 / AI 日报 / 我的关注 / Agent 接入",
+      "首个版本上线",
+      "支持 RSS、搜索引擎、Twitter 多通道抓取",
+      "AI 五维评分 + 来源 tier 加成 + 阈值过滤",
+      "包含五大核心视图：热点雷达 / 精选 / AI 日报 / 我的关注 / Agent 接入",
     ],
   },
 ];
@@ -125,7 +136,7 @@ export function ChangelogView() {
         </h1>
       </div>
       <p className="text-xs text-[var(--text-muted)] mb-6">
-        按时间顺序记录产品的更新内容
+        AI Hot Radar 的产品迭代记录，按时间顺序倒排
       </p>
 
       <div className="relative">

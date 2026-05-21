@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { ExternalLink, RefreshCw, Zap, CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
 import { digestApi } from '../../services/api';
+import { digestJobs } from '../../services/digestJobs';
 import { cn } from '../../lib/utils';
 import type {
   DailyDigest,
@@ -200,7 +201,12 @@ export function DigestView() {
   // Map: date → one-line summary (empty string if no digest)
   const [dateMap, setDateMap] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
-  const [generating, setGenerating] = useState(false);
+  // Reactive read of the module-level job singleton — survives remount,
+  // so generation state persists when the user switches tabs and returns.
+  const generating = useSyncExternalStore(
+    digestJobs.subscribe,
+    () => digestJobs.isGenerating(selectedDate),
+  );
   const selectedRef = useRef<HTMLButtonElement>(null);
 
   // Months collapsed by user. Current month + month containing selected date
@@ -252,17 +258,35 @@ export function DigestView() {
       .finally(() => setLoading(false));
   }, [selectedDate]);
 
-  const handleGenerate = async () => {
-    setGenerating(true);
-    try {
-      await digestApi.generate(selectedDate);
-      const d = await digestApi.getByDate(selectedDate).catch(() => null);
-      setDigest(d);
-      if (d?.data?.summary !== undefined) {
-        setDateMap((prev) => new Map(prev).set(selectedDate, d!.data.summary ?? ''));
+  // Re-fetch digest when generation finishes (so the UI updates even if the
+  // user switched away during the job and the start() callback couldn't see them)
+  useEffect(() => {
+    if (generating) return;
+    digestApi.getByDate(selectedDate).then((d) => {
+      if (d) {
+        setDigest(d);
+        if (d.data?.summary !== undefined) {
+          setDateMap((prev) => new Map(prev).set(selectedDate, d.data.summary ?? ''));
+        }
       }
-    } catch {}
-    setGenerating(false);
+    }).catch(() => {});
+    // We intentionally only run this when `generating` flips, not on date change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generating]);
+
+  const handleGenerate = async () => {
+    const targetDate = selectedDate;
+    await digestJobs.start(targetDate, async () => {
+      try {
+        await digestApi.generate(targetDate);
+        const d = await digestApi.getByDate(targetDate).catch(() => null);
+        // Only update view if the user is still looking at this date
+        if (selectedDate === targetDate) setDigest(d);
+        if (d?.data?.summary !== undefined) {
+          setDateMap((prev) => new Map(prev).set(targetDate, d!.data.summary ?? ''));
+        }
+      } catch {}
+    });
   };
 
   // Group all 60 days by YYYY-MM

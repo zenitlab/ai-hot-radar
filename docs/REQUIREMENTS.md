@@ -100,7 +100,7 @@
 
 ## 5. AI 分析规格
 
-### 5.1 OpenRouter 集成
+### 5.1 AI 模型集成（兼容 OpenAI 协议）
 
 **用途：**
 1. **真假识别** - 判断内容是否为假冒/标题党
@@ -108,8 +108,8 @@
 3. **内容摘要** - 生成热点摘要
 
 **模型选择：**
-- 主模型：Claude 或 GPT-4
-- 备用模型：Gemini
+- 任意兼容 OpenAI 协议的服务（百炼 / 硅基流动 / DeepSeek / OpenAI）
+- 通过 `OPENAI_BASE_URL` + `MODEL_NAME` 环境变量切换
 
 **Prompt 设计：**
 ```

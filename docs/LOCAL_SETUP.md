@@ -1,6 +1,6 @@
-# 🚀 保姆级本地运行指南
+# 🚀 本地运行指南
 
-本文档手把手教你在本地跑起来 AI 热点监控工具的完整前后端，**零基础也能跟着做**。
+本文档手把手教你在本地跑起来 AI Hot Radar 的完整前后端。
 
 
 
@@ -19,7 +19,7 @@
 ## 第一步：克隆项目
 
 ```bash
-git clone https://github.com/liyupi/ai-hot-radar.git
+git clone https://github.com/zhangzhenchang/ai-hot-radar.git
 cd ai-hot-radar
 ```
 
@@ -31,16 +31,16 @@ cd ai-hot-radar
 
 项目需要 **1 个必需的 API Key**，另外 2 个为可选。
 
-### ✅ 必需：OpenRouter API Key
+### ✅ 必需：AI API Key（兼容 OpenAI 协议）
 
-OpenRouter 是一个统一的 AI 大模型接入平台，注册即可使用。
+项目支持任意兼容 OpenAI 协议的 AI 服务，常见选择：
 
-1. 打开 [https://openrouter.ai/](https://openrouter.ai/)，注册并登录
-2. 进入 [API Keys 页面](https://openrouter.ai/settings/keys)
-3. 点击 **Create Key**，复制生成的 Key（以 `sk-or-v1-` 开头）
-4. 确保账户有一定额度（新用户通常有免费额度）
+- **阿里云百炼**：[https://bailian.console.aliyun.com/](https://bailian.console.aliyun.com/)，新用户有免费额度
+- **硅基流动**：[https://siliconflow.cn/](https://siliconflow.cn/)，开源模型为主，便宜
+- **DeepSeek**：[https://platform.deepseek.com/](https://platform.deepseek.com/)
+- **OpenAI 官方**：[https://platform.openai.com/](https://platform.openai.com/)
 
-> 💡 如果账户没有额度，需要在 [Credits 页面](https://openrouter.ai/settings/credits) 充值少量金额（几美元即可用很久）。
+任选一家注册并创建 API Key 即可。配置时需要同时填写 `OPENAI_API_KEY`、`OPENAI_BASE_URL`、`MODEL_NAME` 三项（参考 `.env.example` 的注释）。
 
 ### 🔧 可选：Twitter API Key
 
@@ -79,8 +79,10 @@ DATABASE_URL="file:./dev.db"
 PORT=3001
 CLIENT_URL=http://localhost:5173
 
-# ✅ 必填：OpenRouter AI
-OPENROUTER_API_KEY=sk-or-v1-你的key粘贴到这里
+# ✅ 必填：AI 模型（兼容 OpenAI 协议）
+OPENAI_API_KEY=your_api_key_here
+OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+MODEL_NAME=qwen-coder-turbo
 
 # 🔧 选填：Twitter API（不填则不抓取 Twitter 数据）
 TWITTER_API_KEY=你的twitter_api_key
@@ -212,7 +214,7 @@ npx prisma generate
 ### Q3：热点搜索没有结果
 
 **可能原因**：
-1. OpenRouter API Key 未填写或额度不足 → 检查 `.env` 中的 `OPENROUTER_API_KEY`
+1. AI API Key 未填写或额度不足 → 检查 `.env` 中的 `OPENAI_API_KEY` / `OPENAI_BASE_URL`
 2. 关键词太冷门 → 尝试更热门的关键词，如 "AI"、"ChatGPT"
 3. 网络问题导致搜索引擎爬虫失败 → 检查终端日志中是否有报错信息
 
@@ -220,7 +222,7 @@ npx prisma generate
 
 **原因**：未配置 Twitter API Key，这是可选配置。
 
-**解决**：在 `.env` 中填入 `TWITTER_API_KEY`，然后重启后端。不配置也不影响其他信息源（Bing、搜狗、B 站等）的正常使用。
+**解决**：在 `.env` 中填入 `TWITTER_API_KEY`，然后重启后端。不配置也不影响其他信息源（Bing、HackerNews、B 站等）的正常使用。
 
 ### Q5：`npx prisma db push` 报错
 

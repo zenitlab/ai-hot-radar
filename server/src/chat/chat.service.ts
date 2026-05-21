@@ -93,7 +93,7 @@ export class ChatService {
       .map((h, i) => `[${i + 1}] ${h.title}\n摘要: ${h.summary || h.content.slice(0, 100)}\n来源: ${h.source} | 时间: ${h.publishedAt?.toLocaleDateString('zh-CN') || '未知'}`)
       .join('\n\n');
 
-    const systemPrompt = `你是 AIHOT 的 AI 助手，专注 AI 行业热点分析。
+    const systemPrompt = `你是 AI Hot Radar 的 AI 助手，专注 AI 行业热点分析。
 基于以下从数据库检索到的最新 AI 资讯来回答用户问题。如果资讯中没有相关信息，请诚实说明，不要编造内容。
 回答用中文，简洁准确。
 

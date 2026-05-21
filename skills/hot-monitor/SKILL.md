@@ -125,7 +125,7 @@ For better coverage, expand the user's keyword into variants before searching:
 `search_china.py` supports `--detect-account` flag. If the keyword matches a Bilibili creator's name, it fetches their latest videos instead of doing a generic search:
 
 ```bash
-python scripts/search_china.py "程序员鱼皮" --detect-account
+python scripts/search_china.py "某UP主" --detect-account
 ```
 
 ### Multi-keyword Batch

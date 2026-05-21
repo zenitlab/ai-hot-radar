@@ -1,33 +1,35 @@
 # 🔌 API 集成技术文档
 
-## 1. OpenRouter API 集成
+## 1. AI 模型集成（兼容 OpenAI 协议）
+
+项目采用兼容 OpenAI 协议的统一接口，可在阿里云百炼 / 硅基流动 / DeepSeek / OpenAI 等服务间任意切换。
 
 ### 1.1 SDK 安装
 
 ```bash
-npm install @openrouter/sdk
+npm install openai
 ```
 
 ### 1.2 基本配置
 
 ```typescript
-import { OpenRouter } from "@openrouter/sdk";
+import OpenAI from 'openai';
 
-const openRouter = new OpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY ?? "",
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY ?? '',
+  baseURL: process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1',
 });
 ```
 
 ### 1.3 Chat Completion 调用
 
 ```typescript
-// 非流式调用
 async function analyzeHotspot(content: string) {
-  const result = await openRouter.chat.send({
-    model: "openai/gpt-4",
+  const result = await client.chat.completions.create({
+    model: process.env.MODEL_NAME ?? 'qwen-coder-turbo',
     messages: [
       {
-        role: "system",
+        role: 'system',
         content: `你是一个热点分析专家，请分析以下内容：
 1. 判断是否为真实的热点新闻（排除标题党、假新闻）
 2. 评估该热点与 AI 编程领域的相关性（0-100分）
@@ -40,19 +42,15 @@ async function analyzeHotspot(content: string) {
   "relevance": 0-100,
   "importance": "low/medium/high/urgent",
   "summary": "..."
-}`
+}`,
       },
-      {
-        role: "user",
-        content: content
-      }
+      { role: 'user', content },
     ],
-    stream: false,
     temperature: 0.3,
-    maxTokens: 500
+    max_tokens: 500,
   });
 
-  return JSON.parse(result.choices[0].message.content);
+  return JSON.parse(result.choices[0].message.content ?? '{}');
 }
 ```
 
