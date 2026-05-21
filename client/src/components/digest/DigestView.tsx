@@ -564,7 +564,7 @@ function EmptyState({ date, today, onGenerate, generating }: {
         <button
           onClick={onGenerate}
           disabled={generating}
-          className="flex items-center gap-2 px-5 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--accent-blue)] text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 shadow-sm"
         >
           <RefreshCw className={cn('w-4 h-4', generating && 'animate-spin')} />
           {generating ? 'AI 正在分析资讯...' : '立即生成日报'}

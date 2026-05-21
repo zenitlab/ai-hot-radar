@@ -170,7 +170,7 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
             <button
               type="submit"
               disabled={isAdding || !newKeyword.trim()}
-              className="px-3 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium flex items-center gap-1 hover:bg-blue-600 transition-colors disabled:opacity-50"
+              className="px-3 py-2 rounded-xl bg-[var(--accent-blue)] text-white text-sm font-medium flex items-center gap-1 hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               <Plus className="w-4 h-4" />
             </button>

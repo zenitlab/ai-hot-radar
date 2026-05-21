@@ -133,9 +133,9 @@ export function AgentView() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                'flex flex-col items-center gap-1 py-2.5 px-3 rounded-lg transition-all',
+                'flex flex-col items-center gap-1 py-2.5 px-3 rounded-xl transition-all',
                 active
-                  ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
+                  ? 'bg-[var(--accent-blue)] text-white shadow-md shadow-[var(--accent-blue)]/20'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)]',
               )}
             >
