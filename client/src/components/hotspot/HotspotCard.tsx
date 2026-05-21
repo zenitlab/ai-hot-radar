@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle, Flame, Zap, TrendingUp, Twitter, Globe,
   Eye, Activity, Clock, Target, MessageCircle, Repeat2, Quote, User,
-  Shield, ShieldAlert, ChevronDown, ChevronUp, ThermometerSun, FileText, Search
+  Shield, ShieldAlert, ChevronDown, ChevronUp, ThermometerSun, FileText, Search,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { relativeTime, formatDateTime } from '../../utils/relativeTime';
@@ -147,7 +148,7 @@ export function HotspotCard({
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
-      className="group p-5 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 hover:shadow-[0_6px_24px_rgba(59,130,246,0.13)] transition-all duration-200"
+      className="group p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
@@ -212,11 +213,17 @@ export function HotspotCard({
             {hotspot.title}
           </a>
 
-          {/* AI Summary */}
+          {/* AI Summary — quote-style block with leading bar makes it
+              clearly distinct from the title and original content */}
           {hotspot.summary && (
-            <div className="mb-3">
-              <span className="text-[10px] text-blue-400/60 font-medium mr-1.5">AI 摘要</span>
-              <span className="text-sm text-[var(--text-secondary)]">{hotspot.summary}</span>
+            <div className="mb-3 pl-3 border-l-2 border-[var(--accent-blue)]/40 dark:border-blue-400/40">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <Sparkles className="w-3 h-3 text-[var(--accent-blue)] dark:text-blue-400" />
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--accent-blue)]/80 dark:text-blue-400/70">
+                  AI 摘要
+                </span>
+              </div>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{hotspot.summary}</p>
             </div>
           )}
 
@@ -309,15 +316,16 @@ export function HotspotCard({
             </span>
           </div>
 
-          {/* AI relevance reason - collapsible */}
+          {/* AI relevance reason — only present for keyword-matched cards.
+              Each card self-decides; the page-level "expand all" was removed. */}
           {hotspot.relevanceReason && (
             <div className="mt-2">
               <button
                 onClick={toggleReason}
-                className="flex items-center gap-1 text-[11px] text-blue-400/70 hover:text-blue-400 transition-colors"
+                className="flex items-center gap-1 text-[11px] text-[var(--accent-blue)]/70 dark:text-blue-400/70 hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors"
               >
                 {reasonOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                AI 分析理由
+                关键词关联分析
               </button>
               <AnimatePresence>
                 {reasonOpen && (

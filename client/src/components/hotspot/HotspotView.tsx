@@ -173,8 +173,8 @@ export function HotspotView() {
     <div className="px-4 py-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="flex items-center gap-2 text-xl font-bold text-[var(--text-primary)]">
-          <Radio className="w-5 h-5 text-blue-400" />
+        <h1 className="flex items-center gap-2.5 text-2xl font-bold text-[var(--text-primary)] tracking-tight">
+          <Radio className="w-5 h-5 text-[var(--accent-blue)] dark:text-blue-400" />
           热点雷达
         </h1>
         <div className="flex items-center gap-3">

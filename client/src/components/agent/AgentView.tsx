@@ -111,9 +111,9 @@ export function AgentView() {
     <div className="max-w-3xl mx-auto px-4 py-6">
       {/* ── Header ────────────────────────────────────────── */}
       <div className="mb-6">
-        <div className="flex items-center gap-2 mb-2">
-          <Plug className="w-5 h-5 text-blue-400" />
-          <h1 className="text-xl font-bold text-[var(--text-primary)]">Agent 接入</h1>
+        <div className="flex items-center gap-2.5 mb-2">
+          <Plug className="w-5 h-5 text-[var(--accent-blue)] dark:text-blue-400" />
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Agent 接入</h1>
         </div>
         <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
           把 AI Hot Radar 的「精选资讯」「AI 日报」「关键词搜索」能力，以 <span className="text-blue-400 font-medium">Skill</span>、

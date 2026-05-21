@@ -74,16 +74,15 @@
 }
 
 [data-theme="light"] {
-  /* Anthropic-inspired warm cream palette — softer than pure white,
-     reduces glare and makes long-form reading more comfortable.
-     Cards are noticeably lighter than the canvas so content visually
-     "lifts" off the page. */
-  --bg-base: #ebe3d2;       /* main canvas — warm cream, slightly deeper */
-  --bg-surface: #f5efe1;    /* sidebar / topbar */
-  --bg-elevated: #e0d6bf;   /* tab bars, code blocks */
-  --bg-hover: #d8cdb3;
-  --border-subtle: rgba(60, 41, 24, 0.08);
-  --border-default: rgba(60, 41, 24, 0.14);
+  /* Anthropic-inspired palette — desaturated warm cream so the page reads
+     as "off-white paper", not yellow. Cards are near-pure white so content
+     visually lifts off the canvas. */
+  --bg-base: #efece4;       /* canvas — soft, low-saturation cream */
+  --bg-surface: #f6f3eb;    /* sidebar / topbar */
+  --bg-elevated: #e7e1d2;   /* tab bars, code blocks */
+  --bg-hover: #ddd5c2;
+  --border-subtle: rgba(60, 41, 24, 0.07);
+  --border-default: rgba(60, 41, 24, 0.13);
   --border-active: rgba(204, 120, 92, 0.4);
   --text-primary: #1f1d1a;
   --text-secondary: #5c5650;
@@ -93,22 +92,22 @@
   --accent-emerald: #6e7f4a;
   --accent-amber: #c08b3f;
   --accent-red: #b14a3e;
-  /* Cards: nearly white, distinctly brighter than canvas — clear hierarchy */
-  --card-bg: #fdfbf3;
-  --card-bg-hover: #faf6e8;
-  --card-border: rgba(60, 41, 24, 0.08);
-  --card-border-hover: rgba(204, 120, 92, 0.28);
-  --input-bg: rgba(60, 41, 24, 0.04);
-  --input-border: rgba(60, 41, 24, 0.12);
-  /* Tabs: warm earth tone, not cold blue */
+  /* Cards: clean near-white that visibly lifts off the cream canvas */
+  --card-bg: #ffffff;
+  --card-bg-hover: #fbfaf5;
+  --card-border: rgba(60, 41, 24, 0.07);
+  --card-border-hover: rgba(204, 120, 92, 0.32);
+  --input-bg: #ffffff;
+  --input-border: rgba(60, 41, 24, 0.14);
+  /* Tabs use warm coral, not blue */
   --tab-active-bg: rgba(204, 120, 92, 0.13);
   --tab-active-text: #a85c43;
   --tab-active-border: rgba(204, 120, 92, 0.32);
   --tab-hover-bg: rgba(60, 41, 24, 0.04);
-  --dropdown-bg: #faf6ec;
+  --dropdown-bg: #ffffff;
   --dropdown-item-hover: rgba(60, 41, 24, 0.05);
-  --sort-bar-bg: rgba(60, 41, 24, 0.04);
-  --sort-bar-border: rgba(60, 41, 24, 0.08);
+  --sort-bar-bg: #ffffff;
+  --sort-bar-border: rgba(60, 41, 24, 0.09);
   --toggle-inactive: #d6cdb9;
 }
 
@@ -150,17 +149,19 @@
 
 /* Cards in light mode get a soft drop shadow so they feel lifted */
 [data-theme="light"] .bg-\[var\(--card-bg\)\] {
-  box-shadow: 0 1px 2px rgba(60, 41, 24, 0.04), 0 1px 3px rgba(60, 41, 24, 0.05);
+  box-shadow: 0 1px 2px rgba(60, 41, 24, 0.04), 0 2px 6px rgba(60, 41, 24, 0.04);
+}
+[data-theme="light"] .bg-\[var\(--card-bg\)\]:hover {
+  box-shadow: 0 1px 2px rgba(60, 41, 24, 0.06), 0 4px 12px rgba(204, 120, 92, 0.08);
 }
 
-/* In light mode, headings get the Fraunces serif for that editorial,
-   reading-first feel. Buttons / metadata stay sans-serif. */
+/* In light mode, page-level H1s and panel H2s get the Fraunces serif —
+   editorial, reading-first feel. Body text and chrome stay sans-serif. */
 [data-theme="light"] h1,
-[data-theme="light"] h2,
-[data-theme="light"] h3 {
+[data-theme="light"] .font-serif {
   font-family: 'Fraunces', 'Source Serif 4', 'Noto Serif SC', Georgia, serif;
   font-feature-settings: 'ss01' on, 'ss02' on;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 /* ===== Animations ===== */

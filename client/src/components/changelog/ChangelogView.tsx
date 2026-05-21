@@ -129,9 +129,9 @@ const TAG_STYLES: Record<
 export function ChangelogView() {
   return (
     <div className="px-4 py-6 max-w-3xl mx-auto">
-      <div className="flex items-center gap-2 mb-2">
-        <History className="w-5 h-5 text-blue-400" />
-        <h1 className="text-xl font-bold text-[var(--text-primary)]">
+      <div className="flex items-center gap-2.5 mb-2">
+        <History className="w-5 h-5 text-[var(--accent-blue)] dark:text-blue-400" />
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">
           更新日志
         </h1>
       </div>

@@ -315,10 +315,10 @@ export function DigestView() {
       {/* ── Left: timeline ──────────────────────────────────── */}
       <div className="w-[220px] flex-shrink-0 flex flex-col border-r border-[var(--border-subtle)] overflow-hidden">
         <div className="px-4 pt-4 pb-3 border-b border-[var(--border-subtle)] shrink-0">
-          <h2 className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)]">
-            <CalendarDays className="w-4 h-4 text-blue-400" />
+          <h1 className="flex items-center gap-2.5 text-base font-bold text-[var(--text-primary)] tracking-tight">
+            <CalendarDays className="w-4 h-4 text-[var(--accent-blue)] dark:text-blue-400" />
             AI 日报
-          </h2>
+          </h1>
           <p className="text-[11px] text-[var(--text-muted)] mt-0.5">AI 行业每日情报</p>
         </div>
 

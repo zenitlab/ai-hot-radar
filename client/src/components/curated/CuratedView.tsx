@@ -124,8 +124,8 @@ export function CuratedView() {
     <div className="max-w-3xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="flex items-center gap-2 text-xl font-bold text-[var(--text-primary)]">
-            <Star className="w-5 h-5 text-blue-400" />
+          <h1 className="flex items-center gap-2.5 text-2xl font-bold text-[var(--text-primary)] tracking-tight">
+            <Star className="w-5 h-5 text-[var(--accent-blue)] dark:text-blue-400" />
             精选资讯
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">

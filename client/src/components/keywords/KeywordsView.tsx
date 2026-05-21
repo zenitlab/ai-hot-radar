@@ -155,10 +155,10 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
       >
         {/* Header + add form */}
         <div className="p-4 border-b border-[var(--border-subtle)] shrink-0">
-          <h2 className="flex items-center gap-2 text-base font-bold text-[var(--text-primary)] mb-3">
-            <Bookmark className="w-4 h-4 text-blue-400" />
+          <h1 className="flex items-center gap-2.5 text-2xl font-bold text-[var(--text-primary)] mb-3 tracking-tight">
+            <Bookmark className="w-5 h-5 text-[var(--accent-blue)] dark:text-blue-400" />
             我的关注
-          </h2>
+          </h1>
           <form onSubmit={handleAdd} className="flex gap-2">
             <input
               value={newKeyword}
