@@ -1,3 +1,11 @@
+export interface MediaItem {
+  type: 'photo' | 'video' | 'gif';
+  url: string;        // photo URL or video MP4 URL
+  previewUrl?: string; // for video/gif: poster image
+  width?: number;
+  height?: number;
+}
+
 export interface SearchResult {
   title: string;
   content: string;
@@ -16,6 +24,7 @@ export interface SearchResult {
   biliCategory?: string;
   biliTags?: string;
   favoritesCount?: number;
+  media?: MediaItem[];
   author?: {
     name: string;
     username?: string;
@@ -97,6 +106,24 @@ export interface Tweet {
     profilePicture: string;
     followers: number;
   };
+  /** Tweet media (photos & videos) — present when the tweet has attachments */
+  extendedEntities?: {
+    media?: TweetMedia[];
+  };
+}
+
+export interface TweetMedia {
+  type: 'photo' | 'video' | 'animated_gif';
+  media_url_https: string;  // image URL (or video poster/preview)
+  video_info?: {
+    duration_millis?: number;
+    variants?: Array<{
+      content_type: string;       // 'video/mp4' | 'application/x-mpegURL'
+      bitrate?: number;
+      url: string;
+    }>;
+  };
+  original_info?: { width: number; height: number };
 }
 
 export interface TwitterSearchResponse {

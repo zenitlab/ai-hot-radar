@@ -8,6 +8,14 @@ export type HotspotCategory = 'model' | 'product' | 'industry' | 'research' | 'c
 export type HotspotRegion = 'domestic' | 'international';
 export type HotspotTab = 'all' | HotspotCategory | 'domestic' | 'international';
 
+export interface MediaItem {
+  type: 'photo' | 'video' | 'gif';
+  url: string;
+  previewUrl?: string;
+  width?: number;
+  height?: number;
+}
+
 export interface Keyword {
   id: string;
   text: string;
@@ -58,6 +66,8 @@ export interface Hotspot {
   // Bilibili
   biliCategory?: string;
   biliTags?: string;
+  // Media (X/Twitter photos & videos, parsed from JSON by API)
+  media?: MediaItem[] | null;
   // Timestamps
   publishedAt?: string;
   createdAt: string;

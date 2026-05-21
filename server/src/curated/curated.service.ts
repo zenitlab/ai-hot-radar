@@ -82,6 +82,15 @@ export class CuratedService {
       this.prisma.hotspot.count({ where }),
     ]);
 
-    return { period, total, limit, offset, items };
+    return {
+      period,
+      total,
+      limit,
+      offset,
+      items: items.map((h) => {
+        if (!h.media) return h;
+        try { return { ...h, media: JSON.parse(h.media) as any }; } catch { return h; }
+      }),
+    };
   }
 }

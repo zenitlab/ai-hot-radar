@@ -1,17 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+function parseMedia<T extends { media?: string | null }>(h: T): T & { media?: any[] | null } {
+  if (!h.media) return h as any;
+  try { return { ...h, media: JSON.parse(h.media) }; } catch { return { ...h, media: null }; }
+}
+
 @Injectable()
 export class AgentService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getCurated(limit = 20, offset = 0) {
-    return this.prisma.hotspot.findMany({
+    const items = await this.prisma.hotspot.findMany({
       where: { isCurated: true, isClusterMain: true },
       orderBy: [{ qualityScore: 'desc' }, { createdAt: 'desc' }],
       take: limit,
       skip: offset,
     });
+    return items.map(parseMedia);
   }
 
   async search(q: string, limit = 20) {
@@ -19,11 +25,12 @@ export class AgentService {
     const conditions = keywords.map((kw) => ({
       OR: [{ title: { contains: kw } }, { summary: { contains: kw } }],
     }));
-    return this.prisma.hotspot.findMany({
+    const items = await this.prisma.hotspot.findMany({
       where: { AND: conditions },
       orderBy: [{ qualityScore: 'desc' }, { createdAt: 'desc' }],
       take: limit,
     });
+    return items.map(parseMedia);
   }
 
   async getStats() {

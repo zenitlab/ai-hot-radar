@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { relativeTime, formatDateTime } from '../../utils/relativeTime';
+import { HotspotMedia } from './HotspotMedia';
 import type { Hotspot } from '../../types';
 
 /** Compute aggregate heat score (normalised 0-100) */
@@ -217,6 +218,11 @@ export function HotspotCard({
               <span className="text-[10px] text-blue-400/60 font-medium mr-1.5">AI 摘要</span>
               <span className="text-sm text-[var(--text-secondary)]">{hotspot.summary}</span>
             </div>
+          )}
+
+          {/* Media (X/Twitter photos & videos) */}
+          {hotspot.media && hotspot.media.length > 0 && (
+            <HotspotMedia media={hotspot.media} />
           )}
 
           {/* Author */}

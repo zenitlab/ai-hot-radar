@@ -1,7 +1,44 @@
 import { Injectable } from '@nestjs/common';
-import type { SearchResult, Tweet, TwitterSearchResponse, TwitterFilterConfig } from '../types';
+import type { SearchResult, Tweet, TwitterSearchResponse, TwitterFilterConfig, MediaItem } from '../types';
 
 const TWITTER_API_BASE = 'https://api.twitterapi.io';
+
+/** Map a tweet's extendedEntities.media to our MediaItem schema. */
+function extractTweetMedia(tweet: Tweet): MediaItem[] | undefined {
+  const raw = tweet.extendedEntities?.media;
+  if (!raw || raw.length === 0) return undefined;
+  const items: MediaItem[] = [];
+  for (const m of raw) {
+    if (m.type === 'photo') {
+      items.push({
+        type: 'photo',
+        url: m.media_url_https,
+        width: m.original_info?.width,
+        height: m.original_info?.height,
+      });
+    } else if (m.type === 'video' || m.type === 'animated_gif') {
+      // Pick the highest-bitrate MP4 variant; fall back to first variant.
+      const mp4Variants = (m.video_info?.variants || []).filter(
+        (v) => v.content_type === 'video/mp4' && v.url,
+      );
+      mp4Variants.sort((a, b) => (b.bitrate ?? 0) - (a.bitrate ?? 0));
+      const best = mp4Variants[0] || m.video_info?.variants?.[0];
+      if (best?.url) {
+        items.push({
+          type: m.type === 'animated_gif' ? 'gif' : 'video',
+          url: best.url,
+          previewUrl: m.media_url_https,
+          width: m.original_info?.width,
+          height: m.original_info?.height,
+        });
+      } else if (m.media_url_https) {
+        // Video metadata broken — fall back to showing the poster as a still
+        items.push({ type: 'photo', url: m.media_url_https });
+      }
+    }
+  }
+  return items.length > 0 ? items : undefined;
+}
 
 class RateLimiter {
   private lastRequestTime = 0;
@@ -167,6 +204,7 @@ export class TwitterService {
         retweetCount: tweet.retweetCount,
         replyCount: tweet.replyCount,
         quoteCount: tweet.quoteCount,
+        media: extractTweetMedia(tweet),
         author: {
           name: tweet.author.name,
           username: tweet.author.userName,
@@ -198,6 +236,7 @@ export class TwitterService {
         retweetCount: tweet.retweetCount,
         replyCount: tweet.replyCount,
         quoteCount: tweet.quoteCount,
+        media: extractTweetMedia(tweet),
         author: {
           name: tweet.author.name,
           username: tweet.author.userName,

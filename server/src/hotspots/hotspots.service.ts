@@ -6,6 +6,19 @@ import { AiService } from '../services/ai.service';
 import { sortHotspots } from '../utils/sortHotspots';
 
 /**
+ * Parse the JSON-stringified `media` column back into an object array so the
+ * frontend doesn't have to JSON.parse it. Mutates a shallow copy.
+ */
+function parseMedia<T extends { media?: string | null }>(h: T): T & { media?: any[] | null } {
+  if (!h.media) return h as any;
+  try {
+    return { ...h, media: JSON.parse(h.media) };
+  } catch {
+    return { ...h, media: null };
+  }
+}
+
+/**
  * Within each cluster, push video sources (bilibili) to the bottom of their group.
  * The list overall stays in publish-time order — bilibili items can still appear
  * anywhere by themselves; this only affects positioning when multiple sources
@@ -159,7 +172,7 @@ export class HotspotsService {
     hotspots = reorderClusterByMedium(hotspots);
 
     return {
-      data: hotspots,
+      data: hotspots.map(parseMedia),
       pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     };
   }
@@ -189,7 +202,7 @@ export class HotspotsService {
   async findOne(id: string) {
     const hotspot = await this.prisma.hotspot.findUnique({ where: { id }, include: { keyword: true } });
     if (!hotspot) throw new NotFoundException('Hotspot not found');
-    return hotspot;
+    return parseMedia(hotspot);
   }
 
   async search(body: { query: string; sources?: string[] }) {

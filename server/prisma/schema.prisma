@@ -81,6 +81,7 @@ model Hotspot {
   biliCategory   String?   // Bilibili category name
   biliTags       String?   // Bilibili tags (comma-separated)
   favoritesCount Int?      // Bilibili favorites count
+  media          String?   // JSON array of {type:'photo'|'video', url, previewUrl?}
 
   @@unique([url, source])
 }
