@@ -116,9 +116,9 @@ export function AgentView() {
           <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Agent 接入</h1>
         </div>
         <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-          把 AI Hot Radar 的「精选资讯」「AI 日报」「关键词搜索」能力，以 <span className="text-blue-400 font-medium">Skill</span>、
-          <span className="text-emerald-400 font-medium"> RSS</span>、
-          <span className="text-purple-400 font-medium"> API</span> 三种方式开放给外部消费 —
+          把 AI Hot Radar 的「精选资讯」「AI 日报」「关键词搜索」能力，以 <span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">Skill</span>、
+          <span className="text-[var(--accent-emerald)] dark:text-emerald-400 font-medium"> RSS</span>、
+          <span className="text-[var(--accent-amber)] dark:text-purple-400 font-medium"> API</span> 三种方式开放给外部消费 —
           无论是 Claude Code、Cursor、Feedly，还是企业 IM 机器人，都能一键接入。
         </p>
       </div>
@@ -156,7 +156,7 @@ export function AgentView() {
         <div className="space-y-4">
           <div className="rounded-xl border border-[var(--border-subtle)] bg-gradient-to-br from-blue-500/8 to-purple-500/5 p-5">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-blue-400" />
+              <Sparkles className="w-4 h-4 text-[var(--accent-blue)] dark:text-blue-400" />
               <h2 className="font-semibold text-[var(--text-primary)]">什么是 Skill？</h2>
             </div>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4">
@@ -170,7 +170,7 @@ export function AgentView() {
                 </span>
                 <CopyButton text={`帮我安装这个 skill：${BASE_URL}/aihot-skill`} />
               </div>
-              <code className="block text-sm text-blue-400 break-all">
+              <code className="block text-sm text-[var(--accent-blue)] dark:text-blue-400 break-all">
                 帮我安装这个 skill：{BASE_URL}/aihot-skill
               </code>
             </div>
@@ -250,7 +250,7 @@ export function AgentView() {
                   </div>
                 </div>
                 <p className="text-xs text-[var(--text-secondary)] mb-2.5 leading-relaxed">{feed.desc}</p>
-                <code className="block text-xs text-blue-400 bg-[var(--bg-base)]/60 rounded px-2 py-1.5 break-all">
+                <code className="block text-xs text-[var(--accent-blue)] dark:text-blue-400 bg-[var(--bg-base)]/60 rounded px-2 py-1.5 break-all">
                   {feed.url}
                 </code>
               </div>
@@ -275,7 +275,7 @@ export function AgentView() {
                 <Zap className="w-3 h-3 text-amber-400" /> 无需 Token
               </span>
               <span className="inline-flex items-center gap-1.5 text-[var(--text-muted)]">
-                <BookOpen className="w-3 h-3 text-blue-400" /> JSON 响应
+                <BookOpen className="w-3 h-3 text-[var(--accent-blue)] dark:text-blue-400" /> JSON 响应
               </span>
               <span className="inline-flex items-center gap-1.5 text-[var(--text-muted)]">
                 <Terminal className="w-3 h-3 text-emerald-400" /> 直接 curl 调用
@@ -298,7 +298,7 @@ export function AgentView() {
                   >
                     {api.method}
                   </span>
-                  <code className="text-sm text-blue-400 font-mono">{api.path}</code>
+                  <code className="text-sm text-[var(--accent-blue)] dark:text-blue-400 font-mono">{api.path}</code>
                   <div className="ml-auto">
                     <CopyButton text={`${BASE_URL}${api.path}`} />
                   </div>
