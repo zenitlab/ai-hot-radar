@@ -508,7 +508,7 @@ export function DigestView() {
           )}
         </div>
 
-        <div className="flex-1 px-6 py-6 space-y-8 max-w-3xl">
+        <div className="flex-1 flex flex-col px-6 py-6 max-w-3xl">
           {loading ? (
             <LoadingSkeleton />
           ) : !hasContent ? (
@@ -519,7 +519,7 @@ export function DigestView() {
               generating={generating}
             />
           ) : (
-            <>
+            <div className="space-y-8">
               {/* Summary banner — soft accent bar in light mode, gradient in dark */}
               {data!.summary && (
                 <div className="px-4 py-3 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] border-l-4 border-l-[var(--accent-blue)] dark:bg-gradient-to-r dark:from-blue-500/10 dark:to-purple-500/8 dark:border dark:border-blue-500/20">
@@ -598,7 +598,7 @@ export function DigestView() {
                   日报生成于 {new Date(data.generatedAt).toLocaleString('zh-CN')}
                 </p>
               )}
-            </>
+            </div>
           )}
         </div>
 
@@ -706,7 +706,7 @@ function DigestEmptyState({ date, today, onGenerate, generating }: {
 }) {
   const isToday = date === today;
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-6 text-center rounded-3xl border border-dashed border-[var(--border-default)] bg-[var(--card-bg)]/40">
+    <div className="flex-1 flex flex-col items-center justify-center py-20 px-6 text-center rounded-3xl border border-dashed border-[var(--border-default)] bg-[var(--card-bg)]/40 min-h-[320px]">
       {/* Calendar illustration with halo */}
       <div className="relative text-[var(--accent-blue)] dark:text-blue-400 opacity-70">
         <svg width="84" height="84" viewBox="0 0 96 96" fill="none">
