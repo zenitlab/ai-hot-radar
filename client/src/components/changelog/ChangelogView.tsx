@@ -1,5 +1,6 @@
 import { History } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { BackToTop } from "../common/BackToTop";
 
 /**
  * Changelog entries — most recent first.
@@ -185,6 +186,8 @@ export function ChangelogView() {
           ))}
         </ul>
       </div>
+
+      <BackToTop />
     </div>
   );
 }

@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import {
   ExternalLink, RefreshCw, Zap, CalendarDays, ChevronDown, ChevronRight,
-  Flame, Cpu, Globe2, Globe, Package, Users, BookOpen,
+  ChevronLeft, ArrowRight, Flame, Cpu, Globe2, Globe, Package, Users, BookOpen,
 } from 'lucide-react';
 import { digestApi } from '../../services/api';
 import { digestJobs } from '../../services/digestJobs';
+import { BackToTopFor } from '../common/BackToTop';
+import { Skeleton, SkeletonList } from '../common/Loader';
 import { cn } from '../../lib/utils';
 import type {
   DailyDigest,
@@ -227,6 +229,7 @@ export function DigestView() {
     () => digestJobs.isGenerating(selectedDate),
   );
   const selectedRef = useRef<HTMLButtonElement>(null);
+  const rightColRef = useRef<HTMLDivElement>(null);
 
   // Months collapsed by user. Current month + month containing selected date
   // are open by default; user toggling adds/removes other months from this set.
@@ -427,7 +430,7 @@ export function DigestView() {
       </div>
 
       {/* ── Right: content ──────────────────────────────────── */}
-      <div className="flex-1 overflow-y-scroll">
+      <div ref={rightColRef} className="flex-1 overflow-y-scroll relative">
         {/* Sticky header */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-3 bg-[var(--bg-base)]/90 backdrop-blur border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-3">
@@ -544,6 +547,17 @@ export function DigestView() {
             </>
           )}
         </div>
+
+        {/* Date navigation footer — prev / today / next */}
+        {!loading && (
+          <DateNav
+            selectedDate={selectedDate}
+            today={today}
+            onSelect={(d) => setSelectedDate(d)}
+          />
+        )}
+
+        <BackToTopFor getContainer={() => rightColRef.current} />
       </div>
     </div>
   );
@@ -551,14 +565,90 @@ export function DigestView() {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
+/** Bottom date pager: ← 前一日   ·   回到今日   ·   后一日 → */
+function DateNav({
+  selectedDate,
+  today,
+  onSelect,
+}: {
+  selectedDate: string;
+  today: string;
+  onSelect: (date: string) => void;
+}) {
+  const shift = (days: number): string => {
+    const d = new Date(`${selectedDate}T00:00:00+08:00`);
+    d.setUTCDate(d.getUTCDate() + days);
+    return d.toISOString().slice(0, 10);
+  };
+
+  const prev = shift(-1);
+  const next = shift(1);
+  const canGoNext = next <= today;
+  const isToday = selectedDate === today;
+
+  const formatLabel = (date: string): string => {
+    const [, m, d] = date.split('-');
+    return `${parseInt(m, 10)}月${parseInt(d, 10)}日`;
+  };
+
+  return (
+    <nav className="border-t border-[var(--border-subtle)] mt-6">
+      <div className="grid grid-cols-3 items-center max-w-3xl px-6 py-5 text-sm">
+        <button
+          onClick={() => onSelect(prev)}
+          className="group flex items-center gap-2 justify-self-start text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+          <span className="flex flex-col items-start leading-tight">
+            <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">前一日</span>
+            <span className="font-medium">{formatLabel(prev)}</span>
+          </span>
+        </button>
+
+        <button
+          onClick={() => onSelect(today)}
+          disabled={isToday}
+          className={cn(
+            'justify-self-center text-xs px-3 py-1.5 rounded-lg transition-colors',
+            isToday
+              ? 'text-[var(--text-muted)] cursor-default'
+              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]',
+          )}
+        >
+          {isToday ? '今日' : '回到今日'}
+        </button>
+
+        {canGoNext ? (
+          <button
+            onClick={() => onSelect(next)}
+            className="group flex items-center gap-2 justify-self-end text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors"
+          >
+            <span className="flex flex-col items-end leading-tight">
+              <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">后一日</span>
+              <span className="font-medium">{formatLabel(next)}</span>
+            </span>
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+          </button>
+        ) : (
+          <span className="flex items-center gap-2 justify-self-end text-[var(--text-muted)] opacity-50 cursor-default">
+            <span className="flex flex-col items-end leading-tight">
+              <span className="text-[10px] uppercase tracking-wider">后一日</span>
+              <span className="font-medium">—</span>
+            </span>
+            <ArrowRight className="w-4 h-4" />
+          </span>
+        )}
+      </div>
+    </nav>
+  );
+}
+
 function LoadingSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="h-12 rounded-xl bg-[var(--input-bg)] animate-pulse" />
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="h-36 rounded-xl bg-[var(--input-bg)] animate-pulse" />
-      ))}
-      <div className="h-24 rounded-xl bg-[var(--input-bg)] animate-pulse" />
+      <Skeleton className="h-12" />
+      <SkeletonList count={3} itemClassName="h-36" />
+      <Skeleton className="h-24" />
     </div>
   );
 }

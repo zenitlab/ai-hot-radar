@@ -12,23 +12,23 @@
   --bg-surface: #0a0a1a;
   --bg-elevated: #111127;
   --bg-hover: #16163a;
-  --border-subtle: rgba(59, 130, 246, 0.08);
-  --border-default: rgba(59, 130, 246, 0.15);
-  --border-active: rgba(59, 130, 246, 0.35);
-  --text-primary: #e8eaf0;
-  --text-secondary: #8b8fa8;
-  --text-muted: #5a5e78;
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-active: rgba(59, 130, 246, 0.4);
+  --text-primary: #f1f3f8;
+  --text-secondary: #a8accb;
+  --text-muted: #6e738d;
   --accent-blue: #3b82f6;
   --accent-cyan: #06b6d4;
   --accent-emerald: #10b981;
   --accent-amber: #f59e0b;
   --accent-red: #ef4444;
   /* Adaptive tokens — dark defaults. Cards lifted higher than canvas
-     (#050510) so stacked cards are visually separable. */
-  --card-bg: rgba(255,255,255,0.045);
-  --card-bg-hover: rgba(255,255,255,0.075);
-  --card-border: rgba(255,255,255,0.08);
-  --card-border-hover: rgba(255,255,255,0.16);
+     (#050510) so stacked cards are visually separable and text reads cleanly. */
+  --card-bg: rgba(255,255,255,0.06);
+  --card-bg-hover: rgba(255,255,255,0.09);
+  --card-border: rgba(255,255,255,0.10);
+  --card-border-hover: rgba(255,255,255,0.18);
   --input-bg: rgba(255,255,255,0.05);
   --input-border: rgba(255,255,255,0.10);
   --tab-active-bg: rgba(255,255,255,0.10);

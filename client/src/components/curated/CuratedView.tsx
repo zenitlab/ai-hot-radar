@@ -5,6 +5,7 @@ import { relativeTime } from '../../utils/relativeTime';
 import { cn } from '../../lib/utils';
 import { HotspotTabs } from '../hotspot/HotspotTabs';
 import { BackToTop } from '../common/BackToTop';
+import { SkeletonList } from '../common/Loader';
 import type { Hotspot, HotspotTab } from '../../types';
 
 type Period = 'today' | 'week';
@@ -195,11 +196,7 @@ export function CuratedView() {
       )}
 
       {loading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-28 rounded-3xl bg-[var(--bg-elevated)] animate-pulse" />
-          ))}
-        </div>
+        <SkeletonList count={5} itemClassName="h-28 rounded-3xl" />
       ) : items.length === 0 ? (
         <div className="text-center py-16 rounded-3xl border border-dashed border-[var(--border-default)] text-[var(--text-muted)]">
           {appliedSearch ? '没有匹配的精选内容' : '暂无精选内容，等待系统抓取…'}

@@ -6,6 +6,7 @@ import FilterSortBar, { defaultFilterState, type FilterState } from '../FilterSo
 import { HotspotCard } from './HotspotCard';
 import { HotspotTabs } from './HotspotTabs';
 import { BackToTop } from '../common/BackToTop';
+import { PageLoader } from '../common/Loader';
 import { cn } from '../../lib/utils';
 import type { Hotspot, HotspotTab } from '../../types';
 import type { Keyword } from '../../services/api';
@@ -254,9 +255,7 @@ export function HotspotView() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="w-8 h-8 border-2 border-[var(--accent-blue)]/30 border-t-[var(--accent-blue)] dark:border-blue-500/30 dark:border-t-blue-500 rounded-full animate-spin" />
-        </div>
+        <PageLoader />
       ) : hotspots.length === 0 ? (
         <div className="text-center py-16 rounded-3xl border border-dashed border-[var(--border-default)] bg-[var(--card-bg)]/40">
           <p className="text-[var(--text-secondary)]">尚未发现热点</p>
