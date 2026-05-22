@@ -16,17 +16,29 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-22",
+    version: "v0.7.1",
+    tag: "feature",
+    items: [
+      "AI 日报「前一日 / 后一日」修复时区跨日导致的日期错位",
+      "AI 日报底部分页在「今日尚未生成」状态下也保持可用",
+      "AI 日报模型情报表格在移动端改为堆叠卡片，避免横向截断",
+      "全站空数据状态加入轻量 SVG 插画（雷达 / 星标 / 日历 / 书签 / 搜索）",
+      "侧栏 / 底栏点击当前页签可重置视图状态（如 AI 日报跳回今日）",
+      "AI 日报详情页支持「返回顶部」浮动按钮",
+      "Loading 样式全站统一（PageLoader / SkeletonList / Skeleton / InlineSpinner）",
+    ],
+  },
+  {
+    date: "2026-05-22",
     version: "v0.7.0",
     tag: "feature",
     items: [
       "浅色模式参照 Anthropic 官网风格重新设计：暖米色画布、衬线标题、珊瑚橙主色，沉浸式阅读体验",
       "暗色模式卡片对比度提升，多张卡片堆叠时层次更清晰",
-      "AI 日报底部增加「前一日 / 回到今日 / 后一日」导航",
-      "更新日志、AI 日报详情页支持「返回顶部」浮动按钮",
       "AI 日报区块图标从 emoji 升级为带配色徽章的 lucide 图标",
       "Skill / RSS / API tab 选中态优化，配色更精致",
-      "全站 loading 样式统一（PageLoader / SkeletonList / InlineSpinner）",
       "热点雷达卡片视觉升级：圆角加大、字号加粗、AI 摘要改为左侧引用块",
+      "精选卡 / 今日重点卡升级为阅读式版式：来源 meta 在上、大号标题、宽行距摘要、彩色标签 chip",
     ],
   },
   {
