@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Star, ExternalLink, Clock, Tag, Search, X } from 'lucide-react';
+import { Star, ExternalLink, Clock, Search, X } from 'lucide-react';
 import { curatedApi } from '../../services/api';
 import { relativeTime } from '../../utils/relativeTime';
 import { cn } from '../../lib/utils';
@@ -36,55 +36,78 @@ function getSourceLabel(source: string): string {
   return source;
 }
 
+const CATEGORY_LABEL: Record<string, string> = {
+  model: '模型发布', product: 'AI 产品', industry: '行业动态',
+  research: '社区热门论文', community: '社区讨论', tips: '使用技巧',
+};
+
 function CuratedCard({ item }: { item: Hotspot }) {
   const tags = item.tags ? (JSON.parse(item.tags) as string[]) : [];
-  const importanceClass = IMPORTANCE_COLOR[item.importance] || IMPORTANCE_COLOR.low;
 
   return (
-    <div className="p-5 rounded-3xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200 group">
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <a
-          href={item.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-medium text-[var(--text-primary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors leading-snug flex-1"
-        >
-          {item.title}
-        </a>
-        <ExternalLink className="w-3.5 h-3.5 text-[var(--text-muted)] flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block p-5 sm:p-6 rounded-3xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200 group"
+    >
+      {/* Top meta row: source · category   |   quality score */}
+      <div className="flex items-start justify-between gap-3 mb-2.5">
+        <div className="flex items-center gap-1.5 text-[13px] text-[var(--text-muted)] min-w-0">
+          <span className="truncate">{getSourceLabel(item.source)}</span>
+          {item.category && CATEGORY_LABEL[item.category] && (
+            <>
+              <span className="opacity-60">（{CATEGORY_LABEL[item.category]}）</span>
+            </>
+          )}
+        </div>
+        {item.qualityScore != null && (
+          <span className="shrink-0 text-xs font-mono px-2.5 py-0.5 rounded-full border border-[var(--accent-blue)]/30 text-[var(--accent-blue)] dark:text-blue-400">
+            {Math.round(item.qualityScore)}
+          </span>
+        )}
       </div>
 
+      {/* Title — large, semibold, reading-first */}
+      <h3 className="text-[17px] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors leading-snug mb-2.5">
+        {item.title}
+        <ExternalLink className="inline-block w-3.5 h-3.5 ml-1 mb-0.5 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
+      </h3>
+
+      {/* Summary */}
       {item.summary && (
-        <p className="text-sm text-[var(--text-secondary)] mb-3 leading-relaxed line-clamp-2">
+        <p className="text-[14px] text-[var(--text-secondary)] mb-3.5 leading-[1.7] line-clamp-3">
           {item.summary}
         </p>
       )}
 
-      <div className="flex items-center gap-2 flex-wrap">
-        {tags.slice(0, 3).map((tag: string) => (
-          <span key={tag} className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border text-[var(--text-secondary)] border-[var(--border-subtle)]">
-            <Tag className="w-2.5 h-2.5" />
-            {tag}
-          </span>
-        ))}
-
-        <div className="ml-auto flex items-center gap-2">
-          {item.importance !== 'low' && (
-            <span className={cn('text-xs px-2 py-0.5 rounded-full border', importanceClass)}>
-              {item.importance === 'urgent' ? '紧急' : item.importance === 'high' ? '重要' : '关注'}
+      {/* Tags — filled chips, like the reference */}
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-1">
+          {tags.slice(0, 4).map((tag: string) => (
+            <span
+              key={tag}
+              className="text-[11px] px-2.5 py-1 rounded-md bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
+            >
+              {tag}
             </span>
-          )}
-          <span className="text-xs text-[var(--text-muted)]">{getSourceLabel(item.source)}</span>
-          {item.qualityScore != null && (
-            <span className="text-xs text-[var(--accent-blue)] dark:text-blue-400 font-mono">{Math.round(item.qualityScore)}分</span>
-          )}
-          <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
-            <Clock className="w-3 h-3" />
-            {relativeTime(item.publishedAt || item.createdAt)}
-          </span>
+          ))}
         </div>
+      )}
+
+      {/* Bottom row: importance · time */}
+      <div className="flex items-center gap-3 mt-2 text-[11px] text-[var(--text-muted)]">
+        {item.importance !== 'low' && (
+          <span className={cn('px-1.5 py-0.5 rounded-md border text-[10px]', IMPORTANCE_COLOR[item.importance])}>
+            {item.importance === 'urgent' ? '紧急' : item.importance === 'high' ? '重要' : '关注'}
+          </span>
+        )}
+        <span className="flex items-center gap-1">
+          <Clock className="w-3 h-3" />
+          {relativeTime(item.publishedAt || item.createdAt)}
+        </span>
       </div>
-    </div>
+    </a>
   );
 }
 
