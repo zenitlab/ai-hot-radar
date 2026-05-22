@@ -16,6 +16,16 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-22",
+    version: "v0.7.2",
+    tag: "feature",
+    items: [
+      "精选页顶部加入概览统计：今日新增 / 今日精选 / 关注的关键词",
+      "我的关注右侧资讯卡片信息更丰富：来源 · 重要性 · 质量分 + 摘要预览",
+      "AI 日报底部分页改为单行紧凑布局，避免空数据状态下占据过大面积",
+    ],
+  },
+  {
+    date: "2026-05-22",
     version: "v0.7.1",
     tag: "feature",
     items: [
