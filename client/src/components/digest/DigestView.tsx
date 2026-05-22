@@ -95,43 +95,52 @@ function Section({ icon, title, count, children, accent = 'blue' }: {
 
 function HighlightCard({ item }: { item: DigestHighlight }) {
   return (
-    <div className="rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] overflow-hidden">
-      <div className="p-4 border-l-[3px] border-l-[var(--accent-blue)] dark:border-l-blue-500">
-        <a href={item.url} target="_blank" rel="noopener noreferrer"
-          className="group/link flex items-start gap-1.5">
-          <span className="text-sm font-semibold text-[var(--text-primary)] group-hover/link:text-[var(--accent-blue)] dark:group-hover/link:text-blue-400 transition-colors leading-snug">
-            {item.title}
-          </span>
-          <ExternalLink className="w-3 h-3 text-[var(--text-muted)] shrink-0 mt-0.5 opacity-0 group-hover/link:opacity-100 transition-opacity" />
-        </a>
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block p-5 sm:p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200"
+    >
+      {/* Source */}
+      <div className="text-[13px] text-[var(--text-muted)] mb-2">{item.source}</div>
 
-        {item.summary && (
-          <p className="text-[13px] text-[var(--text-secondary)] mt-1.5 leading-relaxed">{item.summary}</p>
-        )}
+      {/* Title — large, semibold */}
+      <h3 className="text-[17px] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors leading-snug mb-2.5">
+        {item.title}
+        <ExternalLink className="inline-block w-3.5 h-3.5 ml-1 mb-0.5 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
+      </h3>
 
-        {item.whyImportant && (
-          <div className="mt-3 px-3 py-2 rounded-xl bg-[var(--accent-blue)]/8 border border-[var(--accent-blue)]/20 dark:bg-blue-500/6 dark:border-blue-500/15">
-            <p className="text-[11px] font-semibold text-[var(--accent-blue)] dark:text-blue-400 mb-1 flex items-center gap-1">
-              <Zap className="w-3 h-3" /> 为什么重要
-            </p>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{item.whyImportant}</p>
-          </div>
-        )}
+      {/* Summary */}
+      {item.summary && (
+        <p className="text-[14px] text-[var(--text-secondary)] mb-3.5 leading-[1.7]">
+          {item.summary}
+        </p>
+      )}
 
-        {item.affects?.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-3">
-            {item.affects.map((a) => (
-              <span key={a}
-                className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] border border-[var(--accent-blue)]/20 dark:bg-blue-500/8 dark:text-blue-400 dark:border-blue-500/15 font-medium">
-                {a}
-              </span>
-            ))}
-          </div>
-        )}
+      {/* Why important — quote-style block */}
+      {item.whyImportant && (
+        <div className="px-4 py-3 rounded-2xl bg-[var(--accent-blue)]/6 border border-[var(--accent-blue)]/15 dark:bg-blue-500/8 dark:border-blue-500/15 mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--accent-blue)] dark:text-blue-400 mb-1 flex items-center gap-1">
+            <Zap className="w-3 h-3" /> 为什么重要
+          </p>
+          <p className="text-[13px] text-[var(--text-secondary)] leading-[1.65]">{item.whyImportant}</p>
+        </div>
+      )}
 
-        <div className="mt-2.5 text-[11px] text-[var(--text-muted)]">{item.source}</div>
-      </div>
-    </div>
+      {/* Affects — filled chips */}
+      {item.affects?.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {item.affects.map((a) => (
+            <span
+              key={a}
+              className="text-[11px] px-2.5 py-1 rounded-md bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
+            >
+              {a}
+            </span>
+          ))}
+        </div>
+      )}
+    </a>
   );
 }
 
