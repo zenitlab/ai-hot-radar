@@ -16,6 +16,16 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-22",
+    version: "v0.7.4",
+    tag: "feature",
+    items: [
+      "暗色模式重新校准：画布 #050510 → #0d0e12（去紫调），卡片改为实心 #181b22 配阴影，蓝调主色 #3b82f6 → #60a5fa（更柔和）",
+      "精选卡恢复完整信息密度：重要性 / 来源 / 分类 / 关键词 / 热度 / 互动数 / 时间，与热点雷达对齐",
+      "AI 日报暂无内容时，底部「前一日 / 后一日」分页紧贴视口底部，不再留下大块空白",
+    ],
+  },
+  {
+    date: "2026-05-22",
     version: "v0.7.3",
     tag: "feature",
     items: [
