@@ -15,6 +15,15 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-23",
+    version: "v0.7.5",
+    tag: "tweak",
+    items: [
+      "精选页「今日精选」改为当日精选数（不随 tab 筛选变化），与「今日新增」语义对齐",
+      "精选卡专属版式：保留来源 / 分类 / 关键词 / 热度 / 质量分 / 互动数，去掉与精选语义重复的重要性徽章和真伪标签",
+    ],
+  },
+  {
     date: "2026-05-22",
     version: "v0.7.4",
     tag: "feature",
