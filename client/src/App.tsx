@@ -7,6 +7,7 @@ import { AgentView } from './components/agent/AgentView';
 import { HotspotView } from './components/hotspot/HotspotView';
 import { KeywordsView } from './components/keywords/KeywordsView';
 import { ChangelogView } from './components/changelog/ChangelogView';
+import { AboutView } from './components/about/AboutView';
 import { Toast, type ToastData } from './components/common/Toast';
 import { useTheme } from './hooks/useTheme';
 
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/agent" element={<AgentView />} />
           <Route path="/keywords" element={<KeywordsView onToast={showToast} />} />
           <Route path="/changelog" element={<ChangelogView />} />
+          <Route path="/about" element={<AboutView />} />
           <Route path="*" element={<Navigate to="/curated" replace />} />
         </Routes>
       </AppLayout>

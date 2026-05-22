@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Plug,
   History,
+  Info,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 
@@ -39,6 +40,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { path: "/agent", label: "Agent 接入", icon: <Plug className="w-4 h-4" />, accent: "text-cyan-400" },
       { path: "/changelog", label: "更新日志", icon: <History className="w-4 h-4" />, accent: "text-pink-400" },
+      { path: "/about", label: "关于", icon: <Info className="w-4 h-4" />, accent: "text-slate-400" },
     ],
   },
 ];
