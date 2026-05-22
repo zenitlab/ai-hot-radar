@@ -8,6 +8,7 @@ import { EntityCard } from './EntityCard';
 import { EntityRelationGraph } from './EntityRelationGraph';
 import { TrendChart } from './TrendChart';
 import { Skeleton, SkeletonList } from '../common/Loader';
+import { EmptyState } from '../common/EmptyState';
 import type { EntityCardSummary, EntityCardDetail, NewsItem, RelatedData } from '../../services/api';
 
 interface KeywordsViewProps {
@@ -181,11 +182,11 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
         {/* Entity cards list */}
         <div className="flex-1 overflow-y-scroll p-3 space-y-2.5">
           {entities.length === 0 ? (
-            <div className="text-center py-12 text-[var(--text-muted)] text-sm">
-              <Bookmark className="w-8 h-8 mx-auto mb-3 opacity-30" />
-              <p>添加你关注的实体</p>
-              <p className="text-xs mt-1 text-[var(--text-muted)]">如 Claude、OpenAI、Cursor...</p>
-            </div>
+            <EmptyState
+              variant="bookmark"
+              title="添加你关注的实体"
+              description="输入 Claude、OpenAI、Cursor 等关键词，AI 会自动抓取相关动态"
+            />
           ) : (
             entities.map((entity) => (
               <EntityCard
