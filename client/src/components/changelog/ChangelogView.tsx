@@ -16,6 +16,15 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-23",
+    version: "v0.7.6",
+    tag: "feature",
+    items: [
+      "新增「关于」页：项目介绍、核心能力、数据来源、技术栈、联系方式（邮箱 + 微信二维码）",
+      "侧栏「工具」分组下新增「关于」入口",
+    ],
+  },
+  {
+    date: "2026-05-23",
     version: "v0.7.5",
     tag: "tweak",
     items: [
