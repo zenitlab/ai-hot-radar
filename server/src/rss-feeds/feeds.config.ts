@@ -192,6 +192,9 @@ export const X_ACCOUNTS: XAccountConfig[] = [
   { username: 'midjourney',      name: 'Midjourney',      tier: 'T1', region: 'international', defaultCategory: 'product' },
   // ===== T1: Chinese AI labs =====
   { username: 'alibaba_cloud',   name: '阿里云（通义系）', tier: 'T1', region: 'domestic', defaultCategory: 'model' },
+  { username: 'deepseek_ai',     name: 'DeepSeek',        tier: 'T1', region: 'domestic', defaultCategory: 'model' },
+  { username: 'Kimi_Moonshot',   name: 'Kimi (月之暗面)',  tier: 'T1', region: 'domestic', defaultCategory: 'model' },
+  { username: 'Zhipu_AI',        name: '智谱 Zhipu',      tier: 'T1', region: 'domestic', defaultCategory: 'model' },
   { username: 'SenseTime_AI',    name: '商汤 SenseTime',  tier: 'T1', region: 'domestic', defaultCategory: 'model' },
   { username: 'MiniMax_AI',      name: 'MiniMax',         tier: 'T1', region: 'domestic', defaultCategory: 'model' },
   { username: 'Kling_ai',        name: '可灵 Kling',      tier: 'T1', region: 'domestic', defaultCategory: 'product' },
