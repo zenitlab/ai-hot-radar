@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Star, ExternalLink, Clock, Search, X, Flame, Sparkles, Bookmark } from 'lucide-react';
+import {
+  Star, ExternalLink, Clock, Search, X, Flame, Sparkles, Bookmark,
+  ThermometerSun, Zap, Repeat2, MessageCircle, Eye,
+} from 'lucide-react';
 import { curatedApi, hotspotsApi, keywordsApi } from '../../services/api';
 import { relativeTime } from '../../utils/relativeTime';
 import { cn } from '../../lib/utils';
@@ -24,13 +27,6 @@ const SOURCE_LABEL: Record<string, string> = {
   twitter: 'X', bing: 'Bing', bilibili: 'Bilibili', hackernews: 'HackerNews',
 };
 
-const IMPORTANCE_COLOR: Record<string, string> = {
-  urgent: 'text-red-400 bg-red-500/10 border-red-500/20',
-  high: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-  medium: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
-  low: 'text-slate-400 bg-slate-500/10 border-slate-500/20',
-};
-
 function getSourceLabel(source: string): string {
   if (SOURCE_LABEL[source]) return SOURCE_LABEL[source];
   if (source.startsWith('twitter_')) return '@' + source.slice(8);
@@ -46,6 +42,21 @@ const CATEGORY_LABEL: Record<string, string> = {
 function CuratedCard({ item }: { item: Hotspot }) {
   const tags = item.tags ? (JSON.parse(item.tags) as string[]) : [];
 
+  // Aggregate engagement metric — same heat formula as HotspotCard
+  const heatRaw =
+    (item.likeCount ?? 0) * 2 +
+    (item.retweetCount ?? 0) * 3 +
+    (item.replyCount ?? 0) * 1.5 +
+    (item.commentCount ?? 0) * 1.5 +
+    (item.viewCount ?? 0) / 100;
+  const heatScore = heatRaw > 0 ? Math.min(100, Math.round(Math.log10(heatRaw + 1) * 25)) : 0;
+  const heat =
+    heatScore >= 80 ? { label: '爆', color: 'text-red-500 dark:text-red-400' } :
+    heatScore >= 60 ? { label: '热', color: 'text-orange-500 dark:text-orange-400' } :
+    heatScore >= 40 ? { label: '温', color: 'text-amber-500 dark:text-amber-400' } :
+    heatScore >= 20 ? { label: '凉', color: 'text-[var(--accent-blue)] dark:text-blue-400' } :
+                       null;
+
   return (
     <a
       href={item.url}
@@ -53,18 +64,36 @@ function CuratedCard({ item }: { item: Hotspot }) {
       rel="noopener noreferrer"
       className="block p-5 sm:p-6 rounded-3xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200 group"
     >
-      {/* Top meta row: source · category   |   quality score */}
-      <div className="flex items-start justify-between gap-3 mb-2.5">
-        <div className="flex items-center gap-1.5 text-[13px] text-[var(--text-muted)] min-w-0">
-          <span className="truncate">{getSourceLabel(item.source)}</span>
-          {item.category && CATEGORY_LABEL[item.category] && (
-            <>
-              <span className="opacity-60">（{CATEGORY_LABEL[item.category]}）</span>
-            </>
-          )}
-        </div>
+      {/* Top meta row: importance · source · category · keyword */}
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        {item.importance !== 'low' && (
+          <span className={cn('text-[10px] px-2 py-0.5 rounded-md border font-semibold uppercase tracking-wider flex items-center gap-1',
+            item.importance === 'urgent' && 'bg-red-500/15 text-red-500 dark:text-red-400 border-red-500/25',
+            item.importance === 'high' && 'bg-orange-500/15 text-orange-500 dark:text-orange-400 border-orange-500/25',
+            item.importance === 'medium' && 'bg-amber-500/15 text-amber-500 dark:text-amber-400 border-amber-500/25',
+          )}>
+            {item.importance === 'urgent' ? '紧急' : item.importance === 'high' ? '重要' : '关注'}
+          </span>
+        )}
+        <span className="text-xs text-[var(--text-muted)]">{getSourceLabel(item.source)}</span>
+        {item.category && CATEGORY_LABEL[item.category] && (
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-elevated)] text-[var(--text-secondary)]">
+            {CATEGORY_LABEL[item.category]}
+          </span>
+        )}
+        {item.keyword && (
+          <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] border border-[var(--accent-blue)]/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
+            {item.keyword.text}
+          </span>
+        )}
+        {heat && (
+          <span className={cn('flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-[var(--input-bg)] border border-[var(--input-border)] font-medium', heat.color)}>
+            <ThermometerSun className="w-3 h-3" />
+            {heat.label} {heatScore}
+          </span>
+        )}
         {item.qualityScore != null && (
-          <span className="shrink-0 text-xs font-mono px-2.5 py-0.5 rounded-full border border-[var(--accent-blue)]/30 text-[var(--accent-blue)] dark:text-blue-400">
+          <span className="ml-auto text-xs font-mono px-2.5 py-0.5 rounded-full border border-[var(--accent-blue)]/30 text-[var(--accent-blue)] dark:text-blue-400 shrink-0">
             {Math.round(item.qualityScore)}
           </span>
         )}
@@ -78,14 +107,14 @@ function CuratedCard({ item }: { item: Hotspot }) {
 
       {/* Summary */}
       {item.summary && (
-        <p className="text-[14px] text-[var(--text-secondary)] mb-3.5 leading-[1.7] line-clamp-3">
+        <p className="text-[14px] text-[var(--text-secondary)] mb-3 leading-[1.7] line-clamp-3">
           {item.summary}
         </p>
       )}
 
-      {/* Tags — filled chips, like the reference */}
+      {/* Tags — filled chips */}
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-1">
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {tags.slice(0, 4).map((tag: string) => (
             <span
               key={tag}
@@ -97,14 +126,33 @@ function CuratedCard({ item }: { item: Hotspot }) {
         </div>
       )}
 
-      {/* Bottom row: importance · time */}
-      <div className="flex items-center gap-3 mt-2 text-[11px] text-[var(--text-muted)]">
-        {item.importance !== 'low' && (
-          <span className={cn('px-1.5 py-0.5 rounded-md border text-[10px]', IMPORTANCE_COLOR[item.importance])}>
-            {item.importance === 'urgent' ? '紧急' : item.importance === 'high' ? '重要' : '关注'}
+      {/* Engagement metrics + time */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--text-muted)]">
+        {item.likeCount != null && item.likeCount > 0 && (
+          <span className="flex items-center gap-1" title="点赞">
+            <Zap className="w-3 h-3" />
+            {item.likeCount.toLocaleString()}
           </span>
         )}
-        <span className="flex items-center gap-1">
+        {item.retweetCount != null && item.retweetCount > 0 && (
+          <span className="flex items-center gap-1" title="转发">
+            <Repeat2 className="w-3 h-3" />
+            {item.retweetCount.toLocaleString()}
+          </span>
+        )}
+        {item.commentCount != null && item.commentCount > 0 && (
+          <span className="flex items-center gap-1" title="评论">
+            <MessageCircle className="w-3 h-3" />
+            {item.commentCount.toLocaleString()}
+          </span>
+        )}
+        {item.viewCount != null && item.viewCount > 0 && (
+          <span className="flex items-center gap-1" title="浏览">
+            <Eye className="w-3 h-3" />
+            {item.viewCount.toLocaleString()}
+          </span>
+        )}
+        <span className="flex items-center gap-1 ml-auto">
           <Clock className="w-3 h-3" />
           {relativeTime(item.publishedAt || item.createdAt)}
         </span>

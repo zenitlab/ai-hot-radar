@@ -8,38 +8,43 @@
 
 /* ===== Design Tokens ===== */
 :root {
-  --bg-base: #050510;
-  --bg-surface: #0a0a1a;
-  --bg-elevated: #111127;
-  --bg-hover: #16163a;
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-default: rgba(255, 255, 255, 0.12);
-  --border-active: rgba(59, 130, 246, 0.4);
-  --text-primary: #f1f3f8;
-  --text-secondary: #a8accb;
-  --text-muted: #6e738d;
-  --accent-blue: #3b82f6;
-  --accent-cyan: #06b6d4;
-  --accent-emerald: #10b981;
-  --accent-amber: #f59e0b;
-  --accent-red: #ef4444;
-  /* Adaptive tokens — dark defaults. Cards lifted higher than canvas
-     (#050510) so stacked cards are visually separable and text reads cleanly. */
-  --card-bg: rgba(255,255,255,0.06);
-  --card-bg-hover: rgba(255,255,255,0.09);
-  --card-border: rgba(255,255,255,0.10);
-  --card-border-hover: rgba(255,255,255,0.18);
-  --input-bg: rgba(255,255,255,0.05);
+  /* Dark palette — recalibrated for warmth and clarity.
+     Previous values were #050510 / #0a0a1a — too purple-blue, made the page
+     feel cold and "tech demo". The new tones are nearly-neutral charcoal
+     with a tiny warm shift, closer to Linear / Notion / Anthropic dark. */
+  --bg-base: #0d0e12;       /* canvas — neutral charcoal */
+  --bg-surface: #14161c;    /* sidebar / topbar */
+  --bg-elevated: #1c1f27;   /* tab bars, inputs */
+  --bg-hover: #232730;
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-active: rgba(96, 165, 250, 0.4);
+  --text-primary: #ecedf2;
+  --text-secondary: #9ea4b6;
+  --text-muted: #6b7080;
+  --accent-blue: #60a5fa;     /* slightly softer than 500 — easier on eyes */
+  --accent-cyan: #22d3ee;
+  --accent-emerald: #34d399;
+  --accent-amber: #fbbf24;
+  --accent-red: #f87171;
+  /* Adaptive tokens — dark defaults. Cards visibly lifted off the canvas;
+     the previous 0.06 alpha was OK alone but stacked cards bled together.
+     Solid charcoal works better than alpha-overlay for stacking clarity. */
+  --card-bg: #181b22;
+  --card-bg-hover: #1f232c;
+  --card-border: rgba(255,255,255,0.08);
+  --card-border-hover: rgba(255,255,255,0.16);
+  --input-bg: #1c1f27;
   --input-border: rgba(255,255,255,0.10);
-  --tab-active-bg: rgba(255,255,255,0.10);
-  --tab-active-text: #ffffff;
-  --tab-active-border: rgba(255,255,255,0.10);
+  --tab-active-bg: rgba(96, 165, 250, 0.16);
+  --tab-active-text: #93c5fd;
+  --tab-active-border: rgba(96, 165, 250, 0.32);
   --tab-hover-bg: rgba(255,255,255,0.05);
-  --dropdown-bg: #0d0d20;
+  --dropdown-bg: #14161c;
   --dropdown-item-hover: rgba(255,255,255,0.05);
-  --sort-bar-bg: rgba(255,255,255,0.03);
-  --sort-bar-border: rgba(255,255,255,0.05);
-  --toggle-inactive: #334155;
+  --sort-bar-bg: #181b22;
+  --sort-bar-border: rgba(255,255,255,0.06);
+  --toggle-inactive: #3a3f4d;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -153,6 +158,18 @@
 /* Cards in light mode get a soft drop shadow so they feel lifted */
 [data-theme="light"] .bg-\[var\(--card-bg\)\] {
   box-shadow: 0 1px 2px rgba(60, 41, 24, 0.04), 0 2px 6px rgba(60, 41, 24, 0.04);
+}
+[data-theme="light"] .bg-\[var\(--card-bg\)\]:hover {
+  box-shadow: 0 1px 2px rgba(60, 41, 24, 0.06), 0 4px 12px rgba(204, 120, 92, 0.08);
+}
+
+/* Dark mode: subtle inner highlight + drop shadow makes solid cards "feel"
+   like they sit above the canvas without relying purely on color alpha. */
+:root .bg-\[var\(--card-bg\)\] {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), 0 1px 2px rgba(0,0,0,0.3);
+}
+:root .bg-\[var\(--card-bg\)\]:hover {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 6px 18px rgba(0,0,0,0.35);
 }
 [data-theme="light"] .bg-\[var\(--card-bg\)\]:hover {
   box-shadow: 0 1px 2px rgba(60, 41, 24, 0.06), 0 4px 12px rgba(204, 120, 92, 0.08);
