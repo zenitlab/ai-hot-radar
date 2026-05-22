@@ -139,6 +139,15 @@ region说明：
 - audience: AI从业者关注价值（10=必读，5=有参考，0=无价值）
 - quality: 内容深度（10=深度分析/原创研究，5=正常报道，0=标题党）
 
+📌 加分信号（命中以下任意一项，对应维度上调 1-2 分）：
+1. 顶级实验室署名 / 来源（OpenAI / DeepMind / Anthropic / Meta FAIR / MSR /
+   Stanford / MIT / CMU / 清华 / 北大 / 智源 / 上交大）→ audience + quality 各 +1
+2. 主流 Benchmark SOTA 声明（MMLU / GPQA / SWE-bench / ARC-AGI / MATH /
+   HumanEval / HellaSwag / MMMU / GSM8K / LiveCodeBench / AIDER）→ novelty + quality 各 +1
+3. 提出新范式 / 新架构（非增量改进，例如 "introducing a new" / "novel framework"）
+   → novelty +2
+4. 同时命中以上 ≥2 项 → importance 至少 medium，可考虑 high
+
 importance标准：
 - urgent: 影响整个行业的重大事件（GPT-5/Claude 4发布级别）
 - high: 重要动态（知名公司新模型/产品/重大融资/>5亿美元）

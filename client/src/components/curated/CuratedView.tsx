@@ -20,6 +20,7 @@ const SOURCE_LABEL: Record<string, string> = {
   rss_cls: '财联社', rss_xueqiu: '雪球', rss_36kr: '36氪', rss_chinanews: '中国新闻网',
   rss_ithome: 'IT之家', rss_arxiv_ai: 'arXiv cs.AI', rss_arxiv_lg: 'arXiv cs.LG',
   rss_arxiv_cl: 'arXiv cs.CL', rss_arxiv_cv: 'arXiv cs.CV', rss_wheresyoured: "Where's Your Ed At",
+  rss_nvidia: 'NVIDIA', rss_meta_ai: 'Meta AI', rss_hf_papers: 'HuggingFace Daily Papers',
   twitter: 'X', bing: 'Bing', bilibili: 'Bilibili', hackernews: 'HackerNews',
 };
 

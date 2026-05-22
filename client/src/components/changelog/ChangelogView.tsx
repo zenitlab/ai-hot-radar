@@ -16,6 +16,16 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-22",
+    version: "v0.7.3",
+    tag: "feature",
+    items: [
+      "新增 3 个一级 RSS 信源：NVIDIA Blog、Meta AI Blog、HuggingFace Daily Papers",
+      "AI 评分提示词加入加分信号：顶级实验室署名、SOTA Benchmark 命中、新范式声明",
+      "前端 RSS 来源标签同步新增信源的展示名称",
+    ],
+  },
+  {
+    date: "2026-05-22",
     version: "v0.7.2",
     tag: "feature",
     items: [

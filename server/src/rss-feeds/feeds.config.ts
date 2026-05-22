@@ -296,6 +296,33 @@ export const RSS_FEEDS: RssFeedConfig[] = [
     region: 'international',
     defaultCategory: 'research',
   },
+  // NVIDIA 官方博客 — 一级信源（GPU/CUDA/AI 基础设施）
+  {
+    name: 'NVIDIA Blog',
+    url: 'https://blogs.nvidia.com/feed/',
+    category: 'nvidia',
+    tier: 'T1',
+    region: 'international',
+    defaultCategory: 'industry',
+  },
+  // Meta AI 官方博客 — 一级信源（Llama / FAIR 研究）
+  {
+    name: 'Meta AI Blog',
+    url: 'https://ai.meta.com/blog/rss/',
+    category: 'meta_ai',
+    tier: 'T1',
+    region: 'international',
+    defaultCategory: 'model',
+  },
+  // Hugging Face Papers — 社区每日精选论文，比 arXiv 噪音少得多
+  {
+    name: 'Hugging Face Papers',
+    url: 'https://jamesg.blog/hf-papers.xml',
+    category: 'hf_papers',
+    tier: 'T1',
+    region: 'international',
+    defaultCategory: 'research',
+  },
   // Ed Zitron 的 AI 行业批判博客 — 高质量行业观察
   {
     name: "Where's Your Ed At",
