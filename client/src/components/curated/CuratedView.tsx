@@ -3,7 +3,7 @@ import {
   Star, ExternalLink, Clock, Search, X, Flame, Sparkles, Bookmark,
   ThermometerSun, Zap, Repeat2, MessageCircle, Eye,
 } from 'lucide-react';
-import { curatedApi, hotspotsApi, keywordsApi } from '../../services/api';
+import { curatedApi, hotspotsApi, keywordsApi, agentApi } from '../../services/api';
 import { relativeTime } from '../../utils/relativeTime';
 import { cn } from '../../lib/utils';
 import { HotspotTabs } from '../hotspot/HotspotTabs';
@@ -173,19 +173,22 @@ export function CuratedView() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   // One-time fetch of overview metrics for the top stat strip.
+  // The "curated" count comes from /api/agent/stats (a global, all-time
+  // curated count) and never reacts to tab/period/search filters — those
+  // change the list below but the stat tiles stay stable.
   useEffect(() => {
     Promise.all([
       hotspotsApi.getStats().catch(() => null),
       keywordsApi.getAll().catch(() => []),
-    ]).then(([stats, kws]) => {
+      agentApi.getStats().catch(() => null),
+    ]).then(([stats, kws, agentStats]) => {
       if (!stats) return;
       const activeKws = (kws as { isActive: boolean }[]).filter(k => k.isActive).length;
-      // total curated count comes back from the curated API call below
-      setOverview(prev => ({
+      setOverview({
         today: stats.today,
-        curated: prev?.curated ?? 0,
+        curated: agentStats?.curated ?? 0,
         keywords: activeKws,
-      }));
+      });
     });
   }, []);
 
@@ -204,8 +207,6 @@ export function CuratedView() {
       .then((res) => {
         setItems(res.items || []);
         setTotal(res.total || 0);
-        // Fold in latest curated count for the top stats strip
-        setOverview(prev => prev ? { ...prev, curated: res.total || 0 } : prev);
       })
       .finally(() => setLoading(false));
   }, [period, activeTab, appliedSearch]);
@@ -258,7 +259,7 @@ export function CuratedView() {
           />
           <StatTile
             icon={<Sparkles className="w-4 h-4" />}
-            label={period === 'today' ? '今日精选' : '本周精选'}
+            label="精选总数"
             value={overview.curated}
             accent="text-[var(--accent-blue)] dark:text-blue-400 bg-[var(--accent-blue)]/10 dark:bg-blue-500/10"
           />
