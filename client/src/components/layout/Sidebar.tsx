@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   Bell,
   Radio,
@@ -78,6 +78,19 @@ function BrandMark() {
 }
 
 export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
+  const location = useLocation();
+
+  /** Tapping a nav item that points to the current route should reset its
+   *  internal state (e.g. AI 日报 should jump back to today). React Router
+   *  swallows same-route navigation, so we broadcast a custom event that
+   *  views can subscribe to. */
+  const handleClick = (path: string) => {
+    if (location.pathname === path) {
+      window.dispatchEvent(new CustomEvent('nav:reset', { detail: { path } }));
+    }
+    onNavigate?.();
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* ── Brand area ─────────────────────────────────────────────── */}
@@ -107,7 +120,7 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  onClick={onNavigate}
+                  onClick={() => handleClick(item.path)}
                   className={({ isActive }) =>
                     cn(
                       "group relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all w-full text-left",

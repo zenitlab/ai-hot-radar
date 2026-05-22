@@ -168,35 +168,67 @@ function SimpleItem({ item }: { item: DigestSimpleItem }) {
 
 function ModelIntelTable({ items }: { items: DigestModelItem[] }) {
   return (
-    <div className="rounded-xl overflow-hidden border border-[var(--card-border)]">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-[var(--input-bg)]">
-            {['模型', '变化', '详情', '影响'].map((h) => (
-              <th key={h}
-                className="text-left px-4 py-2.5 text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wide">
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item, i) => (
-            <tr key={i} className="border-t border-[var(--card-border)] hover:bg-[var(--card-bg-hover)] transition-colors">
-              <td className="px-4 py-3 font-semibold text-[var(--text-primary)] whitespace-nowrap">{item.model}</td>
-              <td className="px-4 py-3">
-                <span className={cn('text-[11px] px-2 py-0.5 rounded font-medium',
-                  CHANGE_COLOR[item.change] ?? 'bg-[var(--input-bg)] text-[var(--text-secondary)]')}>
-                  {item.change}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-[13px] text-[var(--text-secondary)] max-w-[180px]">{item.detail}</td>
-              <td className="px-4 py-3 text-[13px] text-[var(--text-muted)] max-w-[180px]">{item.impact}</td>
+    <>
+      {/* Desktop: table layout */}
+      <div className="hidden md:block rounded-2xl overflow-hidden border border-[var(--card-border)]">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-[var(--input-bg)]">
+              {['模型', '变化', '详情', '影响'].map((h) => (
+                <th key={h}
+                  className="text-left px-4 py-2.5 text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wide">
+                  {h}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {items.map((item, i) => (
+              <tr key={i} className="border-t border-[var(--card-border)] hover:bg-[var(--card-bg-hover)] transition-colors">
+                <td className="px-4 py-3 font-semibold text-[var(--text-primary)] whitespace-nowrap">{item.model}</td>
+                <td className="px-4 py-3">
+                  <span className={cn('text-[11px] px-2 py-0.5 rounded font-medium',
+                    CHANGE_COLOR[item.change] ?? 'bg-[var(--input-bg)] text-[var(--text-secondary)]')}>
+                    {item.change}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-[13px] text-[var(--text-secondary)] max-w-[180px]">{item.detail}</td>
+                <td className="px-4 py-3 text-[13px] text-[var(--text-muted)] max-w-[180px]">{item.impact}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile: stacked cards — readable instead of horizontally truncated */}
+      <div className="md:hidden space-y-2.5">
+        {items.map((item, i) => (
+          <div
+            key={i}
+            className="p-4 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)]"
+          >
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+              <span className="font-semibold text-[var(--text-primary)] text-[15px]">{item.model}</span>
+              <span className={cn('text-[11px] px-2 py-0.5 rounded font-medium',
+                CHANGE_COLOR[item.change] ?? 'bg-[var(--input-bg)] text-[var(--text-secondary)]')}>
+                {item.change}
+              </span>
+            </div>
+            {item.detail && (
+              <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed mb-1.5">
+                {item.detail}
+              </p>
+            )}
+            {item.impact && (
+              <p className="text-[12px] text-[var(--text-muted)] leading-relaxed">
+                <span className="font-medium text-[var(--text-secondary)] mr-1">影响：</span>
+                {item.impact}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -277,6 +309,19 @@ export function DigestView() {
   useEffect(() => {
     selectedRef.current?.scrollIntoView({ block: 'nearest' });
   }, [selectedDate]);
+
+  /** Listen for sidebar "AI 日报" tap when already on /digest — jump to today. */
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ path: string }>).detail;
+      if (detail?.path === '/digest') {
+        setSelectedDate(today);
+        rightColRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+    window.addEventListener('nav:reset', handler);
+    return () => window.removeEventListener('nav:reset', handler);
+  }, [today]);
 
   // Load digest for selected date
   useEffect(() => {
@@ -557,14 +602,12 @@ export function DigestView() {
           )}
         </div>
 
-        {/* Date navigation footer — prev / today / next */}
-        {!loading && (
-          <DateNav
-            selectedDate={selectedDate}
-            today={today}
-            onSelect={(d) => setSelectedDate(d)}
-          />
-        )}
+        {/* Date navigation footer — always visible, even in empty state */}
+        <DateNav
+          selectedDate={selectedDate}
+          today={today}
+          onSelect={(d) => setSelectedDate(d)}
+        />
 
         <BackToTopFor getContainer={() => rightColRef.current} />
       </div>

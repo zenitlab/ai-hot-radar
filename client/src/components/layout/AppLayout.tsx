@@ -72,10 +72,18 @@ export function AppLayout({ unreadCount, theme, onThemeToggle, children }: AppLa
         <div className="fixed bottom-0 left-0 right-0 z-40 flex lg:hidden border-t border-[var(--border-subtle)] bg-[var(--bg-surface)]">
           {MOBILE_NAV.map(({ path, label, Icon }) => {
             const active = location.pathname === path;
+            const handleTap = () => {
+              if (active) {
+                // Tapping the current tab — reset internal view state.
+                window.dispatchEvent(new CustomEvent('nav:reset', { detail: { path } }));
+              } else {
+                navigate(path);
+              }
+            };
             return (
               <button
                 key={path}
-                onClick={() => navigate(path)}
+                onClick={handleTap}
                 className={`flex flex-col items-center justify-center flex-1 py-2 text-xs gap-1 transition-colors ${
                   active ? 'text-[var(--accent-blue)] dark:text-blue-400' : 'text-[var(--text-secondary)]'
                 }`}
