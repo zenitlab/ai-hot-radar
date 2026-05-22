@@ -512,7 +512,7 @@ export function DigestView() {
           {loading ? (
             <LoadingSkeleton />
           ) : !hasContent ? (
-            <EmptyState
+            <DigestEmptyState
               date={selectedDate}
               today={today}
               onGenerate={handleGenerate}
@@ -710,27 +710,46 @@ function LoadingSkeleton() {
   );
 }
 
-function EmptyState({ date, today, onGenerate, generating }: {
+function DigestEmptyState({ date, today, onGenerate, generating }: {
   date: string; today: string; onGenerate: () => void; generating: boolean;
 }) {
+  const isToday = date === today;
   return (
-    <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-      <CalendarDays className="w-10 h-10 text-[var(--text-muted)] opacity-25" />
-      <div>
-        <p className="text-[var(--text-primary)] font-medium">
-          {date === today ? '今日日报尚未生成' : `${date} 暂无日报`}
-        </p>
-        <p className="text-sm text-[var(--text-muted)] mt-1">
-          {date === today
-            ? '每天北京时间 00:00 自动生成，也可手动触发'
-            : '该日期暂无数据，可手动触发生成'}
-        </p>
+    <div className="flex flex-col items-center justify-center py-20 px-6 text-center rounded-3xl border border-dashed border-[var(--border-default)] bg-[var(--card-bg)]/40">
+      {/* Calendar illustration with halo */}
+      <div className="relative text-[var(--accent-blue)] dark:text-blue-400 opacity-70">
+        <svg width="84" height="84" viewBox="0 0 96 96" fill="none">
+          <defs>
+            <radialGradient id="digest-empty-halo" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="currentColor" stopOpacity="0.18" />
+              <stop offset="70%" stopColor="currentColor" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <circle cx="48" cy="48" r="46" fill="url(#digest-empty-halo)" />
+          <rect x="22" y="28" width="52" height="46" rx="6" stroke="currentColor" strokeWidth="1.6" fill="currentColor" fillOpacity="0.08" />
+          <line x1="22" y1="40" x2="74" y2="40" stroke="currentColor" strokeWidth="1.6" />
+          <line x1="34" y1="22" x2="34" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <line x1="62" y1="22" x2="62" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <circle cx="35" cy="52" r="1.8" fill="currentColor" />
+          <circle cx="48" cy="52" r="1.8" fill="currentColor" />
+          <circle cx="61" cy="52" r="1.8" fill="currentColor" />
+          <circle cx="35" cy="62" r="1.8" fill="currentColor" fillOpacity="0.5" />
+          <circle cx="48" cy="62" r="1.8" fill="currentColor" fillOpacity="0.5" />
+        </svg>
       </div>
+
+      <p className="mt-4 text-[15px] font-medium text-[var(--text-primary)]">
+        {isToday ? '今日日报尚未生成' : `${date} 暂无日报`}
+      </p>
+      <p className="mt-1.5 text-sm text-[var(--text-muted)] max-w-md">
+        {isToday ? '每天北京时间 00:00 自动生成，也可手动触发' : '该日期暂无数据，可手动触发生成'}
+      </p>
+
       {date <= today && (
         <button
           onClick={onGenerate}
           disabled={generating}
-          className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--accent-blue)]/85 text-white text-sm font-medium hover:bg-[var(--accent-blue)] transition-colors disabled:opacity-50 shadow-sm"
+          className="mt-5 flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--accent-blue)]/85 text-white text-sm font-medium hover:bg-[var(--accent-blue)] transition-colors disabled:opacity-50 shadow-sm"
         >
           <RefreshCw className={cn('w-4 h-4', generating && 'animate-spin')} />
           {generating ? 'AI 正在分析资讯...' : '立即生成日报'}

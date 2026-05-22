@@ -6,6 +6,7 @@ import { cn } from '../../lib/utils';
 import { HotspotTabs } from '../hotspot/HotspotTabs';
 import { BackToTop } from '../common/BackToTop';
 import { SkeletonList } from '../common/Loader';
+import { EmptyState } from '../common/EmptyState';
 import type { Hotspot, HotspotTab } from '../../types';
 
 type Period = 'today' | 'week';
@@ -221,9 +222,11 @@ export function CuratedView() {
       {loading ? (
         <SkeletonList count={5} itemClassName="h-28 rounded-3xl" />
       ) : items.length === 0 ? (
-        <div className="text-center py-16 rounded-3xl border border-dashed border-[var(--border-default)] text-[var(--text-muted)]">
-          {appliedSearch ? '没有匹配的精选内容' : '暂无精选内容，等待系统抓取…'}
-        </div>
+        <EmptyState
+          variant={appliedSearch ? 'search' : 'star'}
+          title={appliedSearch ? '没有匹配的精选内容' : '暂无精选内容'}
+          description={appliedSearch ? `换个词试试，或者清空搜索看全部精选` : '系统正在抓取并评分最新资讯，稍后回来看看'}
+        />
       ) : (
         <div className="space-y-3">
           {items.map(item => <CuratedCard key={item.id} item={item} />)}

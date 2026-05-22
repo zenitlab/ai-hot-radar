@@ -7,6 +7,7 @@ import { HotspotCard } from './HotspotCard';
 import { HotspotTabs } from './HotspotTabs';
 import { BackToTop } from '../common/BackToTop';
 import { PageLoader } from '../common/Loader';
+import { EmptyState } from '../common/EmptyState';
 import { cn } from '../../lib/utils';
 import type { Hotspot, HotspotTab } from '../../types';
 import type { Keyword } from '../../services/api';
@@ -257,10 +258,11 @@ export function HotspotView() {
       {isLoading ? (
         <PageLoader />
       ) : hotspots.length === 0 ? (
-        <div className="text-center py-16 rounded-3xl border border-dashed border-[var(--border-default)] bg-[var(--card-bg)]/40">
-          <p className="text-[var(--text-secondary)]">尚未发现热点</p>
-          <p className="text-sm text-[var(--text-muted)] mt-1">添加监控关键词开始追踪</p>
-        </div>
+        <EmptyState
+          variant="radar"
+          title="尚未发现热点"
+          description={appliedSearch ? `没有匹配 "${appliedSearch}" 的内容，换个关键词试试` : '系统正在抓取最新资讯，几分钟后回来看看；或者添加监控关键词开始追踪。'}
+        />
       ) : (
         <div className="space-y-3">
           {hotspots.map((hotspot, index) => (
