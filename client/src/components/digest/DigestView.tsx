@@ -344,7 +344,7 @@ export function DigestView() {
   return (
     <div className="flex h-full overflow-hidden">
       {/* ── Left: timeline ──────────────────────────────────── */}
-      <div className="w-[220px] flex-shrink-0 flex flex-col border-r border-[var(--border-subtle)] overflow-hidden">
+      <div className="hidden lg:flex w-[220px] flex-shrink-0 flex-col border-r border-[var(--border-subtle)] overflow-hidden">
         <div className="px-4 pt-4 pb-3 border-b border-[var(--border-subtle)] shrink-0">
           <h1 className="flex items-center gap-2.5 text-base font-bold text-[var(--text-primary)] tracking-tight">
             <CalendarDays className="w-4 h-4 text-[var(--accent-blue)] dark:text-blue-400" />
@@ -585,9 +585,14 @@ function DateNav({
   onSelect: (date: string) => void;
 }) {
   const shift = (days: number): string => {
-    const d = new Date(`${selectedDate}T00:00:00+08:00`);
-    d.setUTCDate(d.getUTCDate() + days);
-    return d.toISOString().slice(0, 10);
+    // Parse YYYY-MM-DD as a UTC midnight date, then advance whole UTC days.
+    // Doing arithmetic on `${date}T00:00:00+08:00` triggers a timezone shift
+    // (Beijing midnight = UTC 16:00 the previous day), so getUTCDate()/+1
+    // would return a date one off from what the user expects.
+    const [y, m, d] = selectedDate.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() + days);
+    return dt.toISOString().slice(0, 10);
   };
 
   const prev = shift(-1);
