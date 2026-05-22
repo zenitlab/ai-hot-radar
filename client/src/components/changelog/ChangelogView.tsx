@@ -15,6 +15,21 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-22",
+    version: "v0.7.0",
+    tag: "feature",
+    items: [
+      "浅色模式参照 Anthropic 官网风格重新设计：暖米色画布、衬线标题、珊瑚橙主色，沉浸式阅读体验",
+      "暗色模式卡片对比度提升，多张卡片堆叠时层次更清晰",
+      "AI 日报底部增加「前一日 / 回到今日 / 后一日」导航",
+      "更新日志、AI 日报详情页支持「返回顶部」浮动按钮",
+      "AI 日报区块图标从 emoji 升级为带配色徽章的 lucide 图标",
+      "Skill / RSS / API tab 选中态优化，配色更精致",
+      "全站 loading 样式统一（PageLoader / SkeletonList / InlineSpinner）",
+      "热点雷达卡片视觉升级：圆角加大、字号加粗、AI 摘要改为左侧引用块",
+    ],
+  },
+  {
     date: "2026-05-21",
     version: "v0.6.0",
     tag: "feature",
