@@ -1,15 +1,170 @@
 import { useState, useEffect, useRef } from 'react';
-import { Star, Search, X, Flame, Sparkles, Bookmark } from 'lucide-react';
-import { curatedApi, hotspotsApi, keywordsApi, agentApi } from '../../services/api';
+import {
+  Star, Search, X, Flame, Sparkles, Bookmark,
+  ExternalLink, Clock, Zap, Repeat2, MessageCircle, Eye, ThermometerSun,
+} from 'lucide-react';
+import { curatedApi, hotspotsApi, keywordsApi } from '../../services/api';
+import { relativeTime } from '../../utils/relativeTime';
 import { cn } from '../../lib/utils';
 import { HotspotTabs } from '../hotspot/HotspotTabs';
-import { HotspotCard } from '../hotspot/HotspotCard';
 import { BackToTop } from '../common/BackToTop';
 import { SkeletonList } from '../common/Loader';
 import { EmptyState } from '../common/EmptyState';
 import type { Hotspot, HotspotTab } from '../../types';
 
 type Period = 'today' | 'week';
+
+const SOURCE_LABEL: Record<string, string> = {
+  rss_openai: 'OpenAI', rss_anthropic: 'Anthropic', rss_google_ai: 'Google AI',
+  rss_deepmind: 'DeepMind', rss_hugging_face: 'Hugging Face', rss_mit_tech: 'MIT Tech Review',
+  rss_the_decoder: 'The Decoder', rss_venturebeat: 'VentureBeat', rss_techcrunch: 'TechCrunch',
+  rss_microsoft_ai: 'Microsoft AI', rss_synced: 'Synced', rss_github: 'GitHub Blog',
+  rss_infoq: 'InfoQ', rss_hacker_news: 'Hacker News', rss_v2ex: 'V2EX', rss_juejin: '掘金',
+  rss_cls: '财联社', rss_xueqiu: '雪球', rss_36kr: '36氪', rss_chinanews: '中国新闻网',
+  rss_ithome: 'IT之家', rss_arxiv_ai: 'arXiv cs.AI', rss_arxiv_lg: 'arXiv cs.LG',
+  rss_arxiv_cl: 'arXiv cs.CL', rss_arxiv_cv: 'arXiv cs.CV', rss_wheresyoured: "Where's Your Ed At",
+  rss_nvidia: 'NVIDIA', rss_meta_ai: 'Meta AI', rss_hf_papers: 'HuggingFace Daily Papers',
+  twitter: 'X', bing: 'Bing', bilibili: 'Bilibili', hackernews: 'HackerNews',
+};
+
+function getSourceLabel(source: string): string {
+  if (SOURCE_LABEL[source]) return SOURCE_LABEL[source];
+  if (source.startsWith('twitter_')) return '@' + source.slice(8);
+  if (source.startsWith('rss_')) return source.slice(4).replace(/_/g, ' ');
+  return source;
+}
+
+const CATEGORY_LABEL: Record<string, string> = {
+  model: '模型发布', product: 'AI 产品', industry: '行业动态',
+  research: '论文研究', community: '社区讨论', tips: '使用技巧',
+};
+
+/**
+ * Curated card — visually unified with HotspotCard but lighter on chrome.
+ * Differences from HotspotCard (intentional):
+ *   - No importance/urgent/high/low badges (curated items are pre-filtered
+ *     by quality score; the score itself is the badge)
+ *   - No 真假/可信/可疑/直接提及 chips
+ *   - No AI relevance reason / raw content collapsibles
+ *   - Engagement metrics shown as a single trailing row
+ *   - Reading-first: bigger title, wider summary leading
+ */
+function CuratedCard({ item, index = 0 }: { item: Hotspot; index?: number }) {
+  const tags = item.tags ? (JSON.parse(item.tags) as string[]) : [];
+
+  // Same heat formula as HotspotCard for visual consistency
+  const heatRaw =
+    (item.likeCount ?? 0) * 2 +
+    (item.retweetCount ?? 0) * 3 +
+    (item.replyCount ?? 0) * 1.5 +
+    (item.commentCount ?? 0) * 1.5 +
+    (item.viewCount ?? 0) / 100;
+  const heatScore = heatRaw > 0 ? Math.min(100, Math.round(Math.log10(heatRaw + 1) * 25)) : 0;
+  const heat =
+    heatScore >= 80 ? { label: '爆', color: 'text-red-500 dark:text-red-400' } :
+    heatScore >= 60 ? { label: '热', color: 'text-orange-500 dark:text-orange-400' } :
+    heatScore >= 40 ? { label: '温', color: 'text-amber-500 dark:text-amber-400' } :
+    null;
+
+  return (
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ animationDelay: `${index * 30}ms` }}
+      className="block p-5 sm:p-6 rounded-3xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200 group"
+    >
+      {/* Top row: source · category · keyword (left) | heat + score (right) */}
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <span className="text-[12px] text-[var(--text-muted)] font-medium">
+          {getSourceLabel(item.source)}
+        </span>
+        {item.category && CATEGORY_LABEL[item.category] && (
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-elevated)] text-[var(--text-secondary)]">
+            {CATEGORY_LABEL[item.category]}
+          </span>
+        )}
+        {item.keyword && (
+          <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] border border-[var(--accent-blue)]/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
+            {item.keyword.text}
+          </span>
+        )}
+        <div className="ml-auto flex items-center gap-1.5">
+          {heat && (
+            <span className={cn('flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-[var(--input-bg)] border border-[var(--input-border)] font-medium', heat.color)}>
+              <ThermometerSun className="w-3 h-3" />
+              {heat.label} {heatScore}
+            </span>
+          )}
+          {item.qualityScore != null && (
+            <span className="text-xs font-mono px-2.5 py-0.5 rounded-full border border-[var(--accent-blue)]/30 text-[var(--accent-blue)] dark:text-blue-400">
+              {Math.round(item.qualityScore)}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Title — large, semibold, reading-first */}
+      <h3 className="text-[17px] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors leading-snug mb-2.5">
+        {item.title}
+        <ExternalLink className="inline-block w-3.5 h-3.5 ml-1 mb-0.5 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
+      </h3>
+
+      {/* Summary */}
+      {item.summary && (
+        <p className="text-[14px] text-[var(--text-secondary)] mb-3 leading-[1.7] line-clamp-3">
+          {item.summary}
+        </p>
+      )}
+
+      {/* Tags — filled chips */}
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {tags.slice(0, 4).map((tag: string) => (
+            <span
+              key={tag}
+              className="text-[11px] px-2.5 py-1 rounded-md bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Engagement + time — single muted trailing row */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--text-muted)]">
+        {item.likeCount != null && item.likeCount > 0 && (
+          <span className="flex items-center gap-1" title="点赞">
+            <Zap className="w-3 h-3" />
+            {item.likeCount.toLocaleString()}
+          </span>
+        )}
+        {item.retweetCount != null && item.retweetCount > 0 && (
+          <span className="flex items-center gap-1" title="转发">
+            <Repeat2 className="w-3 h-3" />
+            {item.retweetCount.toLocaleString()}
+          </span>
+        )}
+        {item.commentCount != null && item.commentCount > 0 && (
+          <span className="flex items-center gap-1" title="评论">
+            <MessageCircle className="w-3 h-3" />
+            {item.commentCount.toLocaleString()}
+          </span>
+        )}
+        {item.viewCount != null && item.viewCount > 0 && (
+          <span className="flex items-center gap-1" title="浏览">
+            <Eye className="w-3 h-3" />
+            {item.viewCount.toLocaleString()}
+          </span>
+        )}
+        <span className="flex items-center gap-1 ml-auto">
+          <Clock className="w-3 h-3" />
+          {relativeTime(item.publishedAt || item.createdAt)}
+        </span>
+      </div>
+    </a>
+  );
+}
 
 
 export function CuratedView() {
@@ -24,20 +179,21 @@ export function CuratedView() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   // One-time fetch of overview metrics for the top stat strip.
-  // The "curated" count comes from /api/agent/stats (a global, all-time
-  // curated count) and never reacts to tab/period/search filters — those
-  // change the list below but the stat tiles stay stable.
+  // "今日新增" = total hotspots created today (from /hotspots/stats)
+  // "今日精选" = today's curated count, unfiltered — fetched with no
+  //   category/region/search so it stays stable when the user changes tabs.
+  // "关注的关键词" = active keywords count.
   useEffect(() => {
     Promise.all([
       hotspotsApi.getStats().catch(() => null),
       keywordsApi.getAll().catch(() => []),
-      agentApi.getStats().catch(() => null),
-    ]).then(([stats, kws, agentStats]) => {
+      curatedApi.getAll('today', 1, 0, {}).catch(() => null),
+    ]).then(([stats, kws, todayCurated]) => {
       if (!stats) return;
       const activeKws = (kws as { isActive: boolean }[]).filter(k => k.isActive).length;
       setOverview({
         today: stats.today,
-        curated: agentStats?.curated ?? 0,
+        curated: todayCurated?.total ?? 0,
         keywords: activeKws,
       });
     });
@@ -110,7 +266,7 @@ export function CuratedView() {
           />
           <StatTile
             icon={<Sparkles className="w-4 h-4" />}
-            label="精选总数"
+            label="今日精选"
             value={overview.curated}
             accent="text-[var(--accent-blue)] dark:text-blue-400 bg-[var(--accent-blue)]/10 dark:bg-blue-500/10"
           />
@@ -178,7 +334,7 @@ export function CuratedView() {
       ) : (
         <div className="space-y-3">
           {items.map((item, index) => (
-            <HotspotCard key={item.id} hotspot={item} index={index} />
+            <CuratedCard key={item.id} item={item} index={index} />
           ))}
         </div>
       )}
