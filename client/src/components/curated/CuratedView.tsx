@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Star, ExternalLink, Clock, Search, X } from 'lucide-react';
-import { curatedApi } from '../../services/api';
+import { Star, ExternalLink, Clock, Search, X, Flame, Sparkles, Bookmark } from 'lucide-react';
+import { curatedApi, hotspotsApi, keywordsApi } from '../../services/api';
 import { relativeTime } from '../../utils/relativeTime';
 import { cn } from '../../lib/utils';
 import { HotspotTabs } from '../hotspot/HotspotTabs';
@@ -120,7 +120,25 @@ export function CuratedView() {
   const [items, setItems] = useState<Hotspot[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [overview, setOverview] = useState<{ today: number; curated: number; keywords: number } | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  // One-time fetch of overview metrics for the top stat strip.
+  useEffect(() => {
+    Promise.all([
+      hotspotsApi.getStats().catch(() => null),
+      keywordsApi.getAll().catch(() => []),
+    ]).then(([stats, kws]) => {
+      if (!stats) return;
+      const activeKws = (kws as { isActive: boolean }[]).filter(k => k.isActive).length;
+      // total curated count comes back from the curated API call below
+      setOverview(prev => ({
+        today: stats.today,
+        curated: prev?.curated ?? 0,
+        keywords: activeKws,
+      }));
+    });
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -134,7 +152,12 @@ export function CuratedView() {
     if (appliedSearch) opts.search = appliedSearch;
 
     curatedApi.getAll(period, 50, 0, opts)
-      .then((res) => { setItems(res.items || []); setTotal(res.total || 0); })
+      .then((res) => {
+        setItems(res.items || []);
+        setTotal(res.total || 0);
+        // Fold in latest curated count for the top stats strip
+        setOverview(prev => prev ? { ...prev, curated: res.total || 0 } : prev);
+      })
       .finally(() => setLoading(false));
   }, [period, activeTab, appliedSearch]);
 
@@ -174,6 +197,30 @@ export function CuratedView() {
           ))}
         </div>
       </div>
+
+      {/* Stats strip — at-a-glance overview, only on default tab/period */}
+      {overview && (
+        <div className="grid grid-cols-3 gap-2.5 mb-5">
+          <StatTile
+            icon={<Flame className="w-4 h-4" />}
+            label="今日新增"
+            value={overview.today}
+            accent="text-red-500 dark:text-red-400 bg-red-500/10"
+          />
+          <StatTile
+            icon={<Sparkles className="w-4 h-4" />}
+            label={period === 'today' ? '今日精选' : '本周精选'}
+            value={overview.curated}
+            accent="text-[var(--accent-blue)] dark:text-blue-400 bg-[var(--accent-blue)]/10 dark:bg-blue-500/10"
+          />
+          <StatTile
+            icon={<Bookmark className="w-4 h-4" />}
+            label="关注的关键词"
+            value={overview.keywords}
+            accent="text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
+          />
+        </div>
+      )}
 
       {/* Tabs + Search row — stacked on mobile, side-by-side on lg+ */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 mb-4">
@@ -234,6 +281,32 @@ export function CuratedView() {
       )}
 
       <BackToTop />
+    </div>
+  );
+}
+
+function StatTile({
+  icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  accent: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 p-3 sm:p-4 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)]">
+      <span className={cn('flex items-center justify-center w-9 h-9 rounded-xl shrink-0', accent)}>
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <div className="text-[19px] sm:text-[22px] font-bold text-[var(--text-primary)] leading-tight tabular-nums">
+          {value}
+        </div>
+        <div className="text-[11px] text-[var(--text-muted)] truncate">{label}</div>
+      </div>
     </div>
   );
 }
