@@ -16,6 +16,15 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-23",
+    version: "v0.7.7",
+    tag: "feature",
+    items: [
+      "新增国内大模型官方 X 账号订阅：DeepSeek、Kimi（月之暗面）、智谱 Zhipu",
+      "「关于」页加入作者微信二维码，方便交流",
+    ],
+  },
+  {
+    date: "2026-05-23",
     version: "v0.7.6",
     tag: "feature",
     items: [
