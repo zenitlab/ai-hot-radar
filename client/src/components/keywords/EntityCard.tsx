@@ -1,6 +1,7 @@
 import { RefreshCw, Trash2, Clock, Flame, Package, Cpu, Building2, User, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { relativeTime } from '../../utils/relativeTime';
+import { Skeleton } from '../common/Loader';
 import type { EntityCardSummary, RelatedData } from '../../services/api';
 
 const TYPE_ICON: Record<string, React.ReactNode> = {
@@ -81,8 +82,8 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
       {/* Summary */}
       {isLoading ? (
         <div className="space-y-1.5 mb-3">
-          <div className="h-2.5 bg-[var(--input-bg)] rounded animate-pulse w-full" />
-          <div className="h-2.5 bg-[var(--input-bg)] rounded animate-pulse w-4/5" />
+          <Skeleton className="h-2.5 w-full" />
+          <Skeleton className="h-2.5 w-4/5" />
         </div>
       ) : (
         <p className="text-xs text-[var(--text-secondary)] mb-3 line-clamp-2 leading-relaxed">

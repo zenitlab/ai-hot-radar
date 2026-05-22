@@ -7,6 +7,7 @@ import { cn } from '../../lib/utils';
 import { EntityCard } from './EntityCard';
 import { EntityRelationGraph } from './EntityRelationGraph';
 import { TrendChart } from './TrendChart';
+import { Skeleton, SkeletonList } from '../common/Loader';
 import type { EntityCardSummary, EntityCardDetail, NewsItem, RelatedData } from '../../services/api';
 
 interface KeywordsViewProps {
@@ -236,14 +237,10 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
             </div>
           ) : loadingDetail ? (
             <div className="space-y-4">
-              <div className="h-4 bg-[var(--input-bg)] rounded animate-pulse w-40" />
-              <div className="h-72 bg-[var(--input-bg)] rounded-xl animate-pulse" />
-              <div className="h-4 bg-[var(--input-bg)] rounded animate-pulse w-32" />
-              <div className="space-y-2">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-8 bg-[var(--input-bg)] rounded animate-pulse" />
-                ))}
-              </div>
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-72" />
+              <Skeleton className="h-4 w-32" />
+              <SkeletonList count={3} itemClassName="h-8" />
             </div>
           ) : detail ? (
             <DetailPanel entity={selectedEntity} detail={detail} />
@@ -361,9 +358,7 @@ function DetailPanel({ entity, detail }: { entity: EntityCardSummary; detail: En
       <div>
         <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">{newsTitle}</h3>
         {loadingNodeNews ? (
-          <div className="space-y-2">
-            {[1, 2, 3].map((i) => <div key={i} className="h-14 bg-[var(--input-bg)] rounded-lg animate-pulse" />)}
-          </div>
+          <SkeletonList count={3} itemClassName="h-14" />
         ) : displayNews.length > 0 ? (
           <div className="space-y-2">
             {displayNews.map((n) => (
