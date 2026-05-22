@@ -305,19 +305,22 @@ export const RSS_FEEDS: RssFeedConfig[] = [
     region: 'international',
     defaultCategory: 'industry',
   },
-  // Meta AI 官方博客 — 一级信源（Llama / FAIR 研究）
+  // Meta AI Blog — 一级信源（Llama / FAIR）
+  // 注：ai.meta.com 在国内网络下不可访问，使用 Google News RSS 代理（同 Anthropic 处理方式）。
+  // 部署到海外 VPS / 有代理时可改为 https://ai.meta.com/blog/rss/
   {
     name: 'Meta AI Blog',
-    url: 'https://ai.meta.com/blog/rss/',
+    url: 'https://news.google.com/rss/search?q=site%3Aai.meta.com&hl=en-US&gl=US&ceid=US%3Aen',
     category: 'meta_ai',
     tier: 'T1',
     region: 'international',
     defaultCategory: 'model',
   },
-  // Hugging Face Papers — 社区每日精选论文，比 arXiv 噪音少得多
+  // HuggingFace Daily Papers — 社区每日精选论文，比 arXiv 噪音少得多
+  // 注：HF 官方未提供 RSS，使用 RSSHub 公共实例。如不稳定可自建或换用 Google News
   {
-    name: 'Hugging Face Papers',
-    url: 'https://jamesg.blog/hf-papers.xml',
+    name: 'HuggingFace Daily Papers',
+    url: 'https://rsshub.app/huggingface/daily-papers',
     category: 'hf_papers',
     tier: 'T1',
     region: 'international',
