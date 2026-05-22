@@ -649,24 +649,21 @@ function DateNav({
   };
 
   return (
-    <nav className="border-t border-[var(--border-subtle)] mt-6">
-      <div className="grid grid-cols-3 items-center max-w-3xl px-6 py-5 text-sm">
+    <nav className="border-t border-[var(--border-subtle)]">
+      <div className="flex items-center justify-between max-w-3xl px-6 py-3 text-sm gap-2">
         <button
           onClick={() => onSelect(prev)}
-          className="group flex items-center gap-2 justify-self-start text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors"
+          className="group flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors min-w-0"
         >
-          <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
-          <span className="flex flex-col items-start leading-tight">
-            <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">前一日</span>
-            <span className="font-medium">{formatLabel(prev)}</span>
-          </span>
+          <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 shrink-0" />
+          <span className="truncate">前一日 · {formatLabel(prev)}</span>
         </button>
 
         <button
           onClick={() => onSelect(today)}
           disabled={isToday}
           className={cn(
-            'justify-self-center text-xs px-3 py-1.5 rounded-lg transition-colors',
+            'shrink-0 text-xs px-2.5 py-1 rounded-md transition-colors',
             isToday
               ? 'text-[var(--text-muted)] cursor-default'
               : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]',
@@ -678,21 +675,15 @@ function DateNav({
         {canGoNext ? (
           <button
             onClick={() => onSelect(next)}
-            className="group flex items-center gap-2 justify-self-end text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors"
+            className="group flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors min-w-0"
           >
-            <span className="flex flex-col items-end leading-tight">
-              <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">后一日</span>
-              <span className="font-medium">{formatLabel(next)}</span>
-            </span>
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            <span className="truncate">后一日 · {formatLabel(next)}</span>
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 shrink-0" />
           </button>
         ) : (
-          <span className="flex items-center gap-2 justify-self-end text-[var(--text-muted)] opacity-50 cursor-default">
-            <span className="flex flex-col items-end leading-tight">
-              <span className="text-[10px] uppercase tracking-wider">后一日</span>
-              <span className="font-medium">—</span>
-            </span>
-            <ArrowRight className="w-4 h-4" />
+          <span className="flex items-center gap-1.5 text-[var(--text-muted)] opacity-50 cursor-default min-w-0">
+            <span className="truncate">后一日 · —</span>
+            <ArrowRight className="w-4 h-4 shrink-0" />
           </span>
         )}
       </div>

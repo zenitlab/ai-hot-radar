@@ -243,7 +243,10 @@ export interface NewsItem {
   url: string;
   source: string;
   createdAt: string;
+  publishedAt?: string;
   summary: string | null;
+  importance?: 'low' | 'medium' | 'high' | 'urgent';
+  qualityScore?: number;
 }
 
 export interface TrendPoint {

@@ -359,29 +359,51 @@ function DetailPanel({ entity, detail }: { entity: EntityCardSummary; detail: En
       <div>
         <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">{newsTitle}</h3>
         {loadingNodeNews ? (
-          <SkeletonList count={3} itemClassName="h-14" />
+          <SkeletonList count={3} itemClassName="h-24" />
         ) : displayNews.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {displayNews.map((n) => (
               <a
                 key={n.id}
                 href={n.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-start gap-2 p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] transition-all group"
+                className="block p-4 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] hover:-translate-y-0.5 transition-all group"
               >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
-                    {n.title}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1 text-[11px] text-[var(--text-muted)]">
-                    <span>{n.source}</span>
-                    <span>·</span>
+                {/* Source + importance + quality on top */}
+                <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] mb-1.5">
+                  <span className="font-medium">{n.source}</span>
+                  {n.importance && n.importance !== 'low' && (
+                    <span className={cn(
+                      'text-[10px] px-1.5 py-0.5 rounded',
+                      n.importance === 'urgent' && 'bg-red-500/15 text-red-500 dark:text-red-400',
+                      n.importance === 'high' && 'bg-orange-500/15 text-orange-600 dark:text-orange-400',
+                      n.importance === 'medium' && 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
+                    )}>
+                      {n.importance === 'urgent' ? '紧急' : n.importance === 'high' ? '重要' : '关注'}
+                    </span>
+                  )}
+                  {n.qualityScore != null && (
+                    <span className="font-mono">{Math.round(n.qualityScore)}分</span>
+                  )}
+                  <span className="ml-auto flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    <span>{relativeTime(n.createdAt)}</span>
-                  </div>
+                    {relativeTime(n.publishedAt || n.createdAt)}
+                  </span>
                 </div>
-                <ExternalLink className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                {/* Title */}
+                <p className="text-[14px] font-medium text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug mb-1.5">
+                  {n.title}
+                  <ExternalLink className="inline-block w-3 h-3 ml-1 mb-0.5 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                </p>
+
+                {/* Summary */}
+                {n.summary && (
+                  <p className="text-[12.5px] text-[var(--text-secondary)] line-clamp-2 leading-relaxed">
+                    {n.summary}
+                  </p>
+                )}
               </a>
             ))}
           </div>
