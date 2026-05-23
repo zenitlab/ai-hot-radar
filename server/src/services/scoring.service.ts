@@ -79,9 +79,9 @@ region说明：
 - international: 国际内容`,
         },
         { role: 'user', content: snippet },
-      ], 400, 'preFilter');
+      ], 800, 'preFilter');
 
-      const json = JSON.parse(response.replace(/```json\n?|\n?```/g, '').trim());
+      const json = JSON.parse(this.aiService.cleanModelResponse(response));
       return {
         isAiRelated: Boolean(json.isAiRelated),
         category: json.category || 'industry',
@@ -157,9 +157,9 @@ importance标准：
 tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多模态/推理）`,
         },
         { role: 'user', content: snippet },
-      ], 400, 'scoreFiveDim');
+      ], 800, 'scoreFiveDim');
 
-      const json = JSON.parse(response.replace(/```json\n?|\n?```/g, '').trim());
+      const json = JSON.parse(this.aiService.cleanModelResponse(response));
       const importance = ['low', 'medium', 'high', 'urgent'].includes(json.importance)
         ? json.importance
         : 'low';

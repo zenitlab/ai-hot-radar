@@ -73,6 +73,24 @@ export class AiService {
     return new Promise((r) => setTimeout(r, ms + Math.floor(Math.random() * jitter)));
   }
 
+  /**
+   * Strip noise from a model's raw text response so JSON parsers see clean output.
+   *
+   * Reasoning models (DeepSeek-R1, Xiaomi MiMo, o1-style) emit a leading
+   * <think>...</think> block. The block can contain stray '{' characters
+   * (e.g. "let me return {answer: ...}") which break greedy regex matching
+   * when we look for the actual JSON afterwards. Strip it first.
+   *
+   * Also strips markdown ```json fences that some providers add.
+   */
+  cleanModelResponse(raw: string): string {
+    return raw
+      .replace(/<think>[\s\S]*?<\/think>/gi, '')   // reasoning block
+      .replace(/<\|begin_of_thought\|>[\s\S]*?<\|end_of_thought\|>/gi, '') // alt format
+      .replace(/```(?:json)?\s*\n?|\n?```/g, '')   // markdown fences
+      .trim();
+  }
+
   /** Pull a wait time from a 429 error: prefer Retry-After header, else
    *  exponential backoff capped at 8s. attempt is 1-indexed. */
   private compute429Backoff(err: unknown, attempt: number): number {
@@ -290,13 +308,16 @@ ${matchHint}
           { role: 'user', content: content.slice(0, 2000) },
         ],
         temperature: 0.2,
-        max_tokens: 500,
+        // Reasoning models (MiMo, R1) burn through max_tokens inside <think>;
+        // 800 leaves enough budget for the actual JSON output afterward.
+        max_tokens: 800,
       }));
 
       const rawContent = result.choices[0]?.message?.content || '';
       const responseContent = typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent);
+      const cleaned = this.cleanModelResponse(responseContent);
 
-      const jsonMatch = responseContent.match(/\{[\s\S]*\}/);
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         // New schema enforces a binary isRelevant gate. If model says "no", clamp
@@ -319,6 +340,13 @@ ${matchHint}
 
       throw new Error('Failed to parse AI response');
     } catch (error) {
+      // First few parse failures: log the actual response (truncated) so we
+      // can see what the model returned. Otherwise it's impossible to
+      // debug — the message just says "Failed to parse" forever.
+      if (error instanceof Error && error.message === 'Failed to parse AI response' && this.stats.errors < 5) {
+        // We don't actually have the raw text here in scope; just hint.
+        console.error('[AI analyzeContent] parse failure — model output may contain <think> block or be truncated; see max_tokens.');
+      }
       console.error('AI analysis failed:', error);
       return {
         isReal: true,
