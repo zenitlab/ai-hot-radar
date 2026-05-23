@@ -79,7 +79,7 @@ region说明：
 - international: 国际内容`,
         },
         { role: 'user', content: snippet },
-      ], 800, 'preFilter');
+      ], 1500, 'preFilter');
 
       const json = JSON.parse(this.aiService.cleanModelResponse(response));
       return {
@@ -157,7 +157,7 @@ importance标准：
 tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多模态/推理）`,
         },
         { role: 'user', content: snippet },
-      ], 800, 'scoreFiveDim');
+      ], 1500, 'scoreFiveDim');
 
       const json = JSON.parse(this.aiService.cleanModelResponse(response));
       const importance = ['low', 'medium', 'high', 'urgent'].includes(json.importance)

@@ -20,6 +20,13 @@ export class AiService {
   private inFlight = 0;
   private waitQueue: Array<() => void> = [];
 
+  // ── Token budget ────────────────────────────────────────────────────────
+  // Reasoning models (MiMo / R1) burn through max_tokens inside <think>
+  // before emitting the actual JSON. 1500-2000 is a safer floor than the
+  // pre-reasoning-era 400-800. AI_MAX_TOKENS env var lets the user dial up
+  // further for chains of thought that are particularly verbose.
+  private readonly maxTokens: number;
+
   // ── 429 retry config ────────────────────────────────────────────────────
   private readonly maxRetries429: number;
 
@@ -27,12 +34,13 @@ export class AiService {
     this.client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY ?? '',
       baseURL: process.env.OPENAI_BASE_URL ?? 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-      timeout: 30000, // 30s default; scoreBatch overrides to 60s
+      timeout: 60000, // 60s — reasoning models routinely sit on the connection for 15s+
       maxRetries: 0,  // we do our own 429-aware retry below
     });
     this.model = process.env.MODEL_NAME ?? 'qwen-coder-turbo';
     this.maxConcurrent = Math.max(1, Number(process.env.AI_MAX_CONCURRENT ?? 5));
     this.maxRetries429 = Math.max(0, Number(process.env.AI_MAX_RETRIES_429 ?? 3));
+    this.maxTokens = Math.max(400, Number(process.env.AI_MAX_TOKENS ?? 1500));
   }
 
   resetStats(): void {
@@ -77,18 +85,27 @@ export class AiService {
    * Strip noise from a model's raw text response so JSON parsers see clean output.
    *
    * Reasoning models (DeepSeek-R1, Xiaomi MiMo, o1-style) emit a leading
-   * <think>...</think> block. The block can contain stray '{' characters
-   * (e.g. "let me return {answer: ...}") which break greedy regex matching
-   * when we look for the actual JSON afterwards. Strip it first.
-   *
-   * Also strips markdown ```json fences that some providers add.
+   * <think>...</think> block. Three failure modes we handle:
+   *   (a) closed block — strip <think>...</think> normally
+   *   (b) unclosed block (response truncated mid-thought) — strip everything
+   *       from <think> to end of string. Whatever follows is gibberish.
+   *   (c) markdown ```json fences — drop them
    */
   cleanModelResponse(raw: string): string {
-    return raw
-      .replace(/<think>[\s\S]*?<\/think>/gi, '')   // reasoning block
-      .replace(/<\|begin_of_thought\|>[\s\S]*?<\|end_of_thought\|>/gi, '') // alt format
-      .replace(/```(?:json)?\s*\n?|\n?```/g, '')   // markdown fences
-      .trim();
+    let s = raw;
+    // Closed reasoning blocks
+    s = s.replace(/<think>[\s\S]*?<\/think>/gi, '');
+    s = s.replace(/<\|begin_of_thought\|>[\s\S]*?<\|end_of_thought\|>/gi, '');
+    // Unclosed reasoning block: response was truncated inside <think>
+    if (/<think>/i.test(s)) {
+      s = s.replace(/<think>[\s\S]*$/i, '');
+    }
+    if (/<\|begin_of_thought\|>/i.test(s)) {
+      s = s.replace(/<\|begin_of_thought\|>[\s\S]*$/i, '');
+    }
+    // Markdown fences
+    s = s.replace(/```(?:json)?\s*\n?|\n?```/g, '');
+    return s.trim();
   }
 
   /** Pull a wait time from a 429 error: prefer Retry-After header, else
@@ -308,14 +325,16 @@ ${matchHint}
           { role: 'user', content: content.slice(0, 2000) },
         ],
         temperature: 0.2,
-        // Reasoning models (MiMo, R1) burn through max_tokens inside <think>;
-        // 800 leaves enough budget for the actual JSON output afterward.
-        max_tokens: 800,
+        max_tokens: this.maxTokens,
       }));
 
       const rawContent = result.choices[0]?.message?.content || '';
       const responseContent = typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent);
       const cleaned = this.cleanModelResponse(responseContent);
+
+      // Detect a likely-truncated reasoning response so we can log a
+      // useful hint instead of "Failed to parse" with no context.
+      const wasTruncated = /<think>/i.test(responseContent) && !/<\/think>/i.test(responseContent);
 
       const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -338,14 +357,20 @@ ${matchHint}
         };
       }
 
-      throw new Error('Failed to parse AI response');
+      throw new Error(wasTruncated ? 'reasoning truncated' : 'Failed to parse AI response');
     } catch (error) {
-      // First few parse failures: log the actual response (truncated) so we
-      // can see what the model returned. Otherwise it's impossible to
-      // debug — the message just says "Failed to parse" forever.
-      if (error instanceof Error && error.message === 'Failed to parse AI response' && this.stats.errors < 5) {
-        // We don't actually have the raw text here in scope; just hint.
-        console.error('[AI analyzeContent] parse failure — model output may contain <think> block or be truncated; see max_tokens.');
+      // Log distinct hints for the two main failure modes so the user knows
+      // what to do.
+      if (error instanceof Error && this.stats.errors < 3) {
+        if (error.message === 'reasoning truncated') {
+          console.error(
+            '[AI analyzeContent] reasoning model output was cut off inside <think>. ' +
+            `Bump AI_MAX_TOKENS in .env (current: ${this.maxTokens}) to e.g. 2500, ` +
+            'or switch MODEL_NAME to a non-reasoning model (qwen-plus, deepseek-chat, etc.)',
+          );
+        } else if (error.message === 'Failed to parse AI response') {
+          console.error('[AI analyzeContent] response did not contain parseable JSON');
+        }
       }
       console.error('AI analysis failed:', error);
       return {
