@@ -16,6 +16,14 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-23",
+    version: "v0.7.9",
+    tag: "tweak",
+    items: [
+      "热点雷达卡片精简徽章：移除「可信」「直接提及/间接相关」等与已有信息重复的标签，从 8 个减至 5 个",
+    ],
+  },
+  {
+    date: "2026-05-23",
     version: "v0.7.8",
     tag: "tweak",
     items: [
