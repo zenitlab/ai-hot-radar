@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle, Flame, Zap, TrendingUp, Twitter, Globe,
   Eye, Activity, Clock, Target, MessageCircle, Repeat2, Quote, User,
-  Shield, ShieldAlert, ChevronDown, ChevronUp, ThermometerSun, FileText, Search,
+  ShieldAlert, ChevronDown, ChevronUp, ThermometerSun, FileText, Search,
   Sparkles,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -155,7 +155,14 @@ export function HotspotCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          {/* Row 1: Meta badges */}
+          {/* Row 1: Meta badges — kept lean.
+              Removed: 可信 chip (the importance badge + 关键词 chip already
+              encode trust), 直接提及/间接相关 chip (the presence of a 关键词
+              chip already implies relevance — having a separate "this is
+              relevant to your keyword" badge on a card matched by that
+              keyword was redundant).
+              Kept: importance · source · keyword · 可疑 (only when suspicious,
+              acts as a warning) · heat. */}
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className={cn(
               'px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider flex items-center',
@@ -177,27 +184,9 @@ export function HotspotCard({
               </span>
             )}
             {!hotspot.isReal && (
-              <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20">
+              <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20" title="AI 评分认为可疑">
                 <ShieldAlert className="w-3 h-3" />
                 可疑
-              </span>
-            )}
-            {hotspot.isReal && hotspot.relevance >= 80 && (
-              <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <Shield className="w-3 h-3" />
-                可信
-              </span>
-            )}
-            {hotspot.keywordMentioned === true && (
-              <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                <Target className="w-3 h-3" />
-                直接提及
-              </span>
-            )}
-            {hotspot.keywordMentioned === false && (
-              <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
-                <Target className="w-3 h-3" />
-                间接相关
               </span>
             )}
             <span className={cn('flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-[var(--input-bg)] border border-[var(--input-border)] font-medium', heat.color)}>
