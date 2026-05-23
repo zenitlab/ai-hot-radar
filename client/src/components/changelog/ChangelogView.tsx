@@ -15,6 +15,15 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-24",
+    version: "v0.7.12",
+    tag: "fix",
+    items: [
+      "兼容推理类模型（小米 MiMo、DeepSeek R1 等）：解析前剥离 <think>...</think> 思考块，提高 max_tokens 给推理留余地",
+      "AI 解析失败率从「几乎全失败」降到「偶发」，关键词扫描重新可用",
+    ],
+  },
+  {
     date: "2026-05-23",
     version: "v0.7.11",
     tag: "tweak",
