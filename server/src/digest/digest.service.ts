@@ -106,8 +106,14 @@ export class DigestService {
     this.logger.log(`Digest generated for ${date} (${items.length} items)`);
   }
 
-  /** Runs at UTC 16:00 = Beijing 00:00, generating the just-completed Beijing day's digest */
-  @Cron('0 0 16 * * *')
+  /** Runs every morning at 08:00 Beijing time, generating the just-completed
+   *  Beijing day's digest. Generating in the morning (rather than at midnight)
+   *  gives the AI scoring pipeline the full overnight to settle and matches
+   *  when most users actually open the app.
+   *
+   *  Pinning the timezone explicitly so this works regardless of the server's
+   *  local TZ (Docker images often default to UTC, dev machines vary). */
+  @Cron('0 0 8 * * *', { timeZone: 'Asia/Shanghai' })
   async scheduledDigest(): Promise<void> {
     const yesterday = this.getBeijingDate(-1);
     await this.generateDigest(yesterday);

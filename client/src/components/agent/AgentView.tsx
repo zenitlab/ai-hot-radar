@@ -23,7 +23,7 @@ const RSS_FEEDS = [
   {
     label: 'AI 日报 RSS',
     url: `${BASE_URL}/api/agent/rss/digest.xml`,
-    desc: '每日凌晨自动生成的 AI 行业日报，覆盖模型 / 产品 / 行业 / 论文',
+    desc: '每日早上 8:00 自动生成的 AI 行业日报，覆盖模型 / 产品 / 行业 / 论文',
   },
 ];
 

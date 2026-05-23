@@ -29,7 +29,7 @@ const FEATURES = [
   {
     icon: Sparkles,
     title: "精选 + AI 日报",
-    desc: "经五维评分 + tier 加成筛出的高质量资讯流；每天 00:00 自动生成日报，六大板块覆盖。",
+    desc: "经五维评分 + tier 加成筛出的高质量资讯流；每天早上 8:00 自动生成日报，六大板块覆盖。",
     accent: "text-amber-600 bg-amber-500/10 dark:text-amber-400",
   },
   {

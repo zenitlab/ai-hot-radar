@@ -733,7 +733,7 @@ function DigestEmptyState({ date, today, onGenerate, generating }: {
         {isToday ? '今日日报尚未生成' : `${date} 暂无日报`}
       </p>
       <p className="mt-1.5 text-sm text-[var(--text-muted)] max-w-md">
-        {isToday ? '每天北京时间 00:00 自动生成，也可手动触发' : '该日期暂无数据，可手动触发生成'}
+        {isToday ? '每天北京时间早上 8:00 自动生成，也可手动触发' : '该日期暂无数据，可手动触发生成'}
       </p>
 
       {date <= today && (

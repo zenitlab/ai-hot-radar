@@ -16,6 +16,15 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-23",
+    version: "v0.7.8",
+    tag: "tweak",
+    items: [
+      "AI 日报自动生成时间从北京时间 00:00 调整为早上 8:00（Asia/Shanghai 时区）",
+      "Favicon 更新为珊瑚橙 + 米色雷达信号波，与浅色主题一致",
+    ],
+  },
+  {
+    date: "2026-05-23",
     version: "v0.7.7",
     tag: "feature",
     items: [

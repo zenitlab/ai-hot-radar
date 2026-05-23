@@ -45,7 +45,7 @@ A high-quality stream filtered by 5-axis AI scoring + source-tier bonus + thresh
 
 ### 2.3 Daily Digest
 
-Auto-generated at 00:00 Beijing time. Six sections: Top Stories, Model Intel, Domestic, International, AI Products, Community, Papers. Manual regeneration supported.
+Auto-generated at 08:00 Beijing time every morning. Six sections: Top Stories, Model Intel, Domestic, International, AI Products, Community, Papers. Manual regeneration supported.
 
 ### 2.4 My Keywords
 
