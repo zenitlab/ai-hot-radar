@@ -8,21 +8,35 @@ export class AiService {
   private readonly model: string;
   private readonly expansionCache = new Map<string, string[]>();
 
-  private stats = { calls: 0, latencyMs: 0, promptTokens: 0, completionTokens: 0, errors: 0 };
+  private stats = { calls: 0, latencyMs: 0, promptTokens: 0, completionTokens: 0, errors: 0, retries: 0 };
   private callsByKind: Record<string, number> = {};
+
+  // ── Global concurrency throttle ─────────────────────────────────────────
+  // The provider determines how aggressive we can be:
+  //   - DashScope/SiliconFlow/DeepSeek: usually fine at 10-15 concurrent
+  //   - Xiaomi MiMo / smaller providers: 429 above ~3-5 concurrent
+  // AI_MAX_CONCURRENT env var lets the user tune without code changes.
+  private readonly maxConcurrent: number;
+  private inFlight = 0;
+  private waitQueue: Array<() => void> = [];
+
+  // ── 429 retry config ────────────────────────────────────────────────────
+  private readonly maxRetries429: number;
 
   constructor() {
     this.client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY ?? '',
       baseURL: process.env.OPENAI_BASE_URL ?? 'https://dashscope.aliyuncs.com/compatible-mode/v1',
       timeout: 30000, // 30s default; scoreBatch overrides to 60s
-      maxRetries: 0,  // fail fast — slow models would otherwise multiply wait time
+      maxRetries: 0,  // we do our own 429-aware retry below
     });
     this.model = process.env.MODEL_NAME ?? 'qwen-coder-turbo';
+    this.maxConcurrent = Math.max(1, Number(process.env.AI_MAX_CONCURRENT ?? 5));
+    this.maxRetries429 = Math.max(0, Number(process.env.AI_MAX_RETRIES_429 ?? 3));
   }
 
   resetStats(): void {
-    this.stats = { calls: 0, latencyMs: 0, promptTokens: 0, completionTokens: 0, errors: 0 };
+    this.stats = { calls: 0, latencyMs: 0, promptTokens: 0, completionTokens: 0, errors: 0, retries: 0 };
     this.callsByKind = {};
   }
 
@@ -34,30 +48,90 @@ export class AiService {
     };
   }
 
+  /** Acquire one slot from the global AI request semaphore. Blocks if at limit. */
+  private async acquire(): Promise<void> {
+    if (this.inFlight < this.maxConcurrent) {
+      this.inFlight++;
+      return;
+    }
+    await new Promise<void>((resolve) => {
+      this.waitQueue.push(() => {
+        this.inFlight++;
+        resolve();
+      });
+    });
+  }
+
+  private release(): void {
+    this.inFlight--;
+    const next = this.waitQueue.shift();
+    if (next) next();
+  }
+
+  /** Sleep for `ms` ms, optionally with random jitter [0, jitter). */
+  private sleep(ms: number, jitter = 500): Promise<void> {
+    return new Promise((r) => setTimeout(r, ms + Math.floor(Math.random() * jitter)));
+  }
+
+  /** Pull a wait time from a 429 error: prefer Retry-After header, else
+   *  exponential backoff capped at 8s. attempt is 1-indexed. */
+  private compute429Backoff(err: unknown, attempt: number): number {
+    const retryAfter = Number(
+      ((err as { headers?: Record<string, string> })?.headers?.['retry-after']) ?? NaN,
+    );
+    if (!isNaN(retryAfter) && retryAfter > 0) return Math.min(retryAfter * 1000, 30000);
+    return Math.min(2000 * 2 ** (attempt - 1), 8000);
+  }
+
+  private isRateLimitError(err: unknown): boolean {
+    const e = err as { status?: number; response?: { status?: number } };
+    return e?.status === 429 || e?.response?.status === 429;
+  }
+
   private async tracked<T extends { usage?: { prompt_tokens?: number; completion_tokens?: number } | null }>(
     kind: string,
     fn: () => Promise<T>,
   ): Promise<T> {
+    await this.acquire();
     const start = Date.now();
     this.callsByKind[kind] = (this.callsByKind[kind] || 0) + 1;
     try {
-      const result = await fn();
-      this.stats.calls++;
-      this.stats.latencyMs += Date.now() - start;
-      this.stats.promptTokens += result.usage?.prompt_tokens || 0;
-      this.stats.completionTokens += result.usage?.completion_tokens || 0;
-      return result;
-    } catch (err) {
-      this.stats.calls++;
-      this.stats.errors++;
-      this.stats.latencyMs += Date.now() - start;
-      // Log the first ~3 errors per round so we can see WHY (401/402/timeout/etc).
-      // Otherwise scoring.service silently swallows them and we have no visibility.
-      if (this.stats.errors <= 3) {
-        const msg = err instanceof Error ? err.message : String(err);
-        console.error(`[AI ${kind}] error #${this.stats.errors}:`, msg);
+      let attempt = 0;
+      while (true) {
+        try {
+          const result = await fn();
+          this.stats.calls++;
+          this.stats.latencyMs += Date.now() - start;
+          this.stats.promptTokens += result.usage?.prompt_tokens || 0;
+          this.stats.completionTokens += result.usage?.completion_tokens || 0;
+          return result;
+        } catch (err) {
+          // Retry on 429 with backoff. Hold the semaphore slot during the
+          // wait — that's the whole point: it naturally throttles the next
+          // wave of requests too.
+          if (this.isRateLimitError(err) && attempt < this.maxRetries429) {
+            attempt++;
+            this.stats.retries++;
+            const wait = this.compute429Backoff(err, attempt);
+            console.warn(
+              `[AI ${kind}] 429 rate-limited, retry ${attempt}/${this.maxRetries429} after ${wait}ms`,
+            );
+            await this.sleep(wait);
+            continue;
+          }
+          // Final failure
+          this.stats.calls++;
+          this.stats.errors++;
+          this.stats.latencyMs += Date.now() - start;
+          if (this.stats.errors <= 3) {
+            const msg = err instanceof Error ? err.message : String(err);
+            console.error(`[AI ${kind}] error #${this.stats.errors}:`, msg);
+          }
+          throw err;
+        }
       }
-      throw err;
+    } finally {
+      this.release();
     }
   }
 
