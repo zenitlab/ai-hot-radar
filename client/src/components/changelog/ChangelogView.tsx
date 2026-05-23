@@ -16,6 +16,16 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-24",
+    version: "v0.7.14",
+    tag: "fix",
+    items: [
+      "推理类模型（MiMo / R1）兼容增强：处理被截断的 <think> 块、默认 max_tokens 提升至 1500",
+      "新增 AI_MAX_TOKENS 环境变量，可按模型 verbosity 灵活调整（推理模型建议 2500-3000）",
+      "AI 客户端超时 30s → 60s，匹配推理模型实际响应时间",
+    ],
+  },
+  {
+    date: "2026-05-24",
     version: "v0.7.13",
     tag: "fix",
     items: [
