@@ -263,13 +263,13 @@ export function AboutView() {
                   代码仓库
                 </div>
                 <a
-                  href="https://github.com/zhangzhenchang/ai-hot-radar"
+                  href="https://github.com/zenitlab/ai-hot-radar"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-[15px] text-[var(--text-primary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors"
                 >
                   <Github className="w-4 h-4" />
-                  github.com/zhangzhenchang/ai-hot-radar
+                  github.com/zenitlab/ai-hot-radar
                   <ExternalLink className="w-3 h-3 opacity-60" />
                 </a>
               </div>

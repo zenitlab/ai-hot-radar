@@ -6,9 +6,9 @@
 </p>
 
 <p align="center">
-  <img alt="License" src="https://img.shields.io/github/license/zhangzhenchang/ai-hot-radar?color=blue">
-  <img alt="Stars" src="https://img.shields.io/github/stars/zhangzhenchang/ai-hot-radar?style=flat&logo=github">
-  <img alt="Last commit" src="https://img.shields.io/github/last-commit/zhangzhenchang/ai-hot-radar?color=orange">
+  <img alt="License" src="https://img.shields.io/github/license/zenitlab/ai-hot-radar?color=blue">
+  <img alt="Stars" src="https://img.shields.io/github/stars/zenitlab/ai-hot-radar?style=flat&logo=github">
+  <img alt="Last commit" src="https://img.shields.io/github/last-commit/zenitlab/ai-hot-radar?color=orange">
   <img alt="Node" src="https://img.shields.io/badge/node-%E2%89%A518-43853d?logo=node.js&logoColor=white">
   <img alt="NestJS" src="https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white">
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black">
@@ -71,7 +71,7 @@ The system exposes itself in three ways for AI apps, RSS readers, and third-part
 ### Install
 
 ```bash
-git clone https://github.com/zhangzhenchang/ai-hot-radar.git
+git clone https://github.com/zenitlab/ai-hot-radar.git
 cd ai-hot-radar
 
 cd server && npm install && npx prisma generate && npx prisma db push

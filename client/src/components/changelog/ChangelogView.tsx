@@ -16,6 +16,14 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-23",
+    version: "v0.7.11",
+    tag: "tweak",
+    items: [
+      "GitHub 仓库迁移至 zenitlab/ai-hot-radar，README、关于页、Agent 接入、文档等链接同步更新",
+    ],
+  },
+  {
+    date: "2026-05-23",
     version: "v0.7.10",
     tag: "fix",
     items: [

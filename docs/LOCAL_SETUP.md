@@ -19,7 +19,7 @@
 ## 第一步：克隆项目
 
 ```bash
-git clone https://github.com/zhangzhenchang/ai-hot-radar.git
+git clone https://github.com/zenitlab/ai-hot-radar.git
 cd ai-hot-radar
 ```
 
