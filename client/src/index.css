@@ -2,7 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+/* Fraunces (light-mode serif headings) is loaded via <link> in index.html
+   instead of @import here — bundlers inline preceding @imports, which would
+   make a Google Fonts @import here violate the "@import must precede all
+   other statements" rule. */
 
 @custom-variant dark (&:is(.dark *));
 
