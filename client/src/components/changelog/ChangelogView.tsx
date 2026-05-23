@@ -16,6 +16,15 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-23",
+    version: "v0.7.10",
+    tag: "fix",
+    items: [
+      "AI 调用增加全局并发限制 + 429 退避重试，避免小米 MiMo 等速率较严格的服务连续被拒",
+      "新增环境变量 AI_MAX_CONCURRENT / AI_MAX_RETRIES_429，可按提供商灵活调整",
+    ],
+  },
+  {
+    date: "2026-05-23",
     version: "v0.7.9",
     tag: "tweak",
     items: [
