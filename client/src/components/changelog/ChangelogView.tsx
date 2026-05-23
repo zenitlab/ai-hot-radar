@@ -16,6 +16,14 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-24",
+    version: "v0.7.13",
+    tag: "fix",
+    items: [
+      "修复构建时 CSS @import 顺序警告：Fraunces 字体改用 <link> 加载，dev/build 控制台不再刷红",
+    ],
+  },
+  {
+    date: "2026-05-24",
     version: "v0.7.12",
     tag: "fix",
     items: [
