@@ -6,6 +6,10 @@
 </p>
 
 <p align="center">
+  <a href="https://aihotradar.com"><strong>🌐 Live demo at aihotradar.com</strong></a>
+</p>
+
+<p align="center">
   <img alt="License" src="https://img.shields.io/github/license/zenitlab/ai-hot-radar?color=blue">
   <img alt="Stars" src="https://img.shields.io/github/stars/zenitlab/ai-hot-radar?style=flat&logo=github">
   <img alt="Last commit" src="https://img.shields.io/github/last-commit/zenitlab/ai-hot-radar?color=orange">
@@ -21,7 +25,7 @@
 
 ## 1. Overview
 
-AI Hot Radar is a hotspot tracker built for AI practitioners. It continuously pulls from 8+ sources — Twitter / X, Bing, HackerNews, IT Home, Xueqiu, Bilibili, Google DeepMind Blog and more — then runs a two-stage AI scoring pipeline (cheap pre-filter + full scoring) to drop noise and surface only what's worth reading. Results land in three views: **Curated**, **Daily Digest**, and **My Keywords**.
+AI Hot Radar is a hotspot tracker built for AI practitioners. Every 10 minutes it pulls from 20+ sources — Twitter / X, Bing, HackerNews, IT Home, Xueqiu, Bilibili, Google DeepMind Blog and more — then runs a two-stage AI scoring pipeline (short pre-filter prompt + full 5-dim scoring) to drop noise and surface only what's worth reading.
 
 **Stack**
 

@@ -6,6 +6,10 @@
 </p>
 
 <p align="center">
+  <a href="https://aihotradar.com"><strong>🌐 在线体验 aihotradar.com</strong></a>
+</p>
+
+<p align="center">
   <img alt="License" src="https://img.shields.io/github/license/zenitlab/ai-hot-radar?color=blue">
   <img alt="Stars" src="https://img.shields.io/github/stars/zenitlab/ai-hot-radar?style=flat&logo=github">
   <img alt="Last commit" src="https://img.shields.io/github/last-commit/zenitlab/ai-hot-radar?color=orange">
@@ -21,7 +25,7 @@
 
 ## 一、项目简介
 
-AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统持续从 Twitter / X、Bing、HackerNews、IT之家、雪球、Bilibili、Google DeepMind Blog 等 8+ 信息源抓取最新资讯，通过两阶段 AI 评分（便宜模型预筛 + 完整评分）筛掉噪音，把真正值得看的内容沉淀到「精选」「AI 日报」「我的关注」三个视图中。
+AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统每 10 分钟从 Twitter / X、Bing、HackerNews、IT之家、雪球、Bilibili、Google DeepMind Blog 等 20+ 信息源抓取最新资讯，通过两阶段 AI 评分（短 prompt 预筛 + 5 维评分）筛掉噪音，把真正值得看的内容沉淀到「精选」「AI 日报」「我的关注」三个视图中。
 
 技术栈：
 

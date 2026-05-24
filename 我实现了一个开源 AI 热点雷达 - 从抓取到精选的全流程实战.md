@@ -12,6 +12,7 @@
 
 于是我花了一个多月的业余时间，造了一个开源的工具——**AI Hot Radar**。
 
+🌐 在线体验：[aihotradar.com](https://aihotradar.com)
 🔗 仓库地址：[github.com/zenitlab/ai-hot-radar](https://github.com/zenitlab/ai-hot-radar)
 
 它做的事情很简单，一句话能说清楚：
@@ -150,9 +151,9 @@ graph LR
 
 ```mermaid
 graph TD
-    A[抓取的内容] --> B[阶段一: 便宜模型预筛<br/>是否 AI 相关?]
-    B -->|否| Z[落库不评分<br/>省 70% AI 调用]
-    B -->|是| C[阶段二: 强模型 5 维评分]
+    A[抓取的内容] --> B[阶段一: 短 prompt 预筛<br/>是否 AI 相关?]
+    B -->|否| Z[落库不评分<br/>跳过 5 维评分]
+    B -->|是| C[阶段二: 完整 prompt 5 维评分]
     C --> C1[relevToAi 0-10]
     C --> C2[novelty 0-10]
     C --> C3[audience 0-10]
@@ -332,9 +333,10 @@ dt.setUTCDate(dt.getUTCDate() + days);
 
 ## 🚀 部署 & 开源
 
-整个项目已经开源在 GitHub：
+整个项目已经开源在 GitHub，并且部署了一个公开演示站点：
 
-🔗 **[github.com/zenitlab/ai-hot-radar](https://github.com/zenitlab/ai-hot-radar)**
+🌐 **在线体验**：[aihotradar.com](https://aihotradar.com)
+🔗 **代码仓库**：[github.com/zenitlab/ai-hot-radar](https://github.com/zenitlab/ai-hot-radar)
 
 部署超级简单：
 
@@ -381,6 +383,7 @@ cd ../client && npm install && npm run dev
 
 ---
 
+🌐 在线：[aihotradar.com](https://aihotradar.com)
 🔗 仓库：[github.com/zenitlab/ai-hot-radar](https://github.com/zenitlab/ai-hot-radar)
 📧 邮箱：gundam_zzc@126.com
 💬 微信：进 About 页扫码

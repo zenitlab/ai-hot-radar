@@ -89,8 +89,8 @@ export function AboutView() {
           <strong className="text-[var(--text-primary)]"> 总结</strong>。
         </p>
         <p className="text-[15px] text-[var(--text-secondary)] leading-[1.8] mt-3">
-          于是有了 AI Hot Radar—— 它持续从 20+ 信息源抓取最新资讯，通过两阶段 AI
-          评分（模型预筛 + 完整评分）
+          于是有了 AI Hot Radar—— 它每 10 分钟从 20+ 信息源抓取最新资讯，通过两阶段 AI
+          评分（短 prompt 预筛 + 完整 5 维评分）
           筛掉噪音，最后沉淀到「精选」「热点雷达」「AI 日报」三个视图里。
           如果它对你也有用，欢迎用起来。
         </p>
