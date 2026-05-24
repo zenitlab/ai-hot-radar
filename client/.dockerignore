@@ -1,0 +1,16 @@
+# Speeds up Docker builds and avoids leaking dev-only artifacts into the image.
+
+node_modules
+.pnpm-store
+dist
+dist-ssr
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+
+# IDE / OS noise
+.DS_Store
+.idea/
+.vscode/
+*.log

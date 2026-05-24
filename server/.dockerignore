@@ -1,0 +1,22 @@
+# Speeds up Docker builds and prevents copying host-built native binaries
+# (e.g. macOS-compiled @prisma/client) into a Linux container.
+
+node_modules
+.pnpm-store
+dist
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Local DB / artifacts that shouldn't end up in the image
+prisma/dev.db
+prisma/dev.db-journal
+prisma/migrations/dev/
+
+# IDE / OS noise
+.DS_Store
+.idea/
+.vscode/
+*.log

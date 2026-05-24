@@ -16,6 +16,17 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-24",
+    version: "v0.7.15",
+    tag: "feature",
+    items: [
+      "新增 Docker 一键部署：docker-compose.yml + 前后端 Dockerfile + nginx.conf + 自带 SQLite 备份的 update.sh 脚本",
+      "新增生产环境模板 server/.env.production.example",
+      "新增 docs/DEPLOY.md 部署文档（含反向代理 / Certbot / 故障排查）",
+      "在线域名 aihotradar.com 写入 README、关于页、文章",
+    ],
+  },
+  {
+    date: "2026-05-24",
     version: "v0.7.14",
     tag: "fix",
     items: [
