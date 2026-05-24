@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: ai-hot-radar-backend
+    restart: always
+    env_file:
+      - ./server/.env.production
+    volumes:
+      - ./data:/app/data
+    networks:
+      - radar-net
+    # No host port mapping: only frontend container reaches it via radar-net.
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: ai-hot-radar-frontend
+    restart: always
+    ports:
+      # Bind to loopback only; the host Nginx (or BT panel reverse proxy)
+      # terminates TLS and forwards public traffic to 127.0.0.1:8080.
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - backend
+    networks:
+      - radar-net
+
+networks:
+  radar-net:
+    driver: bridge
