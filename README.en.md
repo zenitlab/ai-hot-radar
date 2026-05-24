@@ -65,7 +65,8 @@ The system exposes itself in three ways for AI apps, RSS readers, and third-part
 
 ## 3. Quick Start
 
-> Full setup walkthrough: [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md).
+> Local dev: [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md).
+> Docker deploy: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ### Prerequisites
 
