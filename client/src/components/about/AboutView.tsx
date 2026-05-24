@@ -217,11 +217,11 @@ export function AboutView() {
           <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
             {/* WeChat QR */}
             <div className="shrink-0 flex flex-col items-center gap-2">
-              <div className="w-44 h-44 rounded-2xl bg-white p-2 shadow-sm border border-[var(--card-border)]">
+              <div className="w-44 h-44 rounded-2xl bg-white p-4 shadow-sm border border-[var(--card-border)]">
                 <img
                   src="/wechat-qr.png"
                   alt="作者微信二维码"
-                  className="w-full h-full object-contain rounded-lg"
+                  className="w-full h-full object-contain"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).style.display =
                       "none";
