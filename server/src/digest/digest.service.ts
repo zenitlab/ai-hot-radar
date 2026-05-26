@@ -69,11 +69,23 @@ export class DigestService {
     return beijing.toISOString().slice(0, 10);
   }
 
-  async generateDigest(date: string): Promise<void> {
-    const dateStart = new Date(`${date}T00:00:00+08:00`);
-    const dateEnd = new Date(`${date}T23:59:59+08:00`);
+  /** Add `offsetDays` to a YYYY-MM-DD Beijing-time date string. */
+  private shiftDate(date: string, offsetDays: number): string {
+    const d = new Date(`${date}T00:00:00+08:00`);
+    d.setUTCDate(d.getUTCDate() + offsetDays);
+    return d.toISOString().slice(0, 10);
+  }
 
-    // Get today's hotspots — prefer curated, fallback to all
+  async generateDigest(date: string): Promise<void> {
+    // The digest dated `date` summarizes the *previous* Beijing day's hotspots
+    // — matches TLDR-style morning newsletter convention. When the 08:00 cron
+    // fires on day N, the "day N digest" is what users open and it covers
+    // everything that happened on day N-1.
+    const contentDate = this.shiftDate(date, -1);
+    const dateStart = new Date(`${contentDate}T00:00:00+08:00`);
+    const dateEnd = new Date(`${contentDate}T23:59:59+08:00`);
+
+    // Get the previous day's hotspots — prefer curated, fallback to all
     let items = await this.prisma.hotspot.findMany({
       where: { isCurated: true, isClusterMain: true, createdAt: { gte: dateStart, lte: dateEnd } },
       orderBy: { qualityScore: 'desc' },
@@ -106,17 +118,17 @@ export class DigestService {
     this.logger.log(`Digest generated for ${date} (${items.length} items)`);
   }
 
-  /** Runs every morning at 08:00 Beijing time, generating the just-completed
-   *  Beijing day's digest. Generating in the morning (rather than at midnight)
-   *  gives the AI scoring pipeline the full overnight to settle and matches
-   *  when most users actually open the app.
+  /** Runs every morning at 08:00 Beijing time, generating the digest dated
+   *  *today*. By convention (see generateDigest) this digest summarizes the
+   *  just-completed previous Beijing day, so users opening the app any time
+   *  after 08:00 find today's digest already populated.
    *
    *  Pinning the timezone explicitly so this works regardless of the server's
    *  local TZ (Docker images often default to UTC, dev machines vary). */
   @Cron('0 0 8 * * *', { timeZone: 'Asia/Shanghai' })
   async scheduledDigest(): Promise<void> {
-    const yesterday = this.getBeijingDate(-1);
-    await this.generateDigest(yesterday);
+    const today = this.getBeijingDate(0);
+    await this.generateDigest(today);
   }
 
   async getDigestByDate(date: string) {
