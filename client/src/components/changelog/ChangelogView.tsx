@@ -16,6 +16,14 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-05-27",
+    version: "v0.7.17",
+    tag: "fix",
+    items: [
+      "修复 AI 日报日期错位：早上 8:00 生成的日报现在以当天日期标记（内容仍是前一天的精选总结），与 TLDR 晨报惯例一致；此前会标记为前一天，导致当天打开「今日日报」显示空白",
+    ],
+  },
+  {
+    date: "2026-05-27",
     version: "v0.7.16",
     tag: "feature",
     items: [
