@@ -15,6 +15,15 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-27",
+    version: "v0.7.16",
+    tag: "feature",
+    items: [
+      "新增本地一键发版脚本 release.sh：buildx 构建 linux/amd64 镜像 → 推送 Docker Hub → 可选 SSH 自动部署，支持 backend / frontend / nocache 模式",
+      "Favicon 重新设计为蓝紫渐变方块 + 白色雷达扫描波，与品牌主色调统一（取代 v0.7.8 的珊瑚橙版）",
+    ],
+  },
+  {
     date: "2026-05-24",
     version: "v0.7.15",
     tag: "feature",
