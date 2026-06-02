@@ -12,7 +12,8 @@ import { RssService } from '../services/rss.service';
 import { KEYWORD_GROUPS, X_ACCOUNTS } from '../rss-feeds/feeds.config';
 import type { SourceTier, XAccountConfig } from '../rss-feeds/feeds.config';
 import type { SearchResult } from '../types';
-import { getAuthorityScore, type ClusterClaim } from '../utils/authority';
+import { getAuthorityScore, resolveClusterKey, type ClusterClaim } from '../utils/authority';
+import { tokenizeTitle } from '../utils/title-cluster';
 import { needsKeywordPrefilter, titleLooksAiRelated } from '../utils/keyword-prefilter';
 
 const MAX_AGE_HOURS = 2 * 24;
@@ -234,7 +235,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     // New items can demote an old main if more authoritative (e.g. OpenAI Blog beats earlier V2EX repost).
     const existingMains = await this.prisma.hotspot.findMany({
       where: { createdAt: { gte: oneDayAgo }, isClusterMain: true },
-      select: { id: true, clusterKey: true, source: true, sourceTier: true },
+      select: { id: true, clusterKey: true, source: true, sourceTier: true, title: true },
     });
     const claimedClusters = new Map<string, ClusterClaim>();
     for (const m of existingMains) {
@@ -242,6 +243,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
       claimedClusters.set(m.clusterKey, {
         hotspotId: m.id,
         authority: getAuthorityScore(m.source, m.sourceTier as SourceTier | null),
+        tokens: tokenizeTitle(m.title),
       });
     }
 
@@ -262,6 +264,10 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         )),
       );
 
+      // 方案2: remap each item to an existing similar cluster (token Jaccard) before planning.
+      const clusterTokens = slice.map(item => tokenizeTitle(item.title));
+      const keys = slice.map((_, j) => resolveClusterKey(clusterTokens[j], scorings[j].clusterKey, claimedClusters));
+
       // Plan cluster mains: pick the most authoritative item per cluster, collect demotions.
       const mainIdx = new Map<string, number>();
       const demotions: string[] = [];
@@ -269,14 +275,14 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         const sc = scorings[j];
         if (!sc.isCurated && sc.qualityScore < 60) continue;
         const auth = getAuthorityScore(slice[j].source, tiers[j]);
-        const existing = claimedClusters.get(sc.clusterKey);
-        const winnerIdx = mainIdx.get(sc.clusterKey);
+        const existing = claimedClusters.get(keys[j]);
+        const winnerIdx = mainIdx.get(keys[j]);
         const winnerAuth = winnerIdx !== undefined
           ? getAuthorityScore(slice[winnerIdx].source, tiers[winnerIdx])
           : -Infinity;
         const bestPriorAuth = Math.max(existing?.authority ?? -Infinity, winnerAuth);
         if (auth > bestPriorAuth) {
-          mainIdx.set(sc.clusterKey, j);
+          mainIdx.set(keys[j], j);
           if (existing?.hotspotId && auth > existing.authority) {
             demotions.push(existing.hotspotId);
           }
@@ -293,7 +299,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
             ? 'domestic'
             : scoring.region;
 
-          const isClusterMain = mainIdx.get(scoring.clusterKey) === idx;
+          const isClusterMain = mainIdx.get(keys[idx]) === idx;
           const authority = getAuthorityScore(item.source, tier);
 
           const hotspot = await this.prisma.hotspot.create({
@@ -304,7 +310,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
               category: scoring.category, region,
               qualityScore: scoring.qualityScore, isCurated: scoring.isCurated,
               tags: scoring.tags.length > 0 ? JSON.stringify(scoring.tags) : null,
-              clusterKey: scoring.clusterKey, isClusterMain,
+              clusterKey: keys[idx], isClusterMain,
               importance: scoring.importance, summary: scoring.summary || null,
               isReal: true, relevance: Math.round(scoring.qualityScore),
               publishedAt: item.publishedAt || null,
@@ -321,7 +327,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
 
           if (isClusterMain) {
             // Update in-memory claim so subsequent batches see the new authority
-            claimedClusters.set(scoring.clusterKey, { hotspotId: hotspot.id, authority });
+            claimedClusters.set(keys[idx], { hotspotId: hotspot.id, authority, tokens: clusterTokens[idx] });
           }
 
           if (scoring.isCurated && ['high', 'urgent'].includes(scoring.importance)) {
@@ -407,7 +413,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     // Preload existing cluster mains (shared with other paths via same Map structure).
     const existingMains = await this.prisma.hotspot.findMany({
       where: { createdAt: { gte: oneDayAgo }, isClusterMain: true },
-      select: { id: true, clusterKey: true, source: true, sourceTier: true },
+      select: { id: true, clusterKey: true, source: true, sourceTier: true, title: true },
     });
     const claimedClusters = new Map<string, ClusterClaim>();
     for (const m of existingMains) {
@@ -415,6 +421,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
       claimedClusters.set(m.clusterKey, {
         hotspotId: m.id,
         authority: getAuthorityScore(m.source, m.sourceTier as SourceTier | null),
+        tokens: tokenizeTitle(m.title),
       });
     }
 
@@ -429,6 +436,10 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         )),
       );
 
+      // 方案2: remap each tweet to an existing similar cluster (token Jaccard) before planning.
+      const clusterTokens = slice.map(it => tokenizeTitle(it.tweet.title));
+      const keys = slice.map((_, j) => resolveClusterKey(clusterTokens[j], scorings[j].clusterKey, claimedClusters));
+
       // Plan cluster mains.
       const authorities = slice.map((it, idx) => getAuthorityScore(sliceSources[idx], it.account.tier));
       const mainIdx = new Map<string, number>();
@@ -437,12 +448,12 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         const sc = scorings[j];
         if (!sc.isCurated && sc.qualityScore < 60) continue;
         const auth = authorities[j];
-        const existing = claimedClusters.get(sc.clusterKey);
-        const winnerIdx = mainIdx.get(sc.clusterKey);
+        const existing = claimedClusters.get(keys[j]);
+        const winnerIdx = mainIdx.get(keys[j]);
         const winnerAuth = winnerIdx !== undefined ? authorities[winnerIdx] : -Infinity;
         const bestPriorAuth = Math.max(existing?.authority ?? -Infinity, winnerAuth);
         if (auth > bestPriorAuth) {
-          mainIdx.set(sc.clusterKey, j);
+          mainIdx.set(keys[j], j);
           if (existing?.hotspotId && auth > existing.authority) {
             demotions.push(existing.hotspotId);
           }
@@ -454,7 +465,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           const scoring = scorings[idx];
           if (!scoring.isCurated && scoring.qualityScore < 60) return null;
           const source = sliceSources[idx];
-          const isClusterMain = mainIdx.get(scoring.clusterKey) === idx;
+          const isClusterMain = mainIdx.get(keys[idx]) === idx;
 
           const hotspot = await this.prisma.hotspot.create({
             data: {
@@ -464,7 +475,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
               category: scoring.category, region: scoring.region,
               qualityScore: scoring.qualityScore, isCurated: scoring.isCurated,
               tags: scoring.tags.length > 0 ? JSON.stringify(scoring.tags) : null,
-              clusterKey: scoring.clusterKey, isClusterMain,
+              clusterKey: keys[idx], isClusterMain,
               importance: scoring.importance, summary: scoring.summary || null,
               isReal: true, relevance: Math.round(scoring.qualityScore),
               publishedAt: it.tweet.publishedAt || null,
@@ -482,7 +493,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           });
 
           if (isClusterMain) {
-            claimedClusters.set(scoring.clusterKey, { hotspotId: hotspot.id, authority: authorities[idx] });
+            claimedClusters.set(keys[idx], { hotspotId: hotspot.id, authority: authorities[idx], tokens: clusterTokens[idx] });
           }
 
           if (scoring.isCurated && ['high', 'urgent'].includes(scoring.importance)) {
@@ -553,7 +564,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
       const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const existingMains = await this.prisma.hotspot.findMany({
         where: { createdAt: { gte: oneDayAgo }, isClusterMain: true },
-        select: { id: true, clusterKey: true, source: true, sourceTier: true },
+        select: { id: true, clusterKey: true, source: true, sourceTier: true, title: true },
       });
       const claimedClusters = new Map<string, ClusterClaim>();
       for (const m of existingMains) {
@@ -561,6 +572,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         claimedClusters.set(m.clusterKey, {
           hotspotId: m.id,
           authority: getAuthorityScore(m.source, m.sourceTier as SourceTier | null),
+          tokens: tokenizeTitle(m.title),
         });
       }
 
@@ -664,8 +676,12 @@ export class HotspotScheduler implements OnApplicationBootstrap {
       : scoring.region;
 
     // Authority-based cluster main: more authoritative source wins, can demote prior main.
+    // 方案2: remap to an existing similar cluster before claiming, so reworded
+    // headlines of the same event join one cluster instead of spawning duplicates.
+    const itemTokens = tokenizeTitle(item.title);
+    const clusterKey = resolveClusterKey(itemTokens, scoring.clusterKey, claimedClusters);
     const authority = getAuthorityScore(item.source, tier);
-    const existing = claimedClusters.get(scoring.clusterKey);
+    const existing = claimedClusters.get(clusterKey);
     const isClusterMain = !existing || authority > existing.authority;
     let demoteId: string | undefined;
     if (isClusterMain && existing?.hotspotId && authority > existing.authority) {
@@ -692,7 +708,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         category: scoring.category, region,
         sourceTier: tier, qualityScore: scoring.qualityScore, isCurated: scoring.isCurated,
         tags: scoring.tags.length > 0 ? JSON.stringify(scoring.tags) : null,
-        clusterKey: scoring.clusterKey, isClusterMain,
+        clusterKey, isClusterMain,
         biliCategory: item.biliCategory || null, biliTags: item.biliTags || null,
         favoritesCount: item.favoritesCount || null,
       },
@@ -700,7 +716,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     });
 
     if (isClusterMain) {
-      claimedClusters.set(scoring.clusterKey, { hotspotId: hotspot.id, authority });
+      claimedClusters.set(clusterKey, { hotspotId: hotspot.id, authority, tokens: itemTokens });
       if (demoteId) {
         await this.prisma.hotspot.update({
           where: { id: demoteId },
@@ -798,7 +814,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     const CONCURRENCY = 15;
     const existingMains = await this.prisma.hotspot.findMany({
       where: { createdAt: { gte: oneDayAgo }, isClusterMain: true },
-      select: { id: true, clusterKey: true, source: true, sourceTier: true },
+      select: { id: true, clusterKey: true, source: true, sourceTier: true, title: true },
     });
     const claimedClusters = new Map<string, ClusterClaim>();
     for (const m of existingMains) {
@@ -806,6 +822,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
       claimedClusters.set(m.clusterKey, {
         hotspotId: m.id,
         authority: getAuthorityScore(m.source, m.sourceTier as SourceTier | null),
+        tokens: tokenizeTitle(m.title),
       });
     }
 
@@ -819,6 +836,10 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         )),
       );
 
+      // 方案2: remap each item to an existing similar cluster (token Jaccard) before planning.
+      const clusterTokens = batch.map(item => tokenizeTitle(item.title));
+      const keys = batch.map((_, j) => resolveClusterKey(clusterTokens[j], scorings[j].clusterKey, claimedClusters));
+
       // Plan cluster mains: pick the most authoritative item per cluster within this batch.
       const sources = batch.map(item => `rss_${item.feedConfig.category}`);
       const authorities = batch.map((item, idx) =>
@@ -830,12 +851,12 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         const sc = scorings[j];
         if (!sc.isCurated && sc.qualityScore < 60) continue;
         const auth = authorities[j];
-        const existing = claimedClusters.get(sc.clusterKey);
-        const winnerIdx = mainIdx.get(sc.clusterKey);
+        const existing = claimedClusters.get(keys[j]);
+        const winnerIdx = mainIdx.get(keys[j]);
         const winnerAuth = winnerIdx !== undefined ? authorities[winnerIdx] : -Infinity;
         const bestPriorAuth = Math.max(existing?.authority ?? -Infinity, winnerAuth);
         if (auth > bestPriorAuth) {
-          mainIdx.set(sc.clusterKey, j);
+          mainIdx.set(keys[j], j);
           if (existing?.hotspotId && auth > existing.authority) {
             demotions.push(existing.hotspotId);
           }
@@ -848,7 +869,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           const scoring = scorings[idx];
           if (!scoring.isCurated && scoring.qualityScore < 60) return null;
 
-          const isClusterMain = mainIdx.get(scoring.clusterKey) === idx;
+          const isClusterMain = mainIdx.get(keys[idx]) === idx;
 
           const hotspot = await this.prisma.hotspot.create({
             data: {
@@ -864,7 +885,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
               qualityScore: scoring.qualityScore,
               isCurated: scoring.isCurated,
               tags: scoring.tags.length > 0 ? JSON.stringify(scoring.tags) : null,
-              clusterKey: scoring.clusterKey,
+              clusterKey: keys[idx],
               isClusterMain,
               importance: scoring.importance,
               summary: scoring.summary || null,
@@ -876,7 +897,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           });
 
           if (isClusterMain) {
-            claimedClusters.set(scoring.clusterKey, { hotspotId: hotspot.id, authority: authorities[idx] });
+            claimedClusters.set(keys[idx], { hotspotId: hotspot.id, authority: authorities[idx], tokens: clusterTokens[idx] });
           }
 
           if (scoring.isCurated && ['high', 'urgent'].includes(scoring.importance)) {

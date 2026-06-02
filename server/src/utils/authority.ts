@@ -1,4 +1,9 @@
 import type { SourceTier } from '../rss-feeds/feeds.config';
+import {
+  jaccardSimilarity,
+  TITLE_SIM_THRESHOLD,
+  MIN_TOKENS_FOR_FUZZY,
+} from './title-cluster';
 
 /**
  * Compute an authority score for a hotspot's source. Higher = more authoritative.
@@ -39,7 +44,43 @@ export type ClusterClaim = {
   /** ID of the current main hotspot for this cluster, if it has been persisted. */
   hotspotId?: string;
   authority: number;
+  /** Token set of the cluster main's title, used for fuzzy (方案2) cluster matching. */
+  tokens?: string[];
 };
+
+/**
+ * 方案2: resolve which cluster a new item belongs to.
+ *
+ * 1. Exact key already claimed → join it (方案1 token-set hash already matched).
+ * 2. Otherwise compare the item's title tokens against every claimed cluster's
+ *    tokens; if the best Jaccard similarity clears TITLE_SIM_THRESHOLD, join that
+ *    cluster — this merges reworded headlines of the same event that didn't hash
+ *    identically.
+ * 3. No match → keep the item's own key (it starts a new cluster).
+ *
+ * Conservative by design: short titles skip fuzzy matching, and similarity must
+ * strictly exceed the threshold, so distinct events are not wrongly merged.
+ */
+export function resolveClusterKey(
+  tokens: string[],
+  exactKey: string,
+  claims: Map<string, ClusterClaim>,
+): string {
+  if (claims.has(exactKey)) return exactKey;
+  if (tokens.length < MIN_TOKENS_FOR_FUZZY) return exactKey;
+
+  let bestKey = exactKey;
+  let bestSim = TITLE_SIM_THRESHOLD;
+  for (const [key, claim] of claims) {
+    if (!claim.tokens || claim.tokens.length < MIN_TOKENS_FOR_FUZZY) continue;
+    const sim = jaccardSimilarity(tokens, claim.tokens);
+    if (sim > bestSim) {
+      bestSim = sim;
+      bestKey = key;
+    }
+  }
+  return bestKey;
+}
 
 /**
  * For a batch of items, decide which cluster gets a new main and which old main needs demotion.

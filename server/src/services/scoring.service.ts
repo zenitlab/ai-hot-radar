@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createHash } from 'crypto';
 import { AiService } from './ai.service';
+import { computeClusterKey } from '../utils/title-cluster';
 import {
   SourceTier,
   TIER_MULTIPLIER,
@@ -48,10 +48,9 @@ export class ScoringService {
     return (SEARCH_SOURCE_TIER[source] as SourceTier) || 'T2';
   }
 
-  /** Compute cluster key from title (first 30 chars, lowercased, no spaces) */
+  /** Compute cluster key from title (order-independent token-set hash; see title-cluster.ts) */
   computeClusterKey(title: string): string {
-    const normalized = title.slice(0, 30).toLowerCase().replace(/\s+/g, '');
-    return createHash('md5').update(normalized).digest('hex').slice(0, 16);
+    return computeClusterKey(title);
   }
 
   /** Step 1: Pre-filter — is this content AI-related? */
