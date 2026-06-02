@@ -272,25 +272,22 @@ export function DigestView() {
   const selectedRef = useRef<HTMLButtonElement>(null);
   const rightColRef = useRef<HTMLDivElement>(null);
 
-  // Months collapsed by user. Current month + month containing selected date
-  // are open by default; user toggling adds/removes other months from this set.
-  const [collapsedMonths, setCollapsedMonths] = useState<Set<string>>(new Set());
+  // Month open/closed overrides. By default the current month and the month
+  // containing the selected date are open; every other month is collapsed.
+  // A user toggle records an explicit override, so past months can be expanded
+  // too (a plain "collapsed" set could only ever re-collapse default-open months).
+  const [monthOverrides, setMonthOverrides] = useState<Record<string, boolean>>({});
   const currentMonth = today.slice(0, 7);
   const selectedMonth = selectedDate.slice(0, 7);
+  const isMonthDefaultOpen = (month: string): boolean =>
+    month === currentMonth || month === selectedMonth;
+  const isMonthOpen = (month: string): boolean =>
+    month in monthOverrides ? monthOverrides[month] : isMonthDefaultOpen(month);
   const toggleMonth = (month: string) => {
-    setCollapsedMonths(prev => {
-      const next = new Set(prev);
-      if (next.has(month)) next.delete(month);
-      else next.add(month);
-      return next;
+    setMonthOverrides(prev => {
+      const current = month in prev ? prev[month] : isMonthDefaultOpen(month);
+      return { ...prev, [month]: !current };
     });
-  };
-  const isMonthOpen = (month: string): boolean => {
-    if (collapsedMonths.has(month)) return false;
-    // Default: current month and the month containing the selected date are open
-    if (month === currentMonth || month === selectedMonth) return true;
-    // All other months default to collapsed
-    return false;
   };
 
   // Load sidebar date list (dates that have digests + their summaries)
@@ -400,18 +397,28 @@ export function DigestView() {
 
         <div className="flex-1 overflow-y-scroll">
           {groups.map(({ month, dates }) => {
-            const open = isMonthOpen(month);
             const datesWithDigest = dates.filter(d => dateMap.has(d)).length;
+            // Past months list only the days that actually have a digest; the
+            // current month keeps the full calendar so today stays reachable.
+            const visibleDates = month === currentMonth ? dates : dates.filter(d => dateMap.has(d));
+            // Only months with at least one digest (or the current month) can be
+            // expanded — an empty past month has nothing to show.
+            const expandable = month === currentMonth || datesWithDigest > 0;
+            const open = expandable && isMonthOpen(month);
             return (
               <div key={month}>
-                {/* Month header — clickable to toggle collapse */}
+                {/* Month header — clickable to toggle collapse when expandable */}
                 <button
-                  onClick={() => toggleMonth(month)}
-                  className="sticky top-0 z-10 w-full flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-base)] border-b border-[var(--border-subtle)] hover:bg-[var(--card-bg)] transition-colors"
+                  onClick={() => expandable && toggleMonth(month)}
+                  disabled={!expandable}
+                  className={cn(
+                    'sticky top-0 z-10 w-full flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-base)] border-b border-[var(--border-subtle)] transition-colors',
+                    expandable ? 'hover:bg-[var(--card-bg)] cursor-pointer' : 'cursor-default opacity-50',
+                  )}
                 >
-                  {open
-                    ? <ChevronDown className="w-3 h-3" />
-                    : <ChevronRight className="w-3 h-3" />}
+                  {expandable
+                    ? (open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />)
+                    : <span className="w-3 h-3" />}
                   <span className="flex-1 text-left">{monthLabel(month)}</span>
                   {datesWithDigest > 0 && (
                     <span className="text-[10px] font-normal normal-case tracking-normal text-[var(--text-muted)]">
@@ -421,7 +428,7 @@ export function DigestView() {
                 </button>
 
                 {/* Date items — only render when month is open */}
-                {open && dates.map((date) => {
+                {open && visibleDates.map((date) => {
                 const isToday = date === today;
                 const isSelected = date === selectedDate;
                 const hasDigest = dateMap.has(date);

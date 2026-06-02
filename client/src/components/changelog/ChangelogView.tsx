@@ -16,6 +16,15 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-06-02",
+    version: "v0.7.19",
+    tag: "fix",
+    items: [
+      "修复 AI 日报历史月份无法展开：此前点击「5 月」等往月标题没有反应（折叠逻辑只对默认展开的当月生效），现在任意有日报的往月都能点开下拉查看",
+      "往月只列出实际生成了日报的日期，不再混入大片「暂无日报」空行；没有任何日报的月份标题置灰、不可展开",
+    ],
+  },
+  {
+    date: "2026-06-02",
     version: "v0.7.18",
     tag: "tweak",
     items: [
