@@ -16,6 +16,17 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-06-02",
+    version: "v0.7.20",
+    tag: "tweak",
+    items: [
+      "AI 日报所有消息卡（今日重点 / 国内外动态 / 社区热议 / 论文）来源前补上来源图标，并统一显示为可读名称（如 rss_the_decoder → The Decoder），与热点雷达一致",
+      "模型情报表格「模型」列过长时截断显示省略号，鼠标悬停可看完整名称，不再撑破表格",
+      "强化日报生成 prompt：今日一句话强制简体中文（不再直接照抄英文标题），今日重点每条必须给出「为什么重要」与至少 2 个方向标签",
+      "抽出共享的来源图标 / 名称模块（sourceMeta），热点雷达、精选、日报三处复用",
+    ],
+  },
+  {
+    date: "2026-06-02",
     version: "v0.7.19",
     tag: "fix",
     items: [

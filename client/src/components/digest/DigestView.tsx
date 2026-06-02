@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { digestApi } from '../../services/api';
 import { digestJobs } from '../../services/digestJobs';
+import { getSourceIcon, getSourceLabel } from '../../lib/sourceMeta';
 import { BackToTopFor } from '../common/BackToTop';
 import { Skeleton, SkeletonList } from '../common/Loader';
 import { cn } from '../../lib/utils';
@@ -102,7 +103,10 @@ function HighlightCard({ item }: { item: DigestHighlight }) {
       className="group block p-5 sm:p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200"
     >
       {/* Source */}
-      <div className="text-[13px] text-[var(--text-muted)] mb-2">{item.source}</div>
+      <div className="flex items-center gap-1 text-[13px] text-[var(--text-muted)] mb-2">
+        {getSourceIcon(item.source, 'w-3.5 h-3.5')}
+        {getSourceLabel(item.source)}
+      </div>
 
       {/* Title — large, semibold */}
       <h3 className="text-[17px] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors leading-snug mb-2.5">
@@ -157,7 +161,10 @@ function SimpleItem({ item }: { item: DigestSimpleItem }) {
         {item.summary && (
           <p className="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-1">{item.summary}</p>
         )}
-        <p className="text-[10px] text-[var(--text-muted)] mt-1">{item.source}</p>
+        <p className="flex items-center gap-1 text-[10px] text-[var(--text-muted)] mt-1">
+          {getSourceIcon(item.source, 'w-3 h-3')}
+          {getSourceLabel(item.source)}
+        </p>
       </div>
       <ExternalLink className="w-3 h-3 text-[var(--text-muted)] shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
     </a>
@@ -185,7 +192,9 @@ function ModelIntelTable({ items }: { items: DigestModelItem[] }) {
           <tbody>
             {items.map((item, i) => (
               <tr key={i} className="border-t border-[var(--card-border)] hover:bg-[var(--card-bg-hover)] transition-colors">
-                <td className="px-4 py-3 font-semibold text-[var(--text-primary)] whitespace-nowrap">{item.model}</td>
+                <td className="px-4 py-3 font-semibold text-[var(--text-primary)]">
+                  <span className="block max-w-[140px] truncate" title={item.model}>{item.model}</span>
+                </td>
                 <td className="px-4 py-3">
                   <span className={cn('text-[11px] px-2 py-0.5 rounded font-medium',
                     CHANGE_COLOR[item.change] ?? 'bg-[var(--input-bg)] text-[var(--text-secondary)]')}>
@@ -247,7 +256,10 @@ function PaperItem({ item }: { item: DigestPaperItem }) {
       {item.impact && (
         <p className="text-xs text-amber-500 mt-1.5">行业影响：{item.impact}</p>
       )}
-      <p className="text-[10px] text-[var(--text-muted)] mt-1">{item.source}</p>
+      <p className="flex items-center gap-1 text-[10px] text-[var(--text-muted)] mt-1">
+        {getSourceIcon(item.source, 'w-3 h-3')}
+        {getSourceLabel(item.source)}
+      </p>
     </a>
   );
 }

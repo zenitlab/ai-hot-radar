@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  AlertTriangle, Flame, Zap, TrendingUp, Twitter, Globe,
+  AlertTriangle, Flame, Zap, TrendingUp,
   Eye, Activity, Clock, Target, MessageCircle, Repeat2, Quote, User,
-  ShieldAlert, ChevronDown, ChevronUp, ThermometerSun, FileText, Search,
+  ShieldAlert, ChevronDown, ChevronUp, ThermometerSun, FileText,
   Sparkles,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { getSourceIcon, getSourceLabel } from '../../lib/sourceMeta';
 import { relativeTime, formatDateTime } from '../../utils/relativeTime';
 import { HotspotMedia } from './HotspotMedia';
 import type { Hotspot } from '../../types';
@@ -39,73 +40,6 @@ function getImportanceIcon(importance: string) {
     case 'medium': return <Zap className="w-4 h-4" />;
     default: return <TrendingUp className="w-4 h-4" />;
   }
-}
-
-function getSourceIcon(source: string) {
-  switch (source) {
-    case 'twitter': return <Twitter className="w-4 h-4" />;
-    case 'bilibili': return <Eye className="w-4 h-4" />;
-    case 'weibo': return <Activity className="w-4 h-4" />;
-    case 'sogou': return <Search className="w-4 h-4" />;
-    case 'hackernews': return <Zap className="w-4 h-4" />;
-    default: return <Globe className="w-4 h-4" />;
-  }
-}
-
-function getSourceLabel(source: string) {
-  const labels: Record<string, string> = {
-    twitter: 'X',
-    bing: 'Bing',
-    google: 'Google',
-    sogou: '搜狗',
-    bilibili: 'Bilibili',
-    weibo: '微博热搜',
-    hackernews: 'HackerNews',
-    duckduckgo: 'DuckDuckGo',
-  };
-  if (labels[source]) return labels[source];
-
-  // Pretty Chinese / English labels for RSS categories
-  const rssLabels: Record<string, string> = {
-    openai: 'OpenAI Blog',
-    anthropic: 'Anthropic',
-    google_ai: 'Google AI Blog',
-    deepmind: 'Google DeepMind',
-    hugging_face: 'Hugging Face',
-    microsoft_ai: 'Microsoft AI',
-    nvidia: 'NVIDIA',
-    meta_ai: 'Meta AI',
-    hf_papers: 'HuggingFace Daily Papers',
-    mit_tech: 'MIT Technology Review',
-    the_decoder: 'The Decoder',
-    venturebeat: 'VentureBeat',
-    techcrunch: 'TechCrunch',
-    synced: 'Synced',
-    github: 'GitHub Blog',
-    infoq: 'InfoQ',
-    hacker_news: 'Hacker News Best',
-    v2ex: 'V2EX 热帖',
-    juejin: '掘金',
-    cls: '财联社',
-    xueqiu: '雪球热门',
-    '36kr': '36氪',
-    chinanews: '中国新闻网',
-    ithome: 'IT之家',
-    arxiv_ai: 'arXiv cs.AI',
-    arxiv_lg: 'arXiv cs.LG',
-    arxiv_cl: 'arXiv cs.CL',
-    arxiv_cv: 'arXiv cs.CV',
-    wheresyoured: "Where's Your Ed At",
-  };
-  if (source.startsWith('rss_')) {
-    const cat = source.slice(4);
-    return rssLabels[cat] || cat.replace(/_/g, ' ');
-  }
-  // X account-sourced items: "twitter_<username>" → "@username"
-  if (source.startsWith('twitter_')) {
-    return '@' + source.slice(8);
-  }
-  return source;
 }
 
 interface HotspotCardProps {

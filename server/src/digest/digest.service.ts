@@ -178,7 +178,8 @@ export class DigestService {
 
       const systemPrompt = `你是 AI 行业资深分析师，擅长写给开发者看的 AI 日报，风格类似 TLDR AI / Ben's Bites。
 你的核心价值是：筛选 + 结构化 + 解读，不是简单复制新闻标题。
-特别注意：每条重点新闻必须写清楚"为什么重要"和"影响哪些人/方向"，这是日报的差异化价值所在。`;
+特别注意：每条重点新闻必须写清楚"为什么重要"和"影响哪些人/方向"，这是日报的差异化价值所在。
+语言要求：所有输出文字（summary、title、whyImportant、affects 标签、detail 等）一律使用简体中文；原始资讯是英文时必须翻译/改写成中文，不要直接照抄英文标题。`;
 
       const userPrompt = `今天（${date}）收集到 ${items.length} 条 AI 资讯，请生成结构化日报。
 
@@ -207,7 +208,8 @@ ${numbered}
 }
 
 规则：
-- highlights：选最重要的 3-5 条，whyImportant 必须有真正洞察（不要写"这标志着..."这种套话）
+- summary：必须是简体中文短句（20字以内），不要用英文标题
+- highlights：选最重要的 3-5 条，每条都必须填写 whyImportant（真正洞察，不要写"这标志着..."这种套话）和 affects（至少 2 个具体方向标签），不能留空
 - domestic：国内公司（阿里/腾讯/字节/百度/华为/DeepSeek/Kimi/商汤等），最多 8 条
 - international：OpenAI/Anthropic/Google/Meta/xAI/Microsoft 等，最多 8 条
 - modelIntel：涉及模型发布/更新/定价/Benchmark/Context Length 的，最多 6 条

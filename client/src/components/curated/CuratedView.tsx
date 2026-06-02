@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import {
   Star, Search, X, Flame, Sparkles, Bookmark,
   ExternalLink, Clock, Zap, Repeat2, MessageCircle, Eye, ThermometerSun,
-  Twitter, Globe, Activity,
 } from 'lucide-react';
 import { curatedApi, hotspotsApi, keywordsApi } from '../../services/api';
 import { relativeTime } from '../../utils/relativeTime';
 import { cn } from '../../lib/utils';
+import { getSourceIcon, getSourceLabel } from '../../lib/sourceMeta';
 import { HotspotTabs } from '../hotspot/HotspotTabs';
 import { BackToTop } from '../common/BackToTop';
 import { SkeletonList } from '../common/Loader';
@@ -14,36 +14,6 @@ import { EmptyState } from '../common/EmptyState';
 import type { Hotspot, HotspotTab } from '../../types';
 
 type Period = 'today' | 'week';
-
-const SOURCE_LABEL: Record<string, string> = {
-  rss_openai: 'OpenAI', rss_anthropic: 'Anthropic', rss_google_ai: 'Google AI',
-  rss_deepmind: 'DeepMind', rss_hugging_face: 'Hugging Face', rss_mit_tech: 'MIT Tech Review',
-  rss_the_decoder: 'The Decoder', rss_venturebeat: 'VentureBeat', rss_techcrunch: 'TechCrunch',
-  rss_microsoft_ai: 'Microsoft AI', rss_synced: 'Synced', rss_github: 'GitHub Blog',
-  rss_infoq: 'InfoQ', rss_hacker_news: 'Hacker News', rss_v2ex: 'V2EX', rss_juejin: '掘金',
-  rss_cls: '财联社', rss_xueqiu: '雪球', rss_36kr: '36氪', rss_chinanews: '中国新闻网',
-  rss_ithome: 'IT之家', rss_arxiv_ai: 'arXiv cs.AI', rss_arxiv_lg: 'arXiv cs.LG',
-  rss_arxiv_cl: 'arXiv cs.CL', rss_arxiv_cv: 'arXiv cs.CV', rss_wheresyoured: "Where's Your Ed At",
-  rss_nvidia: 'NVIDIA', rss_meta_ai: 'Meta AI', rss_hf_papers: 'HuggingFace Daily Papers',
-  twitter: 'X', bing: 'Bing', bilibili: 'Bilibili', hackernews: 'HackerNews',
-};
-
-function getSourceLabel(source: string): string {
-  if (SOURCE_LABEL[source]) return SOURCE_LABEL[source];
-  if (source.startsWith('twitter_')) return '@' + source.slice(8);
-  if (source.startsWith('rss_')) return source.slice(4).replace(/_/g, ' ');
-  return source;
-}
-
-/** Source icon — same set as HotspotCard so the two views read consistently. */
-function getSourceIcon(source: string) {
-  if (source === 'twitter' || source.startsWith('twitter_')) return <Twitter className="w-3.5 h-3.5" />;
-  if (source === 'bilibili') return <Eye className="w-3.5 h-3.5" />;
-  if (source === 'weibo') return <Activity className="w-3.5 h-3.5" />;
-  if (source === 'sogou') return <Search className="w-3.5 h-3.5" />;
-  if (source === 'hackernews') return <Zap className="w-3.5 h-3.5" />;
-  return <Globe className="w-3.5 h-3.5" />;
-}
 
 const CATEGORY_LABEL: Record<string, string> = {
   model: '模型发布', product: 'AI 产品', industry: '行业动态',
@@ -88,7 +58,7 @@ function CuratedCard({ item, index = 0 }: { item: Hotspot; index?: number }) {
       {/* Top row: source icon + label · category · keyword (left) | heat + score (right) */}
       <div className="flex flex-wrap items-center gap-2 mb-3">
         <span className="flex items-center gap-1 text-[12px] text-[var(--text-muted)] font-medium">
-          {getSourceIcon(item.source)}
+          {getSourceIcon(item.source, 'w-3.5 h-3.5')}
           {getSourceLabel(item.source)}
         </span>
         {item.category && CATEGORY_LABEL[item.category] && (
