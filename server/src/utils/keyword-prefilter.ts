@@ -70,3 +70,32 @@ export function titleLooksAiRelated(title: string, content?: string): boolean {
 export function needsKeywordPrefilter(category: string): boolean {
   return GENERIC_NEWS_SOURCES.has(category);
 }
+
+/**
+ * Non-news page filter: catches login portals, dashboards, welcome pages, etc.
+ * that should never appear in a news radar (e.g. partnerhub.anthropic.com/signin).
+ *
+ * Returns true if the URL or title matches a known non-news pattern — caller
+ * should skip the item.
+ */
+export function looksLikeNonNewsPage(url: string, title: string): boolean {
+  const urlLower = url.toLowerCase();
+  const titleLower = title.toLowerCase();
+
+  // Portal / auth / account management URLs
+  const urlBlacklist = [
+    '/signin', '/login', '/signup', '/register', '/auth/',
+    '/dashboard', '/console', '/portal', '/admin', '/account',
+    'partnerhub.', 'hub.', 'app.', 'console.',
+  ];
+  if (urlBlacklist.some(pat => urlLower.includes(pat))) return true;
+
+  // Welcome / landing page titles (not news)
+  const titleBlacklist = [
+    'welcome to', '欢迎', 'sign in', 'log in', '登录', '注册',
+    'dashboard', 'portal', 'console',
+  ];
+  if (titleBlacklist.some(pat => titleLower.includes(pat))) return true;
+
+  return false;
+}

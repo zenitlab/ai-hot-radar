@@ -16,6 +16,16 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-06-04",
+    version: "v0.7.22",
+    tag: "fix",
+    items: [
+      "修复 RSS 源抓到非新闻页的问题：此前 Google News 搜 site:anthropic.com 会把 partnerhub 登录页等门户页当成新闻抓进来(如「Welcome to EULER! - Anthropic」实为合作伙伴门户,非产品发布)",
+      "新增非新闻页过滤器：URL 含 /signin、/login、partnerhub. 等模式,或标题含 Welcome to / 欢迎 / 登录 等门户特征的项目,RSS 入库前直接拦截",
+      "测试覆盖:7 个单元测试锁定过滤规则,确保正常新闻不误杀、门户页不漏网",
+    ],
+  },
+  {
+    date: "2026-06-04",
     version: "v0.7.21",
     tag: "fix",
     items: [

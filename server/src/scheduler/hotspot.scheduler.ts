@@ -14,7 +14,7 @@ import type { SourceTier, XAccountConfig } from '../rss-feeds/feeds.config';
 import type { SearchResult } from '../types';
 import { getAuthorityScore, resolveClusterKey, planClusterMains, type ClusterClaim } from '../utils/authority';
 import { tokenizeTitle, eventKeyToClusterKey } from '../utils/title-cluster';
-import { needsKeywordPrefilter, titleLooksAiRelated } from '../utils/keyword-prefilter';
+import { needsKeywordPrefilter, titleLooksAiRelated, looksLikeNonNewsPage } from '../utils/keyword-prefilter';
 
 const MAX_AGE_HOURS = 2 * 24;
 const TWITTER_QUOTA = 15;
@@ -855,6 +855,9 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     const newItems = validItems.filter(item => {
       const source = `rss_${item.feedConfig.category}`;
       if (existingUrls.has(`${item.url}|${source}`)) return false;
+      // Weed out portal / login pages that RSS scrapers sometimes pick up
+      // (e.g. partnerhub.anthropic.com/signin from Google News site:anthropic.com).
+      if (looksLikeNonNewsPage(item.url, item.title)) return false;
       // Cheap keyword pre-filter for generic news sources (IT之家/36氪/财联社 etc.)
       // — drops obviously non-AI items before they consume any AI tokens.
       if (needsKeywordPrefilter(item.feedConfig.category)) {
