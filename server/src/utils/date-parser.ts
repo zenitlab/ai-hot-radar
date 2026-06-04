@@ -1,17 +1,26 @@
+/** Tolerate up to 1h of clock skew before treating a date as "in the future". */
+const FUTURE_SKEW_MS = 60 * 60 * 1000;
+
 /**
  * Parse various date string formats commonly seen in search results.
  * Returns a Date if a value can be confidently extracted, otherwise undefined.
+ *
+ * A publish date can never be in the future: forward-dated values (e.g. an
+ * "effective date" mentioned in the article, or a year-less date defaulted to
+ * the current year) are rejected — or, when the year was inferred, rolled back
+ * one year — so they don't masquerade as a brand-new article.
  */
 export function parseLooseDate(text: string, now: Date = new Date()): Date | undefined {
   if (!text) return undefined;
   const t = text.trim();
+  const futureLimit = now.getTime() + FUTURE_SKEW_MS;
 
   // ISO-like: 2026-04-15, 2026/04/15, 2026.04.15
   const iso = t.match(/(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
   if (iso) {
     const [, y, m, d] = iso;
     const date = new Date(Date.UTC(+y, +m - 1, +d));
-    if (!isNaN(date.getTime())) return date;
+    if (!isNaN(date.getTime()) && date.getTime() <= futureLimit) return date;
   }
 
   // English: "Apr 15, 2026" / "April 15, 2026"
@@ -24,7 +33,7 @@ export function parseLooseDate(text: string, now: Date = new Date()): Date | und
     const m = monthMap[en[1].slice(0, 3).toLowerCase()];
     if (m !== undefined) {
       const date = new Date(Date.UTC(+en[3], m, +en[2]));
-      if (!isNaN(date.getTime())) return date;
+      if (!isNaN(date.getTime()) && date.getTime() <= futureLimit) return date;
     }
   }
 
@@ -64,9 +73,15 @@ export function parseLooseDate(text: string, now: Date = new Date()): Date | und
   // Chinese absolute: "2026年4月15日" / "4月15日"
   const cnAbs = t.match(/(?:(\d{4})年)?(\d{1,2})月(\d{1,2})日/);
   if (cnAbs) {
-    const year = cnAbs[1] ? +cnAbs[1] : now.getUTCFullYear();
-    const date = new Date(Date.UTC(year, +cnAbs[2] - 1, +cnAbs[3]));
-    if (!isNaN(date.getTime())) return date;
+    let year = cnAbs[1] ? +cnAbs[1] : now.getUTCFullYear();
+    let date = new Date(Date.UTC(year, +cnAbs[2] - 1, +cnAbs[3]));
+    // Year-less date that lands in the future refers to last year
+    // (news convention: "12月5日" seen in June means last December).
+    if (!cnAbs[1] && date.getTime() > futureLimit) {
+      year -= 1;
+      date = new Date(Date.UTC(year, +cnAbs[2] - 1, +cnAbs[3]));
+    }
+    if (!isNaN(date.getTime()) && date.getTime() <= futureLimit) return date;
   }
 
   return undefined;
@@ -86,6 +101,9 @@ export function findOldestDateInText(text: string, now: Date = new Date()): Date
   const dates: Date[] = [];
   const minYear = 2015;
   const maxYear = now.getUTCFullYear() + 1;
+  // Absolute dates in the future are references (event/effective dates), never
+  // the publish date — keep them out of the candidate pool.
+  const futureLimit = now.getTime() + FUTURE_SKEW_MS;
 
   // ISO-like dates: 2026-04-15, 2026/04/15, 2026.04.15 — global match
   const isoRe = /(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/g;
@@ -93,7 +111,7 @@ export function findOldestDateInText(text: string, now: Date = new Date()): Date
     const y = +m[1], mo = +m[2], d = +m[3];
     if (y < minYear || y > maxYear || mo < 1 || mo > 12 || d < 1 || d > 31) continue;
     const date = new Date(Date.UTC(y, mo - 1, d));
-    if (!isNaN(date.getTime())) dates.push(date);
+    if (!isNaN(date.getTime()) && date.getTime() <= futureLimit) dates.push(date);
   }
 
   // English: "Apr 15, 2026" — global match
@@ -108,7 +126,7 @@ export function findOldestDateInText(text: string, now: Date = new Date()): Date
     if (mo === undefined) continue;
     if (y < minYear || y > maxYear || d < 1 || d > 31) continue;
     const date = new Date(Date.UTC(y, mo, d));
-    if (!isNaN(date.getTime())) dates.push(date);
+    if (!isNaN(date.getTime()) && date.getTime() <= futureLimit) dates.push(date);
   }
 
   // Chinese absolute: "2025年7月5日"
@@ -117,7 +135,7 @@ export function findOldestDateInText(text: string, now: Date = new Date()): Date
     const y = +m[1], mo = +m[2], d = +m[3];
     if (y < minYear || y > maxYear || mo < 1 || mo > 12 || d < 1 || d > 31) continue;
     const date = new Date(Date.UTC(y, mo - 1, d));
-    if (!isNaN(date.getTime())) dates.push(date);
+    if (!isNaN(date.getTime()) && date.getTime() <= futureLimit) dates.push(date);
   }
 
   // Relative dates — these always indicate the publish date (e.g. "5 days ago")
@@ -159,5 +177,8 @@ export function extractDateFromUrl(url: string): Date | undefined {
   if (yi < 2015 || yi > new Date().getUTCFullYear() + 1) return undefined;
   if (moi < 1 || moi > 12 || di < 1 || di > 31) return undefined;
   const date = new Date(Date.UTC(yi, moi - 1, di));
-  return isNaN(date.getTime()) ? undefined : date;
+  if (isNaN(date.getTime())) return undefined;
+  // A publish date can't be in the future.
+  if (date.getTime() > Date.now() + FUTURE_SKEW_MS) return undefined;
+  return date;
 }

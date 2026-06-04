@@ -32,7 +32,13 @@ type AnalyzedKeywordItem = {
 };
 
 function filterByFreshness(results: SearchResult[]): SearchResult[] {
-  const cutoff = new Date(Date.now() - MAX_AGE_HOURS * 3600 * 1000);
+  const now = Date.now();
+  const cutoff = new Date(now - MAX_AGE_HOURS * 3600 * 1000);
+  // Upper bound: a publish date in the future is bogus (e.g. an "effective date"
+  // mentioned in the article body mis-parsed as the publish date). Without this,
+  // such items pass the freshness gate AND pin themselves to the top forever,
+  // since they always sort as the "newest". Tolerate 1h of clock skew.
+  const futureLimit = new Date(now + 60 * 60 * 1000);
   return results.filter(item => {
     // For sources that should always carry a date (search engines that scrape HTML),
     // missing publishedAt means "we don't know how old this is" — likely an old result
@@ -42,6 +48,7 @@ function filterByFreshness(results: SearchResult[]): SearchResult[] {
       if (sourcesRequiringDate.has(item.source)) return false;
       return true; // Other sources (rss, twitter, hn, bilibili) always have dates
     }
+    if (item.publishedAt > futureLimit) return false; // future-dated = untrustworthy
     return item.publishedAt >= cutoff;
   });
 }
