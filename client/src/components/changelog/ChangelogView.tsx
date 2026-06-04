@@ -16,6 +16,15 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-06-04",
+    version: "v0.7.25",
+    tag: "fix",
+    items: [
+      "修复热点雷达切换 tab / 排序时消息卡「闪两下」：此前切换会先用旧页码发一次请求、再因页码重置发第二次请求（不在第 1 页时必现），列表被加载态替换两次",
+      "改为在切换的同一动作里一次性重置到第 1 页（合并为单次渲染、单次请求），切 tab / 切筛选 / 搜索都只刷新一次",
+    ],
+  },
+  {
+    date: "2026-06-04",
     version: "v0.7.24",
     tag: "fix",
     items: [

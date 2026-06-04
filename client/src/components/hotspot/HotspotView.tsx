@@ -79,10 +79,6 @@ export function HotspotView() {
   }, [filters, currentPage, activeTab, appliedSearch]);
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [filters, activeTab, appliedSearch]);
-
-  useEffect(() => {
     loadData();
   }, [loadData]);
 
@@ -137,11 +133,13 @@ export function HotspotView() {
 
   const handleSearch = () => {
     setAppliedSearch(searchInput.trim());
+    setCurrentPage(1);
   };
 
   const handleClearSearch = () => {
     setSearchInput('');
     setAppliedSearch('');
+    setCurrentPage(1);
     searchRef.current?.focus();
   };
 
@@ -209,7 +207,7 @@ export function HotspotView() {
       {/* Tabs + Search row — stacked on mobile, side-by-side on lg+ */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 mb-4">
         <div className="flex-1 min-w-0">
-          <HotspotTabs activeTab={activeTab} onChange={(tab) => setActiveTab(tab)} />
+          <HotspotTabs activeTab={activeTab} onChange={(tab) => { setActiveTab(tab); setCurrentPage(1); }} />
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           <div className="relative flex-1 lg:flex-initial">
@@ -252,7 +250,7 @@ export function HotspotView() {
 
       {/* Filter & Sort Bar */}
       <div className="mb-5">
-        <FilterSortBar filters={filters} onChange={setFilters} keywords={keywords} />
+        <FilterSortBar filters={filters} onChange={(f) => { setFilters(f); setCurrentPage(1); }} keywords={keywords} />
       </div>
 
       {isLoading ? (
