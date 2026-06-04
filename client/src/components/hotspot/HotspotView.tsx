@@ -24,6 +24,10 @@ export function HotspotView() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [activeTab, setActiveTab] = useState<HotspotTab>('all');
+  // True after the first successful load. The mount fade-in plays only on that
+  // first paint; later tab/filter switches render instantly so the list doesn't
+  // re-flash (most visible on slower mobile devices).
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   // expand/collapse state — each card decides for itself; no "expand all" toggle.
   const [expandedReasons, setExpandedReasons] = useState<Set<string>>(new Set());
@@ -81,6 +85,10 @@ export function HotspotView() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (!isLoading && hotspots.length > 0) setHasLoadedOnce(true);
+  }, [isLoading, hotspots.length]);
 
   // WebSocket
   useEffect(() => {
@@ -253,7 +261,7 @@ export function HotspotView() {
         <FilterSortBar filters={filters} onChange={(f) => { setFilters(f); setCurrentPage(1); }} keywords={keywords} />
       </div>
 
-      {isLoading ? (
+      {isLoading && hotspots.length === 0 ? (
         <PageLoader />
       ) : hotspots.length === 0 ? (
         <EmptyState
@@ -268,6 +276,7 @@ export function HotspotView() {
               key={hotspot.id}
               hotspot={hotspot}
               index={index}
+              disableEntrance={hasLoadedOnce}
               expandedReasons={expandedReasons}
               expandedContents={expandedContents}
               onToggleReason={toggleReason}
@@ -278,7 +287,7 @@ export function HotspotView() {
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && !isLoading && (
+      {totalPages > 1 && hotspots.length > 0 && (
         <div className="flex items-center justify-center gap-3 mt-6">
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}

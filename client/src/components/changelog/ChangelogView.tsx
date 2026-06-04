@@ -15,6 +15,15 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-06-05",
+    version: "v0.7.26",
+    tag: "fix",
+    items: [
+      "进一步修复热点雷达手机端切换 tab / 排序时「闪两下」：刷新时不再把整列表替换成加载占位（仅首屏显示），切换时保留旧卡片直到新数据到位",
+      "卡片淡入动画只在首屏播放一次，之后切换 tab / 筛选即时渲染，慢速手机不再因动画重播而闪烁",
+    ],
+  },
+  {
     date: "2026-06-04",
     version: "v0.7.25",
     tag: "fix",
