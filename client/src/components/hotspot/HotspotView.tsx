@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { Radio, RefreshCw, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
 import { hotspotsApi, triggerHotspotCheck, getScanStatus, keywordsApi } from '../../services/api';
 import { onNewHotspot, onNotification, onScanStatus, onScanProgress, subscribeToKeywords } from '../../services/socket';
@@ -24,10 +25,10 @@ export function HotspotView() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [activeTab, setActiveTab] = useState<HotspotTab>('all');
-  // True after the first successful load. The mount fade-in plays only on that
-  // first paint; later tab/filter switches render instantly so the list doesn't
-  // re-flash (most visible on slower mobile devices).
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  // Bumped on every successful load so the list container re-keys and plays one
+  // quick fade+slide — clear "refreshed" feedback on tab/sort switches (even when
+  // the top card is unchanged) without the old per-card flashing.
+  const [loadSeq, setLoadSeq] = useState(0);
 
   // expand/collapse state — each card decides for itself; no "expand all" toggle.
   const [expandedReasons, setExpandedReasons] = useState<Set<string>>(new Set());
@@ -67,6 +68,7 @@ export function HotspotView() {
         keywordsApi.getAll(),
       ]);
       setHotspots(hotspotsData.data as unknown as Hotspot[]);
+      setLoadSeq(s => s + 1);
       setTotalPages(hotspotsData.pagination.totalPages);
       // Show count for the current tab/filter, not global total
       setStats({ total: hotspotsData.pagination.total });
@@ -85,10 +87,6 @@ export function HotspotView() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  useEffect(() => {
-    if (!isLoading && hotspots.length > 0) setHasLoadedOnce(true);
-  }, [isLoading, hotspots.length]);
 
   // WebSocket
   useEffect(() => {
@@ -270,20 +268,26 @@ export function HotspotView() {
           description={appliedSearch ? `没有匹配 "${appliedSearch}" 的内容，换个关键词试试` : '系统正在抓取最新资讯，几分钟后回来看看；或者添加监控关键词开始追踪。'}
         />
       ) : (
-        <div className="space-y-3">
+        <motion.div
+          key={loadSeq}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="space-y-3"
+        >
           {hotspots.map((hotspot, index) => (
             <HotspotCard
               key={hotspot.id}
               hotspot={hotspot}
               index={index}
-              disableEntrance={hasLoadedOnce}
+              disableEntrance
               expandedReasons={expandedReasons}
               expandedContents={expandedContents}
               onToggleReason={toggleReason}
               onToggleContent={toggleContent}
             />
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* Pagination */}

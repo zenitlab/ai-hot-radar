@@ -16,6 +16,14 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-06-05",
+    version: "v0.7.27",
+    tag: "tweak",
+    items: [
+      "热点雷达切换 tab / 排序 / 翻页时，列表整体加一段快速淡入+上滑过渡：既给出「已刷新」的视觉反馈（即使首条没变也能感知到列表更新了），又不会像之前那样逐卡闪烁",
+    ],
+  },
+  {
+    date: "2026-06-05",
     version: "v0.7.26",
     tag: "fix",
     items: [
