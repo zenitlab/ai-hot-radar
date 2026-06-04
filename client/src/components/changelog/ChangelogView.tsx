@@ -16,6 +16,16 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-06-04",
+    version: "v0.7.23",
+    tag: "tweak",
+    items: [
+      "新增历史重复卡合并脚本(server/src/merge-duplicate-hotspots.ts)：修复 v0.7.21 之前同一事件因并发入库各自成 main 的历史脏数据",
+      "脚本逻辑：找出同 clusterKey 有多张 main 的 cluster,按权威度选出唯一 main,其余降级(不删除);默认 dry-run 预览,加 --apply 才写库",
+      "幂等可重跑,已正确的不动;使用说明见 server/MERGE_DUPLICATES.md",
+    ],
+  },
+  {
+    date: "2026-06-04",
     version: "v0.7.22",
     tag: "fix",
     items: [
