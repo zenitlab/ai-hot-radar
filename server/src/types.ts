@@ -50,6 +50,7 @@ export interface AIAnalysis {
   keywordMentioned: boolean; // 内容中是否直接提及了关键词或其核心概念
   importance: 'low' | 'medium' | 'high' | 'urgent';
   summary: string; // 与关键词的关联说明（不是单纯的内容介绍）
+  eventKey?: string; // 语义事件指纹: 同一事件不同标题/语言归一为相同 slug, 用于聚类
 }
 
 export interface HotspotWithKeyword {

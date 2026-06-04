@@ -12,13 +12,24 @@ import { RssService } from '../services/rss.service';
 import { KEYWORD_GROUPS, X_ACCOUNTS } from '../rss-feeds/feeds.config';
 import type { SourceTier, XAccountConfig } from '../rss-feeds/feeds.config';
 import type { SearchResult } from '../types';
-import { getAuthorityScore, resolveClusterKey, type ClusterClaim } from '../utils/authority';
-import { tokenizeTitle } from '../utils/title-cluster';
+import { getAuthorityScore, resolveClusterKey, planClusterMains, type ClusterClaim } from '../utils/authority';
+import { tokenizeTitle, eventKeyToClusterKey } from '../utils/title-cluster';
 import { needsKeywordPrefilter, titleLooksAiRelated } from '../utils/keyword-prefilter';
 
 const MAX_AGE_HOURS = 2 * 24;
 const TWITTER_QUOTA = 15;
 const OTHER_QUOTA = 10;
+
+/** Result of the concurrent analyze segment for one keyword search item. */
+type AnalyzedKeywordItem = {
+  item: SearchResult;
+  analysis: import('../types').AIAnalysis;
+  scoring: import('../services/scoring.service').ScoringResult;
+  tier: SourceTier;
+  authority: number;
+  clusterTokens: string[];
+  baseClusterKey: string;
+};
 
 function filterByFreshness(results: SearchResult[]): SearchResult[] {
   const cutoff = new Date(Date.now() - MAX_AGE_HOURS * 3600 * 1000);
@@ -590,19 +601,49 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         });
         if (eligible.length === 0) continue;
 
-        const settled = await Promise.allSettled(
-          eligible.map(item => this.processOneKeywordItem(item, keyword, expandedKeywords, claimedClusters)),
+        // Analyze segment (concurrent): AI relevance + scoring + event fingerprint.
+        // Items failing the relevance gate drop out here.
+        const analyzed = (await Promise.all(
+          eligible.map(item => this.analyzeKeywordItem(item, keyword, expandedKeywords)),
+        )).filter((a): a is AnalyzedKeywordItem => a !== null);
+        if (analyzed.length === 0) continue;
+
+        // Resolve each item to a cluster: eventKey-derived key first, with the
+        // existing 方案2 Jaccard fallback so reworded headlines of the same event
+        // join one cluster instead of each becoming its own main.
+        const keys = analyzed.map((a, j) =>
+          resolveClusterKey(a.clusterTokens, a.baseClusterKey, claimedClusters));
+
+        // Batch-internal main selection: exactly one winner per cluster within
+        // this slice (mirrors processDefaultSources). This is what stops the
+        // "same event, 3 cards all isClusterMain" bug under concurrency.
+        const { mainIdx, demotions } = planClusterMains(
+          analyzed.length,
+          (idx) => ({ clusterKey: keys[idx], authority: analyzed[idx].authority, passes: true }),
+          claimedClusters,
         );
 
-        for (let j = 0; j < settled.length; j++) {
-          const r = settled[j];
-          const item = eligible[j];
+        const results = await Promise.allSettled(
+          analyzed.map((a, idx) =>
+            this.persistKeywordItem(a, keyword, keys[idx], mainIdx.get(keys[idx]) === idx, claimedClusters)),
+        );
+
+        for (let j = 0; j < results.length; j++) {
+          const r = results[j];
           if (r.status === 'fulfilled' && r.value) {
             count++;
-            if (item.source === 'twitter') twitterProcessed++; else otherProcessed++;
+            if (analyzed[j].item.source === 'twitter') twitterProcessed++; else otherProcessed++;
           } else if (r.status === 'rejected') {
             this.logger.error(`  Error processing result:`, r.reason);
           }
+        }
+
+        // Demote any old DB mains that lost to a more authoritative item in this batch.
+        if (demotions.size > 0) {
+          await this.prisma.hotspot.updateMany({
+            where: { id: { in: [...demotions] } },
+            data: { isClusterMain: false },
+          });
         }
       }
     } catch (error) {
@@ -652,13 +693,16 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     return result.count;
   }
 
-  /** Process a single search result for a user keyword. Returns the hotspot if saved, null if filtered out. */
-  private async processOneKeywordItem(
+  /**
+   * Analyze segment of keyword-item processing (safe to run concurrently): run AI
+   * relevance + scoring, compute the event-fingerprint cluster key and authority.
+   * Returns null if the item fails the relevance gate (no DB write).
+   */
+  private async analyzeKeywordItem(
     item: SearchResult,
     keyword: { id: string; text: string },
     expandedKeywords: string[],
-    claimedClusters: Map<string, ClusterClaim>,
-  ): Promise<unknown> {
+  ): Promise<AnalyzedKeywordItem | null> {
     const fullText = item.title + '\n' + item.content;
     const preMatch = this.aiService.preMatchKeyword(fullText, expandedKeywords);
     const analysis = await this.aiService.analyzeContent(fullText, keyword.text, preMatch);
@@ -671,22 +715,38 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         ? 'T1.5' : 'T2';
     const scoring = await this.scoringService.score(item.title, item.content, tier, undefined, item.publishedAt);
 
+    // L1: prefer the model's semantic event fingerprint; fall back to token-md5
+    // (computeClusterKey via scoring.clusterKey) when the model gave nothing usable.
+    const baseClusterKey = eventKeyToClusterKey(analysis.eventKey, item.title);
+
+    return {
+      item,
+      analysis,
+      scoring,
+      tier,
+      authority: getAuthorityScore(item.source, tier),
+      clusterTokens: tokenizeTitle(item.title),
+      baseClusterKey,
+    };
+  }
+
+  /**
+   * Persist segment: insert one analyzed item with the cluster decision made by
+   * the batch planner. `isMain` is decided upstream by planClusterMains so exactly
+   * one item per cluster in a batch becomes the main.
+   */
+  private async persistKeywordItem(
+    a: AnalyzedKeywordItem,
+    keyword: { id: string; text: string },
+    clusterKey: string,
+    isClusterMain: boolean,
+    claimedClusters: Map<string, ClusterClaim>,
+  ): Promise<unknown> {
+    const { item, analysis, scoring, tier, authority } = a;
+
     const region = ['bilibili'].includes(item.source)
       ? 'domestic'
       : scoring.region;
-
-    // Authority-based cluster main: more authoritative source wins, can demote prior main.
-    // 方案2: remap to an existing similar cluster before claiming, so reworded
-    // headlines of the same event join one cluster instead of spawning duplicates.
-    const itemTokens = tokenizeTitle(item.title);
-    const clusterKey = resolveClusterKey(itemTokens, scoring.clusterKey, claimedClusters);
-    const authority = getAuthorityScore(item.source, tier);
-    const existing = claimedClusters.get(clusterKey);
-    const isClusterMain = !existing || authority > existing.authority;
-    let demoteId: string | undefined;
-    if (isClusterMain && existing?.hotspotId && authority > existing.authority) {
-      demoteId = existing.hotspotId;
-    }
 
     const hotspot = await this.prisma.hotspot.create({
       data: {
@@ -716,13 +776,8 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     });
 
     if (isClusterMain) {
-      claimedClusters.set(clusterKey, { hotspotId: hotspot.id, authority, tokens: itemTokens });
-      if (demoteId) {
-        await this.prisma.hotspot.update({
-          where: { id: demoteId },
-          data: { isClusterMain: false },
-        });
-      }
+      // Update in-memory claim so subsequent batches see the new authority.
+      claimedClusters.set(clusterKey, { hotspotId: hotspot.id, authority, tokens: a.clusterTokens });
     }
 
     this.logger.log(`  ✅ [${item.source}]: ${hotspot.title.slice(0, 40)}...`);

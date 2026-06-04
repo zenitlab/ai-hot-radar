@@ -250,8 +250,23 @@ export class AiService {
     return { matched: matchedTerms.length > 0, matchedTerms };
   }
 
-  private buildAnalysisPrompt(keyword: string, preMatchResult: { matched: boolean; matchedTerms: string[] }): string {
-    const matchHint = preMatchResult.matched
+  /**
+   * Normalize a model-produced event slug: lowercase, collapse any non
+   * [a-z0-9-] run to a single hyphen, trim hyphens, length-cap. Returns
+   * undefined when the result is too short to be a usable fingerprint, so
+   * downstream falls back to the token-md5 cluster key.
+   */
+  private normalizeEventKey(raw: unknown): string | undefined {
+    if (typeof raw !== 'string') return undefined;
+    const slug = raw
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80);
+    return slug.length >= 3 ? slug : undefined;
+  }
+
+  private buildAnalysisPrompt(keyword: string, preMatchResult: { matched: boolean; matchedTerms: string[] }): string {    const matchHint = preMatchResult.matched
       ? `\n注意：文本预匹配发现内容中包含以下关键词变体：${preMatchResult.matchedTerms.join('、')}`
       : `\n注意：文本预匹配发现内容中未直接提及关键词"${keyword}"的任何变体，请特别严格审核相关性。`;
 
@@ -283,6 +298,10 @@ ${matchHint}
 - importance: low / medium / high / urgent（只在 isRelevant=yes 时才有意义）
 - relevanceReason: 一句话说明为什么这样打分
 - summary: 此内容与"${keyword}"的关联，一句话
+- eventKey: 该新闻所报道【事件本身】的规范化英文 slug，用于把同一事件的不同报道归为一组。规则：
+  - 全小写，单词用连字符连接，只含核心实体+核心动作（如公司名、产品名、关键动词）
+  - 忽略国家/数量/措辞差异、忽略语言：同一事件无论标题怎么改写、中文还是英文，都必须输出【完全相同】的 slug
+  - 例：标题 "Anthropic scales Claude Mythos to critical infrastructure in 15 countries/nations/regions" 与中文"Anthropic将Claude Mythos安全程序扩展至15国关键基础设施"都应输出 "anthropic-claude-mythos-critical-infrastructure"
 
 请以 JSON 格式输出，只输出 JSON：
 {
@@ -292,7 +311,8 @@ ${matchHint}
   "relevanceReason": "...",
   "keywordMentioned": true/false,
   "importance": "low/medium/high/urgent",
-  "summary": "..."
+  "summary": "...",
+  "eventKey": "..."
 }`;
   }
 
@@ -354,6 +374,7 @@ ${matchHint}
             ? parsed.importance
             : 'low',
           summary: String(parsed.summary || '').slice(0, 150),
+          eventKey: this.normalizeEventKey(parsed.eventKey),
         };
       }
 

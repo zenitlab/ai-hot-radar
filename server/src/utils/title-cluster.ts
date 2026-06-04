@@ -55,6 +55,20 @@ export function computeClusterKey(title: string): string {
   return createHash('md5').update(basis).digest('hex').slice(0, 16);
 }
 
+/**
+ * L1: prefer a model-produced semantic event fingerprint (eventKey) over the
+ * fragile token-md5 key. Same event reworded across outlets/languages yields the
+ * same eventKey, so they collapse into one cluster. Falls back to computeClusterKey
+ * when the model gave nothing usable.
+ */
+export function eventKeyToClusterKey(eventKey: string | undefined, title: string): string {
+  const ek = (eventKey || '').trim().toLowerCase();
+  if (ek.length >= 3) {
+    return createHash('md5').update(`ek:${ek}`).digest('hex').slice(0, 16);
+  }
+  return computeClusterKey(title);
+}
+
 /** Jaccard similarity of two token sets: |intersection| / |union|, in [0, 1]. */
 export function jaccardSimilarity(a: string[], b: string[]): number {
   if (a.length === 0 || b.length === 0) return 0;

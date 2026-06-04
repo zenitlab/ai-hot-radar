@@ -103,6 +103,10 @@ export class HotspotsService {
       // score=0 = explicitly not AI-related. All three are noise — only show score ≥ 60.
       qualityScore: { gte: 60 },
     };
+    // Show only the cluster main so the same event doesn't appear as multiple cards.
+    // Exception: when filtering by a specific source, dropping that source's non-main
+    // cards would make whole events vanish from the source view — so skip the filter.
+    if (!source) where.isClusterMain = true;
     if (source) where.source = source;
     if (importance) where.importance = importance;
     if (keywordId) where.keywordId = keywordId;

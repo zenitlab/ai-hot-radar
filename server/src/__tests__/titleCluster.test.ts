@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   tokenizeTitle,
   computeClusterKey,
+  eventKeyToClusterKey,
   jaccardSimilarity,
 } from '../utils/title-cluster.js';
 import { resolveClusterKey, type ClusterClaim } from '../utils/authority.js';
@@ -71,5 +72,30 @@ describe('resolveClusterKey (方案2)', () => {
   it('skips fuzzy matching for very short titles', () => {
     const claims = new Map([['existing', claim(tokenizeTitle('OpenAI 发布编码代理 codex'))]]);
     expect(resolveClusterKey(tokenizeTitle('codex'), 'newkey', claims)).toBe('newkey');
+  });
+});
+
+describe('eventKeyToClusterKey', () => {
+  it('maps the same eventKey to the same cluster key regardless of title wording', () => {
+    const ek = 'anthropic-claude-mythos-critical-infrastructure';
+    const a = eventKeyToClusterKey(ek, 'Anthropic scales Claude Mythos to critical infrastructure in 15 countries');
+    const b = eventKeyToClusterKey(ek, 'Anthropic将Claude Mythos安全程序扩展至15国关键基础设施');
+    expect(a).toBe(b);
+  });
+
+  it('produces different keys for different events', () => {
+    expect(eventKeyToClusterKey('openai-gpt5-launch', 't1'))
+      .not.toBe(eventKeyToClusterKey('anthropic-claude-opus', 't2'));
+  });
+
+  it('falls back to token-md5 cluster key when eventKey is missing or too short', () => {
+    const title = 'OpenAI releases a new coding agent';
+    expect(eventKeyToClusterKey(undefined, title)).toBe(computeClusterKey(title));
+    expect(eventKeyToClusterKey('', title)).toBe(computeClusterKey(title));
+    expect(eventKeyToClusterKey('ab', title)).toBe(computeClusterKey(title));
+  });
+
+  it('is case-insensitive on the eventKey', () => {
+    expect(eventKeyToClusterKey('OpenAI-GPT5', 't')).toBe(eventKeyToClusterKey('openai-gpt5', 't'));
   });
 });
