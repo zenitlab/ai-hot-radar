@@ -50,6 +50,8 @@ interface HotspotCardProps {
   expandedContents?: Set<string>;
   onToggleReason?: (id: string) => void;
   onToggleContent?: (id: string) => void;
+  /** Skip the mount fade-in (used on list refreshes so the list doesn't re-flash) */
+  disableEntrance?: boolean;
 }
 
 export function HotspotCard({
@@ -59,6 +61,7 @@ export function HotspotCard({
   expandedContents,
   onToggleReason,
   onToggleContent,
+  disableEntrance = false,
 }: HotspotCardProps) {
   // Local state fallback when parent doesn't manage expansion
   const [localReasonOpen, setLocalReasonOpen] = useState(false);
@@ -82,9 +85,9 @@ export function HotspotCard({
   return (
     <motion.div
       key={hotspot.id}
-      initial={{ opacity: 0, x: -10 }}
+      initial={disableEntrance ? false : { opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.03 }}
+      transition={{ delay: disableEntrance ? 0 : index * 0.03 }}
       className="group p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200"
     >
       <div className="flex items-start justify-between gap-4">
