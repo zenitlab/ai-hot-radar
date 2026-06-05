@@ -16,6 +16,14 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-06-05",
+    version: "v0.7.28",
+    tag: "tweak",
+    items: [
+      "热点雷达列表切换淡入时长从 0.3s 延长至 0.7s，过渡更柔和舒缓，进一步消除手机端闪烁感",
+    ],
+  },
+  {
+    date: "2026-06-05",
     version: "v0.7.27",
     tag: "tweak",
     items: [

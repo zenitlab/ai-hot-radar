@@ -1,17 +1,38 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Radio, RefreshCw, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
-import { hotspotsApi, triggerHotspotCheck, getScanStatus, keywordsApi } from '../../services/api';
-import { onNewHotspot, onNotification, onScanStatus, onScanProgress, subscribeToKeywords } from '../../services/socket';
-import FilterSortBar, { defaultFilterState, type FilterState } from '../FilterSortBar';
-import { HotspotCard } from './HotspotCard';
-import { HotspotTabs } from './HotspotTabs';
-import { BackToTop } from '../common/BackToTop';
-import { PageLoader } from '../common/Loader';
-import { EmptyState } from '../common/EmptyState';
-import { cn } from '../../lib/utils';
-import type { Hotspot, HotspotTab } from '../../types';
-import type { Keyword } from '../../services/api';
+import { useState, useCallback, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import {
+  Radio,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  X,
+} from "lucide-react";
+import {
+  hotspotsApi,
+  triggerHotspotCheck,
+  getScanStatus,
+  keywordsApi,
+} from "../../services/api";
+import {
+  onNewHotspot,
+  onNotification,
+  onScanStatus,
+  onScanProgress,
+  subscribeToKeywords,
+} from "../../services/socket";
+import FilterSortBar, {
+  defaultFilterState,
+  type FilterState,
+} from "../FilterSortBar";
+import { HotspotCard } from "./HotspotCard";
+import { HotspotTabs } from "./HotspotTabs";
+import { BackToTop } from "../common/BackToTop";
+import { PageLoader } from "../common/Loader";
+import { EmptyState } from "../common/EmptyState";
+import { cn } from "../../lib/utils";
+import type { Hotspot, HotspotTab } from "../../types";
+import type { Keyword } from "../../services/api";
 
 export function HotspotView() {
   const [hotspots, setHotspots] = useState<Hotspot[]>([]);
@@ -19,24 +40,30 @@ export function HotspotView() {
   const [stats, setStats] = useState<{ total: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
-  const [scanProgress, setScanProgress] = useState<string>('');
+  const [scanProgress, setScanProgress] = useState<string>("");
   const [lastCheckTime, setLastCheckTime] = useState<Date | null>(null);
-  const [filters, setFilters] = useState<FilterState>({ ...defaultFilterState });
+  const [filters, setFilters] = useState<FilterState>({
+    ...defaultFilterState,
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [activeTab, setActiveTab] = useState<HotspotTab>('all');
+  const [activeTab, setActiveTab] = useState<HotspotTab>("all");
   // Bumped on every successful load so the list container re-keys and plays one
   // quick fade+slide — clear "refreshed" feedback on tab/sort switches (even when
   // the top card is unchanged) without the old per-card flashing.
   const [loadSeq, setLoadSeq] = useState(0);
 
   // expand/collapse state — each card decides for itself; no "expand all" toggle.
-  const [expandedReasons, setExpandedReasons] = useState<Set<string>>(new Set());
-  const [expandedContents, setExpandedContents] = useState<Set<string>>(new Set());
+  const [expandedReasons, setExpandedReasons] = useState<Set<string>>(
+    new Set(),
+  );
+  const [expandedContents, setExpandedContents] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Search
-  const [searchInput, setSearchInput] = useState('');
-  const [appliedSearch, setAppliedSearch] = useState('');
+  const [searchInput, setSearchInput] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
 
   const loadData = useCallback(async () => {
@@ -56,29 +83,33 @@ export function HotspotView() {
       if (appliedSearch) filterParams.search = appliedSearch;
 
       // Tab-based filtering
-      if (activeTab === 'domestic' || activeTab === 'international') {
+      if (activeTab === "domestic" || activeTab === "international") {
         filterParams.region = activeTab;
-      } else if (activeTab !== 'all') {
+      } else if (activeTab !== "all") {
         filterParams.category = activeTab;
       }
 
       const [hotspotsData, statsData, keywordsData] = await Promise.all([
-        hotspotsApi.getAll(filterParams as Parameters<typeof hotspotsApi.getAll>[0]),
+        hotspotsApi.getAll(
+          filterParams as Parameters<typeof hotspotsApi.getAll>[0],
+        ),
         hotspotsApi.getStats(),
         keywordsApi.getAll(),
       ]);
       setHotspots(hotspotsData.data as unknown as Hotspot[]);
-      setLoadSeq(s => s + 1);
+      setLoadSeq((s) => s + 1);
       setTotalPages(hotspotsData.pagination.totalPages);
       // Show count for the current tab/filter, not global total
       setStats({ total: hotspotsData.pagination.total });
       void statsData; // global stats kept for potential future use
       setKeywords(keywordsData as unknown as Keyword[]);
 
-      const activeKeywords = (keywordsData as unknown as Keyword[]).filter(k => k.isActive).map(k => k.text);
+      const activeKeywords = (keywordsData as unknown as Keyword[])
+        .filter((k) => k.isActive)
+        .map((k) => k.text);
       if (activeKeywords.length > 0) subscribeToKeywords(activeKeywords);
     } catch (err) {
-      console.error('Failed to load hotspots:', err);
+      console.error("Failed to load hotspots:", err);
     } finally {
       setIsLoading(false);
     }
@@ -91,13 +122,16 @@ export function HotspotView() {
   // WebSocket
   useEffect(() => {
     const unsubHotspot = onNewHotspot((hotspot) => {
-      setHotspots(prev => [hotspot as unknown as Hotspot, ...prev.slice(0, 19)]);
+      setHotspots((prev) => [
+        hotspot as unknown as Hotspot,
+        ...prev.slice(0, 19),
+      ]);
     });
     const unsubNotif = onNotification(() => {});
     const unsubScan = onScanStatus((status) => {
       setIsChecking(status.isScanning);
       if (!status.isScanning) {
-        setScanProgress('');
+        setScanProgress("");
         setLastCheckTime(new Date());
         loadData();
       }
@@ -106,35 +140,43 @@ export function HotspotView() {
       // Translate raw pipeline phases into reader-friendly status text.
       // Avoid leaking internal counters like "0/N" into the UI.
       switch (p.phase) {
-        case 'sources_start':
-          setScanProgress('正在收集最新资讯…');
+        case "sources_start":
+          setScanProgress("正在收集最新资讯…");
           break;
-        case 'sources_done':
-          setScanProgress('正在分析内容质量…');
+        case "sources_done":
+          setScanProgress("正在分析内容质量…");
           break;
-        case 'keywords_skipped':
-          setScanProgress('整理结果…');
+        case "keywords_skipped":
+          setScanProgress("整理结果…");
           break;
-        case 'keywords_start':
-          setScanProgress('为你筛选相关热点…');
+        case "keywords_start":
+          setScanProgress("为你筛选相关热点…");
           break;
-        case 'keyword_done':
-          setScanProgress('为你筛选相关热点…');
+        case "keyword_done":
+          setScanProgress("为你筛选相关热点…");
           break;
-        case 'keywords_done':
-          setScanProgress('即将完成…');
+        case "keywords_done":
+          setScanProgress("即将完成…");
           break;
       }
     });
-    return () => { unsubHotspot(); unsubNotif(); unsubScan(); unsubProgress(); };
+    return () => {
+      unsubHotspot();
+      unsubNotif();
+      unsubScan();
+      unsubProgress();
+    };
   }, [loadData]);
 
   // Initial scan status (in case a scan is already running when we mount)
   useEffect(() => {
-    getScanStatus().then(s => {
-      setIsChecking(s.isScanning);
-      if (s.lastScanFinishedAt) setLastCheckTime(new Date(s.lastScanFinishedAt));
-    }).catch(() => {});
+    getScanStatus()
+      .then((s) => {
+        setIsChecking(s.isScanning);
+        if (s.lastScanFinishedAt)
+          setLastCheckTime(new Date(s.lastScanFinishedAt));
+      })
+      .catch(() => {});
   }, []);
 
   const handleSearch = () => {
@@ -143,8 +185,8 @@ export function HotspotView() {
   };
 
   const handleClearSearch = () => {
-    setSearchInput('');
-    setAppliedSearch('');
+    setSearchInput("");
+    setAppliedSearch("");
     setCurrentPage(1);
     searchRef.current?.focus();
   };
@@ -160,17 +202,19 @@ export function HotspotView() {
   };
 
   const toggleReason = (id: string) => {
-    setExpandedReasons(prev => {
+    setExpandedReasons((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
 
   const toggleContent = (id: string) => {
-    setExpandedContents(prev => {
+    setExpandedContents((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -186,42 +230,56 @@ export function HotspotView() {
         <div className="flex items-center gap-3">
           {lastCheckTime && !isChecking && (
             <span className="text-xs text-[var(--text-muted)]">
-              上次 {lastCheckTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+              上次{" "}
+              {lastCheckTime.toLocaleTimeString("zh-CN", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </span>
           )}
           <button
             onClick={handleManualCheck}
             disabled={isChecking}
             className={cn(
-              'flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-opacity',
+              "flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-opacity",
               isChecking
-                ? 'bg-[var(--accent-blue)]/40 text-white cursor-wait'
-                : 'bg-[var(--accent-blue)]/85 text-white hover:bg-[var(--accent-blue)] shadow-sm',
+                ? "bg-[var(--accent-blue)]/40 text-white cursor-wait"
+                : "bg-[var(--accent-blue)]/85 text-white hover:bg-[var(--accent-blue)] shadow-sm",
             )}
           >
-            <RefreshCw className={cn('w-4 h-4', isChecking && 'animate-spin')} />
-            {isChecking ? (scanProgress || '正在扫描…') : '立即扫描'}
+            <RefreshCw
+              className={cn("w-4 h-4", isChecking && "animate-spin")}
+            />
+            {isChecking ? scanProgress || "正在扫描…" : "立即扫描"}
           </button>
         </div>
       </div>
 
       {/* Stats */}
       {stats && (
-        <p className="text-xs text-[var(--text-muted)] mb-4">共 {stats.total} 条热点</p>
+        <p className="text-xs text-[var(--text-muted)] mb-4">
+          共 {stats.total} 条热点
+        </p>
       )}
 
       {/* Tabs + Search row — stacked on mobile, side-by-side on lg+ */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 mb-4">
         <div className="flex-1 min-w-0">
-          <HotspotTabs activeTab={activeTab} onChange={(tab) => { setActiveTab(tab); setCurrentPage(1); }} />
+          <HotspotTabs
+            activeTab={activeTab}
+            onChange={(tab) => {
+              setActiveTab(tab);
+              setCurrentPage(1);
+            }}
+          />
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           <div className="relative flex-1 lg:flex-initial">
             <input
               ref={searchRef}
               value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               placeholder="搜索标题/摘要…"
               className="w-full lg:w-44 pl-3 pr-7 py-1.5 rounded-xl text-sm bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-active)] transition-all"
             />
@@ -247,8 +305,16 @@ export function HotspotView() {
       {/* Applied search hint */}
       {appliedSearch && (
         <div className="flex items-center gap-2 mb-3 text-xs text-[var(--text-secondary)]">
-          <span>搜索：<span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">"{appliedSearch}"</span></span>
-          <button onClick={handleClearSearch} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors underline">
+          <span>
+            搜索：
+            <span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">
+              "{appliedSearch}"
+            </span>
+          </span>
+          <button
+            onClick={handleClearSearch}
+            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors underline"
+          >
             清空
           </button>
         </div>
@@ -256,7 +322,14 @@ export function HotspotView() {
 
       {/* Filter & Sort Bar */}
       <div className="mb-5">
-        <FilterSortBar filters={filters} onChange={(f) => { setFilters(f); setCurrentPage(1); }} keywords={keywords} />
+        <FilterSortBar
+          filters={filters}
+          onChange={(f) => {
+            setFilters(f);
+            setCurrentPage(1);
+          }}
+          keywords={keywords}
+        />
       </div>
 
       {isLoading && hotspots.length === 0 ? (
@@ -265,14 +338,18 @@ export function HotspotView() {
         <EmptyState
           variant="radar"
           title="尚未发现热点"
-          description={appliedSearch ? `没有匹配 "${appliedSearch}" 的内容，换个关键词试试` : '系统正在抓取最新资讯，几分钟后回来看看；或者添加监控关键词开始追踪。'}
+          description={
+            appliedSearch
+              ? `没有匹配 "${appliedSearch}" 的内容，换个关键词试试`
+              : "系统正在抓取最新资讯，几分钟后回来看看；或者添加监控关键词开始追踪。"
+          }
         />
       ) : (
         <motion.div
           key={loadSeq}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
           className="space-y-3"
         >
           {hotspots.map((hotspot, index) => (
@@ -294,7 +371,7 @@ export function HotspotView() {
       {totalPages > 1 && hotspots.length > 0 && (
         <div className="flex items-center justify-center gap-3 mt-6">
           <button
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage <= 1}
             className="p-2 rounded-xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
           >
@@ -317,10 +394,10 @@ export function HotspotView() {
                   key={page}
                   onClick={() => setCurrentPage(page)}
                   className={cn(
-                    'w-8 h-8 rounded-lg text-xs font-medium transition-all',
+                    "w-8 h-8 rounded-lg text-xs font-medium transition-all",
                     currentPage === page
-                      ? 'bg-[var(--tab-active-bg)] text-[var(--tab-active-text)] border border-[var(--tab-active-border)]'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--tab-hover-bg)]',
+                      ? "bg-[var(--tab-active-bg)] text-[var(--tab-active-text)] border border-[var(--tab-active-border)]"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--tab-hover-bg)]",
                   )}
                 >
                   {page}
@@ -329,13 +406,15 @@ export function HotspotView() {
             })}
           </div>
           <button
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage >= totalPages}
             className="p-2 rounded-xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
-          <span className="text-xs text-[var(--text-muted)] ml-2">共 {stats?.total || 0} 条</span>
+          <span className="text-xs text-[var(--text-muted)] ml-2">
+            共 {stats?.total || 0} 条
+          </span>
         </div>
       )}
 
