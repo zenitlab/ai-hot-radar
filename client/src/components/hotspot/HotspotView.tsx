@@ -270,9 +270,9 @@ export function HotspotView() {
       ) : (
         <motion.div
           key={loadSeq}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
           className="space-y-3"
         >
           {hotspots.map((hotspot, index) => (
