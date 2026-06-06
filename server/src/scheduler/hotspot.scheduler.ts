@@ -594,7 +594,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         });
       }
 
-      const CONCURRENCY = 15;
+      const CONCURRENCY = 5; // Reduced from 15 to avoid Cloudflare 403
       let twitterProcessed = 0, otherProcessed = 0;
 
       for (let i = 0; i < fresh.length; i += CONCURRENCY) {
@@ -607,6 +607,11 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           return otherProcessed < OTHER_QUOTA;
         });
         if (eligible.length === 0) continue;
+
+        // Add delay between batches to avoid triggering Cloudflare rate limits
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1s delay between batches
+        }
 
         // Analyze segment (concurrent): AI relevance + scoring + event fingerprint.
         // Items failing the relevance gate drop out here.

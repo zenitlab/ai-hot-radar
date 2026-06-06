@@ -15,6 +15,15 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-06-06",
+    version: "v0.7.30",
+    tag: "fix",
+    items: [
+      "修复 AI 调用被 Cloudflare 403 拦截问题：关键词路径并发从 15 降至 5，批次间加 1 秒延迟，全局并发限制从 5 降至 3",
+      "降低瞬时请求峰值，避免触发 Cloudflare WAF 速率限制（特别是香港等节点更严格的规则）",
+    ],
+  },
+  {
     date: "2026-06-05",
     version: "v0.7.29",
     tag: "tweak",
