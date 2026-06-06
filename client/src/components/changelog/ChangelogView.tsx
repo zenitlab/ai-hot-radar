@@ -16,6 +16,16 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-06-05",
+    version: "v0.7.29",
+    tag: "tweak",
+    items: [
+      "建立项目规范基线：为热点雷达、AI 日报、精选、关键词监控、Agent 接入五大模块补全结构化规范文档（OpenSpec），包含 40+ 核心需求、128+ 验收场景、7 个架构决策记录（ADR）",
+      "规范文档采用 Given/When/Then 格式描述系统行为，明确输入输出、边界条件、错误处理，为后续功能开发、AI 辅助编码、团队协作提供权威依据",
+      "技术架构文档记录技术栈选型理由（SQLite vs PostgreSQL、eventKey vs token-md5、批内选主复用等）、性能考量、扩展性路径、已知技术债务",
+    ],
+  },
+  {
+    date: "2026-06-05",
     version: "v0.7.28",
     tag: "tweak",
     items: [
