@@ -345,26 +345,19 @@ export function HotspotView() {
           }
         />
       ) : (
-        <motion.div
-          key={loadSeq}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="space-y-3"
-        >
+        <div className="space-y-3">
           {hotspots.map((hotspot, index) => (
             <HotspotCard
               key={hotspot.id}
               hotspot={hotspot}
               index={index}
-              disableEntrance
               expandedReasons={expandedReasons}
               expandedContents={expandedContents}
               onToggleReason={toggleReason}
               onToggleContent={toggleContent}
             />
           ))}
-        </motion.div>
+        </div>
       )}
 
       {/* Pagination */}

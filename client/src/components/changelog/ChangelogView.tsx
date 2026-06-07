@@ -15,6 +15,16 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-06-07",
+    version: "v0.7.31",
+    tag: "tweak",
+    items: [
+      "热点雷达切换 tab/排序/翻页时，恢复逐卡滑入入场动画（opacity + x 轻微错开），移除整体列表淡入过渡，回到最初的交互节奏",
+      "前端 Vite 开发服务器配置 host: 0.0.0.0，支持局域网内手机/平板访问本地开发环境进行移动端测试",
+      "后端 AI 调用并发恢复到初始配置（关键词批次并发 15，全局并发 5），移除为规避 Cloudflare 403 临时加的限速策略（已通过切换网络节点解决）",
+    ],
+  },
+  {
     date: "2026-06-06",
     version: "v0.7.30",
     tag: "fix",
