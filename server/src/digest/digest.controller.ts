@@ -18,9 +18,9 @@ export class DigestController {
     return { message: `Digest generated for ${target}` };
   }
 
-  @Get()
+  @Get('recent')
   getRecent() {
-    return this.digestService.getRecentDigests(7);
+    return this.digestService.getRecentDigests();
   }
 
   @Get(':date')

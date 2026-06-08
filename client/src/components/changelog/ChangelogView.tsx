@@ -15,6 +15,14 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-06-08",
+    version: "v0.7.32",
+    tag: "fix",
+    items: [
+      "修复 AI 日报侧边栏日期列表问题：后端 /api/digest/recent 路由从 @Get() 改为 @Get('recent')，避免拦截其他子路径；默认返回 62 天日报列表（不再只返回 7 天），确保往月日报能正常显示在侧边栏",
+    ],
+  },
+  {
     date: "2026-06-07",
     version: "v0.7.31",
     tag: "tweak",
