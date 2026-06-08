@@ -24,12 +24,29 @@ function getBeijingToday(): string {
   return new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
-/** Last `n` days in Beijing time, newest first */
-function last60Days(): string[] {
+/** Last 3 calendar months in Beijing time, newest first.
+ *  E.g., if today is 2026-06-08 → returns all days in Jun, May, Apr.
+ *  If today is 2026-07-12 → returns all days in Jul, Jun, May. */
+function lastThreeMonths(): string[] {
   const days: string[] = [];
-  const base = Date.now() + 8 * 60 * 60 * 1000;
-  for (let i = 0; i < 62; i++) {
-    days.push(new Date(base - i * 86400000).toISOString().slice(0, 10));
+  const now = new Date(Date.now() + 8 * 60 * 60 * 1000);
+  const currentYear = now.getUTCFullYear();
+  const currentMonth = now.getUTCMonth(); // 0-11
+
+  // Generate 3 months: current, previous, and the one before that
+  for (let monthOffset = 0; monthOffset < 3; monthOffset++) {
+    const targetMonth = currentMonth - monthOffset;
+    const targetYear = currentYear + Math.floor(targetMonth / 12);
+    const normalizedMonth = ((targetMonth % 12) + 12) % 12;
+
+    // Days in this month
+    const daysInMonth = new Date(Date.UTC(targetYear, normalizedMonth + 1, 0)).getUTCDate();
+    for (let day = daysInMonth; day >= 1; day--) {
+      const yyyy = targetYear;
+      const mm = String(normalizedMonth + 1).padStart(2, '0');
+      const dd = String(day).padStart(2, '0');
+      days.push(`${yyyy}-${mm}-${dd}`);
+    }
   }
   return days;
 }
@@ -268,7 +285,7 @@ function PaperItem({ item }: { item: DigestPaperItem }) {
 
 export function DigestView() {
   const today = getBeijingToday();
-  const allDates = last60Days();
+  const allDates = lastThreeMonths();
 
   const [selectedDate, setSelectedDate] = useState(today);
   const [digest, setDigest] = useState<DailyDigest | null>(null);

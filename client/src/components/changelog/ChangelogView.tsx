@@ -19,7 +19,8 @@ const CHANGELOG: ChangelogEntry[] = [
     version: "v0.7.32",
     tag: "fix",
     items: [
-      "修复 AI 日报侧边栏日期列表问题：后端 /api/digest/recent 路由从 @Get() 改为 @Get('recent')，避免拦截其他子路径；默认返回 62 天日报列表（不再只返回 7 天），确保往月日报能正常显示在侧边栏",
+      "修复 AI 日报侧边栏日期列表问题：后端 /api/digest/recent 路由从 @Get() 改为 @Get('recent')，避免拦截其他子路径",
+      "AI 日报侧边栏改为动态显示最近 3 个自然月（如今天 6 月 8 日显示 4/5/6 月，7 月 12 日则显示 5/6/7 月），不再固定显示 62 天",
     ],
   },
   {
