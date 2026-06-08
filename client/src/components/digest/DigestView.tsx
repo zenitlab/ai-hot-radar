@@ -24,14 +24,16 @@ function getBeijingToday(): string {
   return new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
-/** Last 3 calendar months in Beijing time, newest first.
- *  E.g., if today is 2026-06-08 → returns all days in Jun, May, Apr.
- *  If today is 2026-07-12 → returns all days in Jul, Jun, May. */
+/** Last 3 calendar months in Beijing time, newest first, stopping at today.
+ *  E.g., if today is 2026-06-08 → returns Jun 8~1, May 31~1, Apr 30~1.
+ *  If today is 2026-07-12 → returns Jul 12~1, Jun 30~1, May 31~1.
+ *  Does NOT include future dates. */
 function lastThreeMonths(): string[] {
   const days: string[] = [];
   const now = new Date(Date.now() + 8 * 60 * 60 * 1000);
   const currentYear = now.getUTCFullYear();
   const currentMonth = now.getUTCMonth(); // 0-11
+  const currentDay = now.getUTCDate();
 
   // Generate 3 months: current, previous, and the one before that
   for (let monthOffset = 0; monthOffset < 3; monthOffset++) {
@@ -41,7 +43,10 @@ function lastThreeMonths(): string[] {
 
     // Days in this month
     const daysInMonth = new Date(Date.UTC(targetYear, normalizedMonth + 1, 0)).getUTCDate();
-    for (let day = daysInMonth; day >= 1; day--) {
+    // For current month, stop at today; for past months, include all days
+    const maxDay = monthOffset === 0 ? currentDay : daysInMonth;
+
+    for (let day = maxDay; day >= 1; day--) {
       const yyyy = targetYear;
       const mm = String(normalizedMonth + 1).padStart(2, '0');
       const dd = String(day).padStart(2, '0');
