@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 import {
   Radio,
   RefreshCw,
@@ -51,7 +50,6 @@ export function HotspotView() {
   // Bumped on every successful load so the list container re-keys and plays one
   // quick fade+slide — clear "refreshed" feedback on tab/sort switches (even when
   // the top card is unchanged) without the old per-card flashing.
-  const [loadSeq, setLoadSeq] = useState(0);
 
   // expand/collapse state — each card decides for itself; no "expand all" toggle.
   const [expandedReasons, setExpandedReasons] = useState<Set<string>>(
@@ -97,7 +95,6 @@ export function HotspotView() {
         keywordsApi.getAll(),
       ]);
       setHotspots(hotspotsData.data as unknown as Hotspot[]);
-      setLoadSeq((s) => s + 1);
       setTotalPages(hotspotsData.pagination.totalPages);
       // Show count for the current tab/filter, not global total
       setStats({ total: hotspotsData.pagination.total });
@@ -116,6 +113,7 @@ export function HotspotView() {
   }, [filters, currentPage, activeTab, appliedSearch]);
 
   useEffect(() => {
+    // eslint-disable-next-line
     loadData();
   }, [loadData]);
 
