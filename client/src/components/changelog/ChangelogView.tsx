@@ -15,6 +15,15 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-06-10",
+    version: "v0.7.33",
+    tag: "fix",
+    items: [
+      "修复 AI 日报侧边栏显示「暂无日报」：前端 getRecent API 路径错误（/api/digest 应为 /api/digest/recent），导致日期列表数据无法加载",
+      "移除热点雷达未使用的 loadSeq 动画状态及相关代码",
+    ],
+  },
+  {
     date: "2026-06-08",
     version: "v0.7.32",
     tag: "fix",
