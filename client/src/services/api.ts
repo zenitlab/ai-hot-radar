@@ -216,7 +216,7 @@ export const curatedApi = {
 export const digestApi = {
   getToday: () => fetch('/api/digest/today').then(r => r.json()),
   getByDate: (date: string) => fetch(`/api/digest/${date}`).then(r => r.ok ? r.json() : null),
-  getRecent: () => fetch('/api/digest').then(r => r.json()),
+  getRecent: () => fetch('/api/digest/recent').then(r => r.json()),
   generate: (date?: string) =>
     fetch(`/api/digest/generate${date ? `?date=${date}` : ''}`, { method: 'POST' }).then(r => r.json()),
 };
