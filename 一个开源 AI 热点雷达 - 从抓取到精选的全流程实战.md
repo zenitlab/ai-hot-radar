@@ -354,7 +354,7 @@ npm run dev
 cd ../client && npm install && npm run dev
 ```
 
-整个 SQLite 单文件 + Node 18+，找个 1 核 1G 的小服务器就能跑。我自己部署在一台 2 核 4G 的腾讯云上，每天 AI 调用费用大概 **2-5 块钱人民币**（用 DeepSeek V3.2 或硅基流动免费额度可以更便宜）。
+整个 SQLite 单文件 + Node 18+，找个小服务器就能跑。我自己部署在一台 2 核 1G 的阿里云上，每天 AI 调用费用大概 **2-5 块钱人民币**（用 DeepSeek V3.2 或硅基流动免费额度可以更便宜）。
 
 ## 🎁 未来规划
 
@@ -383,10 +383,5 @@ cd ../client && npm install && npm run dev
 > 大模型很强，但它擅长的是模糊判断，不是精确加权。把模型当"打分员"，把代码当"裁判员"，整个系统会稳得多。
 
 ---
-
-🌐 在线：[aihotradar.com](https://aihotradar.com)
-🔗 仓库：[github.com/zenitlab/ai-hot-radar](https://github.com/zenitlab/ai-hot-radar)
-📧 邮箱：gundam_zzc@126.com
-💬 微信：进 About 页扫码
 
 谢谢你看到这里 ❤️
