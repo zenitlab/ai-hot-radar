@@ -26,17 +26,20 @@
 ```mermaid
 graph LR
     A[70+ 信息源] --> B[抓取层]
-    B --> C{AI 预筛<br/>是否 AI 相关?}
-    C -->|否| Z1[落库<br/>不评分]
-    C -->|是| D[5 维度 AI 评分]
+    B --> B1{信源 tier?}
+    B1 -->|T1 官方源| D[5 维度 AI 评分]
+    B1 -->|T1.5/T2| C{AI 预筛<br/>是否 AI 相关?}
+    C -->|否| Z1[落库<br/>质量分=0]
+    C -->|是| D
     D --> E[代码计算<br/>质量分]
-    E --> F{过 tier 阈值?}
-    F -->|是| G[精选]
+    E --> F{>= tier 阈值?<br/>T1=58 T1.5=63 T2=68}
+    F -->|是| G[✨ 精选]
     F -->|否| H[普通入库]
     G --> I[AI 日报<br/>每日 08:00]
     G --> J[Agent 接入<br/>RSS / API / Skill]
 
     style A fill:#cc785c,stroke:#a85c43,color:#fff
+    style B1 fill:#c08b3f,stroke:#9a6e2f,color:#fff
     style C fill:#6e7f4a,stroke:#4d5a32,color:#fff
     style D fill:#cc785c,stroke:#a85c43,color:#fff
     style E fill:#c08b3f,stroke:#9a6e2f,color:#fff
