@@ -15,6 +15,14 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-06-12",
+    version: "v0.7.34",
+    tag: "tweak",
+    items: [
+      "优化 AI 日报「今日重点」生成逻辑：避免同一主题（如同一模型的多个相关报道）占据多个重点位，优先覆盖不同领域/公司的重大事件，提升日报内容的多样性和信息密度",
+    ],
+  },
+  {
     date: "2026-06-10",
     version: "v0.7.33",
     tag: "fix",

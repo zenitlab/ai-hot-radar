@@ -209,7 +209,7 @@ ${numbered}
 
 规则：
 - summary：必须是简体中文短句（20字以内），不要用英文标题
-- highlights：选最重要的 3-5 条，每条都必须填写 whyImportant（真正洞察，不要写"这标志着..."这种套话）和 affects（至少 2 个具体方向标签），不能留空
+- highlights：选最重要的 3-5 条，每条都必须填写 whyImportant（真正洞察，不要写"这标志着..."这种套话）和 affects（至少 2 个具体方向标签），不能留空。**重要：避免同一主题（如同一模型的多个相关报道）占据多个重点位，优先覆盖不同领域/公司的重大事件，确保重点的多样性**
 - domestic：国内公司（阿里/腾讯/字节/百度/华为/DeepSeek/Kimi/商汤等），最多 8 条
 - international：OpenAI/Anthropic/Google/Meta/xAI/Microsoft 等，最多 8 条
 - modelIntel：涉及模型发布/更新/定价/Benchmark/Context Length 的，最多 6 条
