@@ -229,7 +229,9 @@ ${numbered}
         max_tokens: 4000,
       });
 
-      const raw = result.choices[0]?.message?.content ?? '';
+      const msg = result.choices?.[0]?.message;
+      // MiMo/reasoning models: prefer content; fallback to reasoning_content if content is null
+      const raw = msg?.content || (msg as any)?.reasoning_content || '';
       const match = raw.match(/\{[\s\S]*\}/);
       if (!match) return fallback;
 

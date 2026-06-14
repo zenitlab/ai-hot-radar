@@ -348,7 +348,9 @@ ${matchHint}
         max_tokens: this.maxTokens,
       }));
 
-      const rawContent = result.choices[0]?.message?.content || '';
+      const msg = result.choices?.[0]?.message;
+      // MiMo/reasoning models: prefer content; fallback to reasoning_content if content is null
+      const rawContent = msg?.content || (msg as any)?.reasoning_content || '';
       const responseContent = typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent);
       const cleaned = this.cleanModelResponse(responseContent);
 
@@ -421,7 +423,9 @@ ${matchHint}
       },
       timeoutMs ? { timeout: timeoutMs } : undefined,
     ));
-    return response.choices[0]?.message?.content || '';
+    const msg = response.choices?.[0]?.message;
+    // MiMo/reasoning models: prefer content; fallback to reasoning_content if content is null
+    return msg?.content || (msg as any)?.reasoning_content || '';
   }
 
   /**
