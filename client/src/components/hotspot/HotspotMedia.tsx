@@ -32,7 +32,8 @@ export function HotspotMedia({ media }: Props) {
           'grid gap-1 mt-3 rounded-xl overflow-hidden border border-[var(--card-border)]',
           layoutClass,
           // Constrain max height so media cards don't dominate the feed
-          count === 1 ? 'max-h-[280px]' : 'max-h-[240px]',
+          // Use aspect-ratio to preserve original proportions, then limit via max-h
+          count === 1 ? 'max-h-[320px]' : 'max-h-[280px]',
         )}
       >
         {items.map((m, i) => {
@@ -43,6 +44,7 @@ export function HotspotMedia({ media }: Props) {
               key={i}
               item={m}
               spanClass={spanClass}
+              singleItem={count === 1}
               onPlayVideo={() => setActiveVideo(m)}
               onOpenImage={() => setLightbox(m)}
             />
@@ -66,11 +68,13 @@ export function HotspotMedia({ media }: Props) {
 function MediaTile({
   item,
   spanClass,
+  singleItem,
   onPlayVideo,
   onOpenImage,
 }: {
   item: MediaItem;
   spanClass: string;
+  singleItem: boolean;
   onPlayVideo: () => void;
   onOpenImage: () => void;
 }) {
@@ -82,18 +86,17 @@ function MediaTile({
       type="button"
       onClick={isVideo ? onPlayVideo : onOpenImage}
       className={cn(
-        'relative group/media bg-black/20 overflow-hidden',
+        'relative group/media bg-black/5 dark:bg-black/20 overflow-hidden flex items-center justify-center',
         spanClass,
-        // Use object-cover + h-full to fill parent container (max-h constraint applied above)
-        // Remove aspect-ratio so tiles adapt to parent's max-h
-        'h-full',
+        // Single item: natural aspect ratio up to max-h; multi: square tiles
+        singleItem ? 'aspect-video' : 'aspect-square',
       )}
     >
       <img
         src={src}
         loading="lazy"
         alt=""
-        className="w-full h-full object-cover transition-transform group-hover/media:scale-[1.02]"
+        className="max-w-full max-h-full object-contain transition-transform group-hover/media:scale-[1.02]"
         onError={(e) => {
           // Hide broken images so layout doesn't show a broken icon
           (e.currentTarget as HTMLImageElement).style.display = 'none';
