@@ -43,7 +43,6 @@ export function HotspotMedia({ media }: Props) {
               key={i}
               item={m}
               spanClass={spanClass}
-              tall={count === 1}
               onPlayVideo={() => setActiveVideo(m)}
               onOpenImage={() => setLightbox(m)}
             />
@@ -67,13 +66,11 @@ export function HotspotMedia({ media }: Props) {
 function MediaTile({
   item,
   spanClass,
-  tall,
   onPlayVideo,
   onOpenImage,
 }: {
   item: MediaItem;
   spanClass: string;
-  tall: boolean;
   onPlayVideo: () => void;
   onOpenImage: () => void;
 }) {
