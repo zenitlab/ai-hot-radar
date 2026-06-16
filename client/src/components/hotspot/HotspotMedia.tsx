@@ -31,6 +31,8 @@ export function HotspotMedia({ media }: Props) {
         className={cn(
           'grid gap-1 mt-3 rounded-xl overflow-hidden border border-[var(--card-border)]',
           layoutClass,
+          // Constrain max height so media cards don't dominate the feed
+          count === 1 ? 'max-h-[280px]' : 'max-h-[240px]',
         )}
       >
         {items.map((m, i) => {
@@ -85,7 +87,9 @@ function MediaTile({
       className={cn(
         'relative group/media bg-black/20 overflow-hidden',
         spanClass,
-        tall ? 'aspect-video' : 'aspect-square',
+        // Use object-cover + h-full to fill parent container (max-h constraint applied above)
+        // Remove aspect-ratio so tiles adapt to parent's max-h
+        'h-full',
       )}
     >
       <img
