@@ -31,9 +31,6 @@ export function HotspotMedia({ media }: Props) {
         className={cn(
           'grid gap-1 mt-3 rounded-xl overflow-hidden border border-[var(--card-border)]',
           layoutClass,
-          // Constrain max height so media cards don't dominate the feed
-          // Use aspect-ratio to preserve original proportions, then limit via max-h
-          count === 1 ? 'max-h-[320px]' : 'max-h-[280px]',
         )}
       >
         {items.map((m, i) => {
@@ -86,19 +83,19 @@ function MediaTile({
       type="button"
       onClick={isVideo ? onPlayVideo : onOpenImage}
       className={cn(
-        'relative group/media overflow-hidden flex items-center justify-center',
+        'relative overflow-hidden',
         // Use darker bg for better contrast when image loads
         'bg-slate-100 dark:bg-slate-800',
         spanClass,
-        // Single item: natural aspect ratio up to max-h; multi: square tiles
-        singleItem ? 'aspect-video min-h-[200px]' : 'aspect-square min-h-[120px]',
+        // Single item: taller but constrained; multi: square and smaller
+        singleItem ? 'aspect-video max-h-[280px] w-full' : 'aspect-square max-h-[200px] w-full',
       )}
     >
       <img
         src={src}
         loading="lazy"
         alt=""
-        className="absolute inset-0 w-full h-full object-contain transition-transform group-hover/media:scale-[1.02]"
+        className="w-full h-full object-contain transition-transform group-hover/media:scale-[1.02]"
         onError={(e) => {
           // Hide broken images so layout doesn't show a broken icon
           (e.currentTarget as HTMLImageElement).style.display = 'none';
