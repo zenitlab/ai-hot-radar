@@ -15,6 +15,16 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-06-16",
+    version: "v0.7.35",
+    tag: "fix",
+    items: [
+      "优化媒体卡片尺寸：限制图片/视频卡片最大高度（单张 280px、多张 240px），避免媒体内容撑爆信息流",
+      "移除固定宽高比约束（aspect-video/aspect-square），改用自适应裁剪（object-cover），卡片比纯文字略大但适度",
+      "适用所有来源（X/Twitter、Bilibili 等），点击仍可全屏查看完整媒体",
+    ],
+  },
+  {
     date: "2026-06-12",
     version: "v0.7.34",
     tag: "tweak",
