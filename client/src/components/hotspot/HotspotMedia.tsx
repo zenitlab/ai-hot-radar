@@ -86,26 +86,28 @@ function MediaTile({
       type="button"
       onClick={isVideo ? onPlayVideo : onOpenImage}
       className={cn(
-        'relative group/media bg-black/5 dark:bg-black/20 overflow-hidden flex items-center justify-center',
+        'relative group/media overflow-hidden flex items-center justify-center',
+        // Use darker bg for better contrast when image loads
+        'bg-slate-100 dark:bg-slate-800',
         spanClass,
         // Single item: natural aspect ratio up to max-h; multi: square tiles
-        singleItem ? 'aspect-video' : 'aspect-square',
+        singleItem ? 'aspect-video min-h-[200px]' : 'aspect-square min-h-[120px]',
       )}
     >
       <img
         src={src}
         loading="lazy"
         alt=""
-        className="max-w-full max-h-full object-contain transition-transform group-hover/media:scale-[1.02]"
+        className="absolute inset-0 w-full h-full object-contain transition-transform group-hover/media:scale-[1.02]"
         onError={(e) => {
           // Hide broken images so layout doesn't show a broken icon
           (e.currentTarget as HTMLImageElement).style.display = 'none';
         }}
       />
       {isVideo && (
-        <span className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover/media:bg-black/15 transition-colors">
-          <span className="w-12 h-12 rounded-full bg-black/55 backdrop-blur flex items-center justify-center ring-1 ring-white/30">
-            <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
+        <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span className="w-14 h-14 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/40 shadow-xl group-hover/media:bg-black/80 group-hover/media:scale-110 transition-all">
+            <Play className="w-6 h-6 text-white ml-0.5" fill="white" />
           </span>
         </span>
       )}
