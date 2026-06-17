@@ -16,6 +16,15 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-06-17",
+    version: "v0.7.37",
+    tag: "fix",
+    items: [
+      "修复 AI 日报偶尔出现「不属于当天」的条目：大模型有时会无视 prompt 约束、引用不在输入数据里的旧文章 url（如把前一天已被时间窗口正确排除的内容又写进重点）",
+      "生成后增加 url 硬校验：highlights / 国内外动态 / 产品 / 社区 / 论文中，凡 url 不在当天源数据集里的条目一律丢弃，不再依赖模型自觉",
+    ],
+  },
+  {
+    date: "2026-06-17",
     version: "v0.7.36",
     tag: "fix",
     items: [

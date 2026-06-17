@@ -248,15 +248,35 @@ ${numbered}
       if (!match) return fallback;
 
       const parsed = JSON.parse(match[0]) as Partial<DigestData>;
+
+      // Guard against the model referencing items outside the input set.
+      // Despite the prompt rule ("所有 url 必须来自输入数据"), the model
+      // sometimes fabricates or misattributes a URL — e.g. surfacing a
+      // prior-day article that was correctly excluded from the time window.
+      // Drop any entry whose URL isn't in today's source items so the digest
+      // never links out to content that doesn't belong to this day.
+      const normUrl = (u?: string) => (u ?? '').trim().replace(/\/+$/, '');
+      const validUrls = new Set(items.map((h) => normUrl(h.url)));
+      const keepByUrl = <T extends { url?: string }>(arr?: T[]): T[] =>
+        (arr ?? []).filter((x) => validUrls.has(normUrl(x.url)));
+
+      const highlights = keepByUrl(parsed.highlights);
+      const droppedHighlights = (parsed.highlights?.length ?? 0) - highlights.length;
+      if (droppedHighlights > 0) {
+        this.logger.warn(
+          `[Digest] Dropped ${droppedHighlights} highlight(s) whose URL was not in the source set (model hallucination)`,
+        );
+      }
+
       return {
         summary: parsed.summary ?? fallback.summary,
-        highlights: parsed.highlights ?? [],
-        domestic: parsed.domestic ?? [],
-        international: parsed.international ?? [],
+        highlights,
+        domestic: keepByUrl(parsed.domestic),
+        international: keepByUrl(parsed.international),
         modelIntel: parsed.modelIntel ?? [],
-        products: parsed.products ?? [],
-        community: parsed.community ?? [],
-        papers: parsed.papers ?? [],
+        products: keepByUrl(parsed.products),
+        community: keepByUrl(parsed.community),
+        papers: keepByUrl(parsed.papers),
         generatedAt: new Date().toISOString(),
         itemCount: items.length,
       };
