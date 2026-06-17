@@ -85,16 +85,28 @@ export class DigestService {
     const dateStart = new Date(`${contentDate}T00:00:00+08:00`);
     const dateEnd = new Date(`${contentDate}T23:59:59+08:00`);
 
+    // Select by real publish time, not scrape time. An item published on a
+    // prior day but scraped late (createdAt lands in this window) would
+    // otherwise leak into the wrong digest — same bug already fixed in
+    // curated.service. Fall back to createdAt only for items that genuinely
+    // have no publishedAt (rare).
+    const dateWindow = {
+      OR: [
+        { publishedAt: { gte: dateStart, lte: dateEnd } },
+        { AND: [{ publishedAt: null }, { createdAt: { gte: dateStart, lte: dateEnd } }] },
+      ],
+    };
+
     // Get the previous day's hotspots — prefer curated, fallback to all
     let items = await this.prisma.hotspot.findMany({
-      where: { isCurated: true, isClusterMain: true, createdAt: { gte: dateStart, lte: dateEnd } },
+      where: { isCurated: true, isClusterMain: true, ...dateWindow },
       orderBy: { qualityScore: 'desc' },
       take: 80,
     });
 
     if (items.length < 5) {
       items = await this.prisma.hotspot.findMany({
-        where: { createdAt: { gte: dateStart, lte: dateEnd } },
+        where: { ...dateWindow },
         orderBy: { qualityScore: 'desc' },
         take: 80,
       });

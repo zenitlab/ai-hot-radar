@@ -15,6 +15,15 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-06-17",
+    version: "v0.7.36",
+    tag: "fix",
+    items: [
+      "修复 AI 日报选取数据用「抓取入库时间」而非「真实发布时间」的问题：此前发布于前一天、但当天才抓到的内容（createdAt 落在当日窗口）会混入日报，导致出现日期对不上的条目",
+      "日报数据筛选改为基于 publishedAt（无发布时间时回退到 createdAt），口径与精选页面保持一致",
+    ],
+  },
+  {
     date: "2026-06-16",
     version: "v0.7.35",
     tag: "fix",
