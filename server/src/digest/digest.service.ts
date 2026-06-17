@@ -69,9 +69,13 @@ export class DigestService {
     return beijing.toISOString().slice(0, 10);
   }
 
-  /** Add `offsetDays` to a YYYY-MM-DD Beijing-time date string. */
+  /** Add `offsetDays` to a YYYY-MM-DD calendar date string.
+   *  Parse as UTC midnight so getUTCDate()/toISOString() operate on the same
+   *  calendar date as the input. Using a +08:00 offset here shifted the UTC
+   *  instant back to the previous day, so the result was off by one — the
+   *  digest ended up summarizing two days prior instead of one. */
   private shiftDate(date: string, offsetDays: number): string {
-    const d = new Date(`${date}T00:00:00+08:00`);
+    const d = new Date(`${date}T00:00:00Z`);
     d.setUTCDate(d.getUTCDate() + offsetDays);
     return d.toISOString().slice(0, 10);
   }

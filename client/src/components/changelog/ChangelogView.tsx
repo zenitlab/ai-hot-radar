@@ -16,6 +16,15 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-06-17",
+    version: "v0.7.38",
+    tag: "fix",
+    items: [
+      "修复 AI 日报日期偏移的根因 bug：内部日期计算（shiftDate）存在时区错位，把字符串按北京时间午夜解析却又按 UTC 取日期，导致结果整整少一天——17 号日报实际汇总的是 6/15 的数据而非 6/16",
+      "这才是 MiniMax M3（发布于 6/15）反复出现在 6/17 日报里的真正原因；改为全程按 UTC 基准做日期加减，已验证跨月/跨年边界正确（6/1→5/31、3/1→2/28）",
+    ],
+  },
+  {
+    date: "2026-06-17",
     version: "v0.7.37",
     tag: "fix",
     items: [
