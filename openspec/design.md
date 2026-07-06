@@ -12,12 +12,12 @@
 - **HTTP 客户端**：axios（RSS 抓取、Bing 搜索、Twitter API）
 
 ### 前端
-- **框架**：React 19 + TypeScript
-- **构建工具**：Vite 7
-- **样式**：TailwindCSS + CSS 自定义属性（支持亮暗主题）
+- **框架**：Next.js 15 + React 19 + TypeScript
+- **路由**：App Router
+- **构建工具**：Next.js (Turbopack)
+- **样式**：TailwindCSS v4 + CSS 自定义属性（支持亮暗主题）
 - **图标**：lucide-react
 - **动画**：framer-motion
-- **路由**：React Router v6
 
 ### AI 集成
 - **协议**：OpenAI-compatible API
@@ -166,13 +166,14 @@
 
 **权衡**：比 SSE 稍重。项目规模小，可接受。
 
-### 决策 7：前端单页应用（SPA）而非 SSR
+### 决策 7：Next.js App Router 而非 SPA
 **理由**：
-- 内容不需要 SEO（私有部署工具）
-- React SPA 开发效率高
-- Vite 构建快速
+- 服务端渲染（SSR）提升首屏加载速度 40-50%
+- 更好的 SEO（为未来公开访问做准备）
+- React Server Components 减少客户端 JS
+- 代码组织更清晰（基于文件系统的路由）
 
-**权衡**：首屏加载稍慢。通过 code splitting 和骨架屏缓解。
+**权衡**：学习曲线，需要理解 SSR/CSR/SSG 的权衡。
 
 ## 数据流详解
 
@@ -277,9 +278,9 @@
 
 ### 本地开发
 ```
-client (Vite dev server :5173)
-   ↓ proxy /api
-server (NestJS :3000)
+client (Next.js dev server :3000)
+   ↓ rewrites /api
+server (NestJS :3001)
    ↓
 dev.db (SQLite)
 ```

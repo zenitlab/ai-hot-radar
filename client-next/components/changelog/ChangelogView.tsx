@@ -15,18 +15,6 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
-    date: "2026-07-06",
-    version: "v0.8.0",
-    tag: "feature",
-    items: [
-      "🚀 前端架构升级：从 Vite + React SPA 迁移到 Next.js 15 + App Router",
-      "首屏加载性能提升 40-50%，支持服务端渲染（SSR）和增量静态再生成（ISR）",
-      "精选和日报页面采用 SSR，热点雷达和关键词页面采用 CSR，静态页面采用 SSG",
-      "保持 API 和功能完全兼容，所有现有功能正常工作",
-      "为未来 SEO 优化和公开访问做好技术准备",
-    ],
-  },
-  {
     date: "2026-06-17",
     version: "v0.7.38",
     tag: "fix",

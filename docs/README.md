@@ -35,7 +35,7 @@
 
 | 层级 | 技术 | 说明 |
 |------|------|------|
-| 前端 | React 19 + Vite + TailwindCSS | 响应式、深浅色双主题 |
+| 前端 | Next.js 15 + React 19 + TailwindCSS | 响应式、深浅色双主题 |
 | 后端 | NestJS 11 + Express | 模块化 API 服务 |
 | 数据库 | SQLite + Prisma | 轻量存储、ORM |
 | AI 服务 | OpenAI 兼容协议 | 支持百炼 / 硅基流动 / DeepSeek 等 |
@@ -121,7 +121,7 @@ cd server && npx prisma generate && npx prisma db push
 
 # 4. 启动服务（两个终端）
 cd server && npm run dev   # http://localhost:3001
-cd client && npm run dev   # http://localhost:5173
+cd client && npm run dev   # http://localhost:3000
 ```
 
 详细步骤参见 [LOCAL_SETUP.md](LOCAL_SETUP.md)。

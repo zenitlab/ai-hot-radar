@@ -15,8 +15,8 @@
   <img alt="Last commit" src="https://img.shields.io/github/last-commit/zenitlab/ai-hot-radar?color=orange">
   <img alt="Node" src="https://img.shields.io/badge/node-%E2%89%A518-43853d?logo=node.js&logoColor=white">
   <img alt="NestJS" src="https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white">
+  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-15-000000?logo=next.js&logoColor=white">
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black">
-  <img alt="Vite" src="https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white">
   <img alt="Prisma" src="https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white">
 </p>
@@ -30,7 +30,7 @@ AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统每 10 �
 技术栈：
 
 - **后端**：NestJS 11 + Express + Prisma + SQLite + Socket.io
-- **前端**：React 19 + Vite + TailwindCSS + lucide-react
+- **前端**：Next.js 15 + React 19 + TailwindCSS + lucide-react
 - **AI**：兼容 OpenAI 协议的任意模型（阿里云百炼 / 硅基流动 / DeepSeek / OpenAI 均可）
 - **数据源**：RSS、Bing/HackerNews 搜索、twitterapi.io、Bilibili 抓取
 
@@ -107,14 +107,14 @@ TWITTER_API_KEY=your_twitter_api_key_here
 cd server && npm run dev   # http://localhost:3001
 
 # 终端 2
-cd client && npm run dev   # http://localhost:5173
+cd client && npm run dev   # http://localhost:3000
 ```
 
-打开 http://localhost:5173，即可看到主界面。
+打开 http://localhost:3000，即可看到主界面。
 
 | 服务          | 地址                             |
 | ------------- | -------------------------------- |
-| 前端页面      | http://localhost:5173            |
+| 前端页面      | http://localhost:3000            |
 | 后端 API      | http://localhost:3001            |
 | Prisma Studio | `cd server && npx prisma studio` |
 
@@ -122,7 +122,7 @@ cd client && npm run dev   # http://localhost:5173
 
 ```
 ai-hot-radar/
-├── client/              # React 前端
+├── client/              # Next.js 前端
 │   └── src/components/
 │       ├── curated/     # 精选
 │       ├── hotspot/     # 热点雷达
