@@ -3,4 +3,7 @@ packages:
   - 'server'
   - 'client-next'
 allowBuilds:
-  sharp: set this to true or false
+  '@prisma/client': set this to true or false
+  '@prisma/engines': set this to true or false
+  prisma: set this to true or false
+  sharp: true
