@@ -5,9 +5,9 @@
 # 流程: 本地 build → push 到 Docker Hub → (可选) SSH 到服务器拉新镜像
 #
 # 用法:
-#   ./release.sh                # 构建并推送 backend + frontend
+#   ./release.sh                # 构建并推送 backend + frontend (Next.js)
 #   ./release.sh backend        # 只推后端
-#   ./release.sh frontend       # 只推前端
+#   ./release.sh frontend       # 只推前端 (Next.js)
 #   ./release.sh nocache        # 全量无缓存重建
 #
 # 可选环境变量 (设了就自动 SSH 部署, 不设就只 push):
@@ -85,12 +85,12 @@ case "$TARGET" in
     UPDATED="backend"
     ;;
   frontend)
-    build_push frontend client "$FRONTEND_IMAGE"
+    build_push frontend client-next "$FRONTEND_IMAGE"
     UPDATED="frontend"
     ;;
   all|*)
     build_push backend server "$BACKEND_IMAGE"
-    build_push frontend client "$FRONTEND_IMAGE"
+    build_push frontend client-next "$FRONTEND_IMAGE"
     UPDATED=""
     ;;
 esac
