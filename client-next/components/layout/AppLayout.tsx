@@ -1,14 +1,14 @@
+'use client';
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Star, Radio, Bookmark, CalendarDays } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
+import { useTheme } from '@/providers/ThemeProvider';
 
 interface AppLayoutProps {
   unreadCount: number;
-  theme: 'dark' | 'light';
-  onThemeToggle: () => void;
   children: React.ReactNode;
 }
 
@@ -19,10 +19,11 @@ const MOBILE_NAV = [
   { path: '/digest',   label: '日报', Icon: CalendarDays },
 ];
 
-export function AppLayout({ unreadCount, theme, onThemeToggle, children }: AppLayoutProps) {
+export function AppLayout({ unreadCount, children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname();
+  const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)]">
@@ -66,18 +67,18 @@ export function AppLayout({ unreadCount, theme, onThemeToggle, children }: AppLa
 
       {/* Main Content */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <TopBar onMenuClick={() => setSidebarOpen(true)} theme={theme} onThemeToggle={onThemeToggle} />
+        <TopBar onMenuClick={() => setSidebarOpen(true)} theme={theme} onThemeToggle={toggleTheme} />
 
         {/* Mobile Bottom Nav */}
         <div className="fixed bottom-0 left-0 right-0 z-40 flex lg:hidden border-t border-[var(--border-subtle)] bg-[var(--bg-surface)]">
           {MOBILE_NAV.map(({ path, label, Icon }) => {
-            const active = location.pathname === path;
+            const active = pathname === path;
             const handleTap = () => {
               if (active) {
                 // Tapping the current tab — reset internal view state.
                 window.dispatchEvent(new CustomEvent('nav:reset', { detail: { path } }));
               } else {
-                navigate(path);
+                router.push(path);
               }
             };
             return (

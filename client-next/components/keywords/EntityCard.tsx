@@ -1,3 +1,4 @@
+'use client';
 import { RefreshCw, Trash2, Clock, Flame, Package, Cpu, Building2, User, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { relativeTime } from '../../utils/relativeTime';

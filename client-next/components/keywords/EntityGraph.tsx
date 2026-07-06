@@ -1,3 +1,4 @@
+'use client';
 import { useMemo, useCallback } from 'react';
 import {
   ReactFlow, Background, Controls,

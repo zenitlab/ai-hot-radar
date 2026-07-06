@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect, useRef } from 'react';
 import {
   Star, Search, X, Flame, Sparkles, Bookmark,

@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import {
   ExternalLink, RefreshCw, Zap, CalendarDays, ChevronDown, ChevronRight,

@@ -1,6 +1,6 @@
+'use client';
 import {
   Mail,
-  Github,
   Heart,
   Sparkles,
   Radio,
@@ -8,7 +8,7 @@ import {
   Plug,
   ExternalLink,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { BackToTop } from "../common/BackToTop";
 
 /**
@@ -158,7 +158,7 @@ export function AboutView() {
         <p className="text-xs text-[var(--text-muted)] mt-3">
           完整的信源列表与评分规则可以在
           <Link
-            to="/agent"
+            href="/agent"
             className="text-[var(--accent-blue)] dark:text-blue-400 hover:underline mx-1"
           >
             Agent 接入
@@ -268,7 +268,7 @@ export function AboutView() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-[15px] text-[var(--text-primary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors"
                 >
-                  <Github className="w-4 h-4" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" />
                   github.com/zenitlab/ai-hot-radar
                   <ExternalLink className="w-3 h-3 opacity-60" />
                 </a>

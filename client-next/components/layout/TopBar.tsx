@@ -1,3 +1,4 @@
+'use client';
 import { Menu, Sun, Moon } from 'lucide-react';
 
 interface TopBarProps {

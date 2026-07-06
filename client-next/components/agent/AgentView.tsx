@@ -1,4 +1,5 @@
-import { useState } from 'react';
+'use client';
+import { useState, useEffect } from 'react';
 import {
   Plug, Copy, Check, ExternalLink, Sparkles, Rss, Code2,
   CalendarDays, Newspaper, LayoutList, Search, Zap, Terminal, BookOpen,
@@ -7,25 +8,29 @@ import { cn } from '../../lib/utils';
 
 type AgentTab = 'skill' | 'rss' | 'api';
 
-const BASE_URL = window.location.origin;
+// Use dynamic getBaseUrl() for SSR compatibility
+const getBaseUrl = () => typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
 
-const RSS_FEEDS = [
-  {
-    label: '精选资讯 RSS',
-    url: `${BASE_URL}/api/agent/rss/curated.xml`,
-    desc: '经 AI 五维评分筛选的高质量内容，每条都值得读',
-  },
-  {
-    label: '全部资讯 RSS',
-    url: `${BASE_URL}/api/agent/rss/all.xml`,
-    desc: '不做筛选，所有抓取到的 AI 资讯，适合需要全量信息的场景',
-  },
-  {
-    label: 'AI 日报 RSS',
-    url: `${BASE_URL}/api/agent/rss/digest.xml`,
-    desc: '每日早上 8:00 自动生成的 AI 行业日报，覆盖模型 / 产品 / 行业 / 论文',
-  },
-];
+const getRssFeeds = () => {
+  const BASE_URL = getBaseUrl();
+  return [
+    {
+      label: '精选资讯 RSS',
+      url: `${getBaseUrl()}/api/agent/rss/curated.xml`,
+      desc: '经 AI 五维评分筛选的高质量内容，每条都值得读',
+    },
+    {
+      label: '全部资讯 RSS',
+      url: `${getBaseUrl()}/api/agent/rss/all.xml`,
+      desc: '不做筛选，所有抓取到的 AI 资讯，适合需要全量信息的场景',
+    },
+    {
+      label: 'AI 日报 RSS',
+      url: `${getBaseUrl()}/api/agent/rss/digest.xml`,
+      desc: '每日早上 8:00 自动生成的 AI 行业日报，覆盖模型 / 产品 / 行业 / 论文',
+    },
+  ];
+};
 
 const API_DOCS = [
   { method: 'GET', path: '/api/agent/curated', desc: '获取精选资讯 JSON 列表', params: 'limit, offset' },
@@ -167,10 +172,10 @@ export function AgentView() {
                 <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                   在 AI 助手中粘贴这一行
                 </span>
-                <CopyButton text={`帮我安装这个 skill：${BASE_URL}/aihot-skill`} />
+                <CopyButton text={`帮我安装这个 skill：${getBaseUrl()}/aihot-skill`} />
               </div>
               <code className="block text-sm text-[var(--accent-blue)] dark:text-blue-400 break-all">
-                帮我安装这个 skill：{BASE_URL}/aihot-skill
+                帮我安装这个 skill：{getBaseUrl()}/aihot-skill
               </code>
             </div>
           </div>
@@ -223,7 +228,7 @@ export function AgentView() {
           </div>
 
           <div className="space-y-3">
-            {RSS_FEEDS.map((feed) => (
+            {getRssFeeds().map((feed) => (
               <div
                 key={feed.url}
                 className="p-4 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] transition-colors"
@@ -299,7 +304,7 @@ export function AgentView() {
                   </span>
                   <code className="text-sm text-[var(--accent-blue)] dark:text-blue-400 font-mono">{api.path}</code>
                   <div className="ml-auto">
-                    <CopyButton text={`${BASE_URL}${api.path}`} />
+                    <CopyButton text={`${getBaseUrl()}${api.path}`} />
                   </div>
                 </div>
                 <p className="text-xs text-[var(--text-secondary)] mt-2">{api.desc}</p>
@@ -317,9 +322,9 @@ export function AgentView() {
               示例
             </p>
             <code className="block text-xs text-[var(--text-secondary)] font-mono whitespace-pre-wrap break-all">
-{`curl ${BASE_URL}/api/agent/curated?limit=5
-curl ${BASE_URL}/api/agent/digest?date=2026-05-21
-curl "${BASE_URL}/api/agent/search?q=Claude&limit=10"`}
+{`curl ${getBaseUrl()}/api/agent/curated?limit=5
+curl ${getBaseUrl()}/api/agent/digest?date=2026-05-21
+curl "${getBaseUrl()}/api/agent/search?q=Claude&limit=10"`}
             </code>
           </div>
         </div>

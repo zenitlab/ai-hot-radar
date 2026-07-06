@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Plus, Bookmark, Brain, ExternalLink, Clock, X, ChevronLeft } from 'lucide-react';
 import { keywordsApi, entitiesApi } from '../../services/api';

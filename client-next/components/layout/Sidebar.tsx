@@ -1,4 +1,6 @@
-import { NavLink, useLocation } from "react-router-dom";
+'use client';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Bell,
   Radio,
@@ -80,14 +82,14 @@ function BrandMark() {
 }
 
 export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
-  const location = useLocation();
+  const pathname = usePathname();
 
   /** Tapping a nav item that points to the current route should reset its
    *  internal state (e.g. AI 日报 should jump back to today). React Router
    *  swallows same-route navigation, so we broadcast a custom event that
    *  views can subscribe to. */
   const handleClick = (path: string) => {
-    if (location.pathname === path) {
+    if (pathname === path) {
       window.dispatchEvent(new CustomEvent('nav:reset', { detail: { path } }));
     }
     onNavigate?.();
@@ -119,32 +121,29 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
             </div>
             <div className="flex flex-col gap-0.5">
               {group.items.map((item) => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => handleClick(item.path)}
-                  className={({ isActive }) =>
-                    cn(
+                <Link
+                    key={item.path}
+                    href={item.path}
+                    onClick={() => handleClick(item.path)}
+                    className={cn(
                       "group relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all w-full text-left",
-                      isActive
+                      pathname === item.path
                         ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] dark:bg-blue-500/10 dark:text-blue-400 font-medium"
                         : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]",
-                    )
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
+                    )}
+                  >
+
                       {/* Active indicator bar */}
                       <span
                         className={cn(
                           "absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full transition-all",
-                          isActive ? "bg-[var(--accent-blue)] dark:bg-blue-400" : "bg-transparent",
+                          pathname === item.path ? "bg-[var(--accent-blue)] dark:bg-blue-400" : "bg-transparent",
                         )}
                       />
                       <span
                         className={cn(
                           "transition-colors shrink-0",
-                          isActive
+                          pathname === item.path
                             ? "text-[var(--accent-blue)] dark:text-blue-400"
                             : cn(
                                 item.accent ?? "text-[var(--text-muted)]",
@@ -155,9 +154,8 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
                         {item.icon}
                       </span>
                       <span>{item.label}</span>
-                    </>
-                  )}
-                </NavLink>
+                    
+                  </Link>
               ))}
             </div>
           </div>

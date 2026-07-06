@@ -5,3 +5,4 @@ import { HotspotView } from '@/components/hotspot/HotspotView';
 export default function HotspotPage() {
   return <HotspotView />;
 }
+export const dynamic = 'force-dynamic';
