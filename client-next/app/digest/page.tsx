@@ -8,3 +8,4 @@ export const dynamic = 'force-dynamic';
 export default function DigestPage() {
   return <DigestView />;
 }
+export const runtime = "edge";
