@@ -2,3 +2,5 @@
 packages:
   - 'server'
   - 'client-next'
+allowBuilds:
+  sharp: set this to true or false
