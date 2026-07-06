@@ -33,6 +33,12 @@ const nextConfig: NextConfig = {
   // 生产优化
   compress: true,
   poweredByHeader: false,
+
+  // 禁用开发者工具面板
+  devIndicators: {
+    buildActivity: false,
+    buildActivityPosition: 'bottom-right',
+  },
 };
 
 export default nextConfig;

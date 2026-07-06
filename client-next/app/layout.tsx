@@ -19,6 +19,7 @@ export default function RootLayout({
       <head>
         <title>AI Hot Radar - AI 热点雷达</title>
         <meta name="description" content="实时聚合多源 AI 资讯，AI 自动评分精选，生成每日日报" />
+        <link rel="icon" href="/radar.svg" type="image/svg+xml" />
       </head>
       <body className="min-h-screen">
         <ThemeProvider>
