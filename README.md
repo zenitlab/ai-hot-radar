@@ -79,8 +79,8 @@ AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统每 10 �
 git clone https://github.com/zenitlab/ai-hot-radar.git
 cd ai-hot-radar
 
-cd server && npm install && npx prisma generate && npx prisma db push
-cd ../client && npm install
+cd server && pnpm install && npx prisma generate && npx prisma db push
+cd ../client-next && pnpm install
 ```
 
 ### 2. 配置环境变量
@@ -104,10 +104,10 @@ TWITTER_API_KEY=your_twitter_api_key_here
 
 ```bash
 # 终端 1
-cd server && npm run dev   # http://localhost:3001
+cd server && pnpm run dev   # http://localhost:3001
 
 # 终端 2
-cd client && npm run dev   # http://localhost:3000
+cd client-next && pnpm run dev   # http://localhost:3000
 ```
 
 打开 http://localhost:3000，即可看到主界面。
