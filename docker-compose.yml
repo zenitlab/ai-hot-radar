@@ -1,33 +1,37 @@
+version: '3.8'
+
 services:
-  backend:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    container_name: ai-hot-radar-backend
-    restart: always
-    env_file:
-      - ./server/.env.production
-    volumes:
-      - ./data:/app/data
-    networks:
-      - radar-net
-    # No host port mapping: only frontend container reaches it via radar-net.
-
-  frontend:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    container_name: ai-hot-radar-frontend
-    restart: always
+  client:
+    build: ./client-next
     ports:
-      # Bind to loopback only; the host Nginx (or BT panel reverse proxy)
-      # terminates TLS and forwards public traffic to 127.0.0.1:8080.
-      - "127.0.0.1:8080:80"
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://server:3001
+      - NODE_ENV=production
     depends_on:
-      - backend
-    networks:
-      - radar-net
+      - server
+    restart: unless-stopped
 
-networks:
-  radar-net:
-    driver: bridge
+  server:
+    build: ./server
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server/data:/app/data
+    environment:
+      - DATABASE_URL=file:./data/dev.db
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+      - MODEL_NAME=${MODEL_NAME:-qwen-coder-turbo}
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - client
+      - server
+    restart: unless-stopped
