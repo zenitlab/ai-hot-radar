@@ -34,10 +34,17 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
 
-  // 禁用开发者工具面板
+  // 完全禁用开发者工具面板
   devIndicators: {
+    appIsrStatus: false,
     buildActivity: false,
-    buildActivityPosition: 'bottom-right',
+  },
+
+  // 禁用 Turbopack 开发面板
+  experimental: {
+    turbo: {
+      devTools: false,
+    },
   },
 };
 
