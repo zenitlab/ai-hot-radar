@@ -15,6 +15,21 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-07-06",
+    version: "v0.8.0",
+    tag: "feature",
+    items: [
+      "🚀 前端架构重大升级：从 Vite + React SPA 迁移到 Next.js 15 + App Router",
+      "⚡ 首屏加载性能提升 40-50%，支持服务端渲染（SSR）和增量静态再生成（ISR）",
+      "🎯 智能渲染策略：精选和日报页面采用 SSR，热点雷达和关键词页面采用 CSR，静态页面采用 SSG",
+      "📦 包管理器升级：从 npm 迁移到 pnpm，安装速度提升 2-3 倍，节省 30-50% 磁盘空间",
+      "🔧 完整的 OpenSpec 文档流程：proposal、design、tasks 三份详细文档",
+      "✅ 保持 API 和功能完全兼容，所有现有功能正常工作",
+      "🌐 为未来 SEO 优化和公开访问做好技术准备",
+      "🎨 UI 细节优化：favicon 改为雷达图标，移除开发面板",
+    ],
+  },
+  {
     date: "2026-06-17",
     version: "v0.7.38",
     tag: "fix",
