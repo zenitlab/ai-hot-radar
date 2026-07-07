@@ -3,6 +3,7 @@
 
 User-agent: *
 Allow: /
+Allow: /sitemap.xml
 
 # Disallow admin/internal paths (if any in future)
 Disallow: /api/
