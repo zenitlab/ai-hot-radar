@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { BackToTop } from "../common/BackToTop";
+import { OrganizationSchema, WebSiteSchema } from "../seo/StructuredData";
 
 /**
  * 关于页 — 项目介绍 + 核心能力 + 数据源 + 联系方式。
@@ -289,6 +290,8 @@ export function AboutView() {
       </footer>
 
       <BackToTop />
+      <OrganizationSchema />
+      <WebSiteSchema />
     </div>
   );
 }

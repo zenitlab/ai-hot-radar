@@ -16,6 +16,20 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-07-07",
+    version: "v0.8.2",
+    tag: "feature",
+    items: [
+      "🔍 完整 SEO 优化：按 Google/Vercel/Airbnb 等大厂标准实施全栈 SEO 策略",
+      "📋 元数据完善：全局 + 7 个页面独立 metadata，包含 Open Graph / Twitter Cards / robots 指令",
+      "🏗️ 结构化数据：Organization / WebSite schema (JSON-LD)，提升搜索引擎理解",
+      "🗺️ 技术 SEO：动态 sitemap.xml（hourly/daily 更新频率）、robots.txt、site.webmanifest",
+      "🌐 规范 URL：每个页面 canonical 标签，避免重复内容惩罚",
+      "🎯 关键词优化：精准描述 AI 资讯聚合、AI 日报、OpenAI/Anthropic 等核心关键词",
+      "📱 社交分享优化：OG 图片占位符 (1200×630)，为未来视觉优化预留",
+    ],
+  },
+  {
+    date: "2026-07-07",
     version: "v0.8.1",
     tag: "fix",
     items: [

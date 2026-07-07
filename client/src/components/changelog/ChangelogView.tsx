@@ -16,6 +16,17 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-07-07",
+    version: "v0.8.2",
+    tag: "feature",
+    items: [
+      "🔍 完整 SEO 优化：元数据、结构化数据、sitemap、robots.txt 全面覆盖",
+      "📋 7 个页面独立 metadata + Open Graph / Twitter Cards",
+      "🏗️ JSON-LD 结构化数据（Organization / WebSite schema）",
+      "🗺️ 动态 sitemap.xml + robots.txt + site.webmanifest",
+    ],
+  },
+  {
+    date: "2026-07-07",
     version: "v0.8.1",
     tag: "fix",
     items: [

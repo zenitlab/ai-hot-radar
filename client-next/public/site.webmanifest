@@ -1,0 +1,16 @@
+{
+  "name": "AI Hot Radar",
+  "short_name": "AI Radar",
+  "description": "实时聚合 AI 资讯，AI 评分精选，自动生成日报",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/radar.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

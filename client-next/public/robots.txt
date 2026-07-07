@@ -1,0 +1,15 @@
+# AI Hot Radar - Robots.txt
+# https://aihotradar.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Disallow admin/internal paths (if any in future)
+Disallow: /api/
+Disallow: /_next/static/
+
+# Sitemap
+Sitemap: https://aihotradar.com/sitemap.xml
+
+# Crawl-delay for polite bots
+Crawl-delay: 1
