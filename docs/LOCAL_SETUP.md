@@ -77,7 +77,7 @@ DATABASE_URL="file:./dev.db"
 
 # 服务器配置（无需修改）
 PORT=3001
-CLIENT_URL=http://localhost:5173
+CLIENT_URL=http://localhost:3000
 
 # ✅ 必填：AI 模型（兼容 OpenAI 协议）
 OPENAI_API_KEY=your_api_key_here
@@ -107,16 +107,16 @@ NOTIFY_EMAIL=接收通知的邮箱@example.com
 ```bash
 # 安装后端依赖
 cd server
-npm install
+pnpm install
 
 # 安装前端依赖
-cd ../client
-npm install
+cd ../client-next
+pnpm install
 ```
 
-> 💡 如果 npm install 速度慢，可以先切换为国内镜像：
+> 💡 如果 pnpm install 速度慢，可以先切换为国内镜像：
 > ```bash
-> npm config set registry https://registry.npmmirror.com
+> pnpm config set registry https://registry.npmmirror.com
 > ```
 
 
@@ -148,7 +148,7 @@ npx prisma db push
 
 ```bash
 cd server
-npm run dev
+pnpm run dev
 ```
 
 看到以下输出表示后端启动成功：
@@ -163,23 +163,23 @@ npm run dev
 **终端 2 — 启动前端：**
 
 ```bash
-cd client
-npm run dev
+cd client-next
+pnpm run dev
 ```
 
 看到以下输出表示前端启动成功：
 
 ```
-VITE v7.x.x ready in xxx ms
+▲ Next.js 16.x.x (Turbopack)
 
-➜  Local:   http://localhost:5173/
+- Local:   http://localhost:3000
 ```
 
 
 
 ## 第七步：访问项目
 
-打开浏览器，访问 **http://localhost:5173** ，你将看到 AI 热点监控工具的界面。
+打开浏览器，访问 **http://localhost:3000** ，你将看到 AI 热点监控工具的界面。
 
 ### 快速体验流程
 
@@ -201,7 +201,7 @@ VITE v7.x.x ready in xxx ms
 ```bash
 cd server
 rm -rf node_modules
-npm install
+pnpm install
 npx prisma generate
 ```
 
@@ -209,7 +209,7 @@ npx prisma generate
 
 **原因**：前端代理和后端端口不一致。
 
-**解决**：确认 `server/.env` 中的 `PORT` 和 `client/vite.config.ts` 中 proxy 的 target 端口一致（默认都是 `3001`）。
+**解决**：确认 `server/.env` 中的 `PORT` 和 `client-next/next.config.ts` 中 `rewrites` 的 target 端口一致（默认都是 `3001`）。
 
 ### Q3：热点搜索没有结果
 
@@ -266,5 +266,5 @@ npx prisma studio
 | 服务 | 默认端口 | 说明 |
 |------|----------|------|
 | 后端 API | 3001 | Express + Socket.io |
-| 前端页面 | 5173 | Vite 开发服务器 |
+| 前端页面 | 3000 | Next.js 开发服务器 |
 | Prisma Studio | 5555 | 数据库可视化（可选） |

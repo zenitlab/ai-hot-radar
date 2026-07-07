@@ -2,8 +2,10 @@
 packages:
   - 'server'
   - 'client-next'
+
+# Dependencies allowed to run install/postinstall build scripts
 allowBuilds:
-  '@prisma/client': set this to true or false
-  '@prisma/engines': set this to true or false
-  prisma: set this to true or false
+  '@prisma/client': true
+  '@prisma/engines': true
+  prisma: true
   sharp: true

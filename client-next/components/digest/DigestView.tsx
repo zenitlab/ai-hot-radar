@@ -303,6 +303,7 @@ export function DigestView() {
   const generating = useSyncExternalStore(
     digestJobs.subscribe,
     () => digestJobs.isGenerating(selectedDate),
+    () => false, // server snapshot: no job is ever running during SSR/prerender
   );
   const selectedRef = useRef<HTMLButtonElement>(null);
   const rightColRef = useRef<HTMLDivElement>(null);

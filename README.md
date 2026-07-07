@@ -122,7 +122,7 @@ cd client-next && pnpm run dev   # http://localhost:3000
 
 ```
 ai-hot-radar/
-├── client/              # Next.js 前端
+├── client-next/         # Next.js 前端（App Router）
 │   └── src/components/
 │       ├── curated/     # 精选
 │       ├── hotspot/     # 热点雷达

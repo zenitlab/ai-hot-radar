@@ -1,4 +1,4 @@
-import { Globe, Eye, Activity, Search, Zap } from 'lucide-react';
+import { Twitter, Globe, Eye, Activity, Search, Zap } from 'lucide-react';
 
 /**
  * Source → icon / display-label helpers shared by the hotspot radar, curated
@@ -7,7 +7,7 @@ import { Globe, Eye, Activity, Search, Zap } from 'lucide-react';
 
 /** Icon for a source string. `className` lets callers pick the size. */
 export function getSourceIcon(source: string, className = 'w-4 h-4') {
-  if (source === 'twitter' || source.startsWith('twitter_')) return <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>;
+  if (source === 'twitter' || source.startsWith('twitter_')) return <Twitter className={className} />;
   if (source === 'bilibili') return <Eye className={className} />;
   if (source === 'weibo') return <Activity className={className} />;
   if (source === 'sogou') return <Search className={className} />;

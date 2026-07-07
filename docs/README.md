@@ -73,12 +73,13 @@ ai-hot-radar/
 │   │   ├── scheduler/       # 定时任务
 │   │   └── notifications/   # 通知（WebSocket + 邮件）
 │   └── prisma/              # Prisma ORM
-├── client/                  # 前端应用
-│   └── src/
-│       ├── components/      # UI 组件（按视图分目录）
-│       ├── hooks/           # 自定义 Hooks
-│       ├── services/        # API / WebSocket
-│       └── utils/
+├── client-next/             # 前端应用（Next.js App Router）
+│   ├── app/                 # App Router 路由（每个视图一个目录）
+│   ├── components/          # UI 组件（按视图分目录）
+│   ├── providers/           # ThemeProvider 等 Context
+│   ├── services/            # API / WebSocket
+│   ├── lib/ · hooks/ · utils/
+│   └── ...
 ├── skills/hot-monitor/      # Agent Skill 包
 └── .gitignore
 ```
@@ -109,8 +110,8 @@ NOTIFY_EMAIL=receive@example.com
 
 ```bash
 # 1. 安装依赖
-cd server && npm install
-cd ../client && npm install
+cd server && pnpm install
+cd ../client-next && pnpm install
 
 # 2. 配置环境变量
 cp server/.env.example server/.env
@@ -120,8 +121,8 @@ cp server/.env.example server/.env
 cd server && npx prisma generate && npx prisma db push
 
 # 4. 启动服务（两个终端）
-cd server && npm run dev   # http://localhost:3001
-cd client && npm run dev   # http://localhost:3000
+cd server && pnpm run dev       # http://localhost:3001
+cd client-next && pnpm run dev  # http://localhost:3000
 ```
 
 详细步骤参见 [LOCAL_SETUP.md](LOCAL_SETUP.md)。

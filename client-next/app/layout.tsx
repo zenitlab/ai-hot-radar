@@ -1,33 +1,34 @@
-'use client';
-
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
-import { SocketProvider } from "@/providers/SocketProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { useState } from "react";
+
+export const metadata: Metadata = {
+  title: "AI Hot Radar · AI 热点雷达",
+  description: "AI Hot Radar — 实时聚合 AI 资讯、AI 评分精选、自动生成日报",
+  icons: { icon: { url: "/radar.svg", type: "image/svg+xml" } },
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [unreadCount] = useState(0); // TODO: Connect to actual unread count
-
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
-        <title>AI Hot Radar - AI 热点雷达</title>
-        <meta name="description" content="实时聚合多源 AI 资讯，AI 自动评分精选，生成每日日报" />
-        <link rel="icon" href="/radar.svg" type="image/svg+xml" />
+        {/* Fraunces serif (light-mode H1s). Preconnect speeds up the first
+            paint by warming the TLS connection before the font request. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body className="min-h-screen">
         <ThemeProvider>
-          <SocketProvider>
-            <AppLayout unreadCount={unreadCount}>
-              {children}
-            </AppLayout>
-          </SocketProvider>
+          <AppLayout unreadCount={0}>{children}</AppLayout>
         </ThemeProvider>
       </body>
     </html>

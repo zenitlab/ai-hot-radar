@@ -15,8 +15,8 @@
   <img alt="Last commit" src="https://img.shields.io/github/last-commit/zenitlab/ai-hot-radar?color=orange">
   <img alt="Node" src="https://img.shields.io/badge/node-%E2%89%A518-43853d?logo=node.js&logoColor=white">
   <img alt="NestJS" src="https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white">
+  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-15-000000?logo=next.js&logoColor=white">
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black">
-  <img alt="Vite" src="https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white">
   <img alt="Prisma" src="https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white">
 </p>
@@ -30,7 +30,7 @@ AI Hot Radar is a hotspot tracker built for AI practitioners. Every 10 minutes i
 **Stack**
 
 - **Backend**: NestJS 11 + Express + Prisma + SQLite + Socket.io
-- **Frontend**: React 19 + Vite + TailwindCSS + lucide-react
+- **Frontend**: Next.js 15 (App Router) + React 19 + TailwindCSS + lucide-react
 - **AI**: any OpenAI-compatible model (DashScope / SiliconFlow / DeepSeek / OpenAI)
 - **Sources**: RSS, Bing / HackerNews scraping, twitterapi.io, Bilibili
 
@@ -79,8 +79,8 @@ The system exposes itself in three ways for AI apps, RSS readers, and third-part
 git clone https://github.com/zenitlab/ai-hot-radar.git
 cd ai-hot-radar
 
-cd server && npm install && npx prisma generate && npx prisma db push
-cd ../client && npm install
+cd server && pnpm install && npx prisma generate && npx prisma db push
+cd ../client-next && pnpm install
 ```
 
 ### Configure
@@ -104,17 +104,17 @@ TWITTER_API_KEY=your_twitter_api_key_here
 
 ```bash
 # terminal 1
-cd server && npm run dev   # http://localhost:3001
+cd server && pnpm run dev   # http://localhost:3001
 
 # terminal 2
-cd client && npm run dev   # http://localhost:5173
+cd client-next && pnpm run dev   # http://localhost:3000
 ```
 
-Open http://localhost:5173 to use the app.
+Open http://localhost:3000 to use the app.
 
 | Service       | URL                              |
 | ------------- | -------------------------------- |
-| Frontend      | http://localhost:5173            |
+| Frontend      | http://localhost:3000            |
 | Backend API   | http://localhost:3001            |
 | Prisma Studio | `cd server && npx prisma studio` |
 
@@ -122,7 +122,7 @@ Open http://localhost:5173 to use the app.
 
 ```
 ai-hot-radar/
-├── client/              # React frontend
+├── client-next/         # Next.js frontend (App Router)
 │   └── src/components/
 │       ├── curated/
 │       ├── hotspot/

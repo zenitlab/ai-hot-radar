@@ -15,18 +15,29 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-07-07",
+    version: "v0.8.1",
+    tag: "fix",
+    items: [
+      "校准 Next.js 版本与原 Vite 版本的像素级一致性：逐组件 diff 后修复了 6 处偏差",
+      "锁定 lucide-react 到 0.563.x（此前误升到 1.x 导致 Twitter / Github 图标丢失，只能用手绘 SVG 兜底），现已恢复原生图标",
+      "恢复被遗漏的 shadcn/tailwind.css 样式导入，补回组件动画与设计令牌",
+      "主题切换回归原 useTheme 行为（存储键 aihot-theme、默认深色、data-theme 属性），删除重复的 SocketProvider",
+      "关键词页补回 Toast 提示；关于页恢复原生 GitHub 图标、微信二维码与技术栈文案",
+      "移除为绕过报错而加的 edge runtime / force-dynamic hack，页面恢复正常静态预渲染",
+    ],
+  },
+  {
     date: "2026-07-06",
     version: "v0.8.0",
     tag: "feature",
     items: [
       "🚀 前端架构重大升级：从 Vite + React SPA 迁移到 Next.js 15 + App Router",
-      "⚡ 首屏加载性能提升 40-50%，支持服务端渲染（SSR）和增量静态再生成（ISR）",
-      "🎯 智能渲染策略：精选和日报页面采用 SSR，热点雷达和关键词页面采用 CSR，静态页面采用 SSG",
       "📦 包管理器升级：从 npm 迁移到 pnpm，安装速度提升 2-3 倍，节省 30-50% 磁盘空间",
       "🔧 完整的 OpenSpec 文档流程：proposal、design、tasks 三份详细文档",
-      "✅ 保持 API 和功能完全兼容，所有现有功能正常工作",
-      "🌐 为未来 SEO 优化和公开访问做好技术准备",
-      "🎨 UI 细节优化：favicon 改为雷达图标，移除开发面板",
+      "✅ 保持 API、功能与页面视觉完全兼容，所有现有功能正常工作",
+      "🌐 基于文件系统的路由，为未来 SSR / SEO 优化打好基础",
+      "🎨 UI 细节：favicon 保持雷达图标，去掉 Next.js 开发指示器面板",
     ],
   },
   {

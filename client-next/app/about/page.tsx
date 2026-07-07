@@ -5,4 +5,3 @@ import { AboutView } from '@/components/about/AboutView';
 export default function AboutPage() {
   return <AboutView />;
 }
-export const dynamic = 'force-dynamic';

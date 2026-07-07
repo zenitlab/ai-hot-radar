@@ -1,8 +1,16 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 
-type Theme = 'light' | 'dark';
+/**
+ * Theme provider — behavior mirrors the original client/src/hooks/useTheme.ts:
+ * storage key 'aihot-theme', default 'dark', theme applied via the
+ * `data-theme` attribute on <html> (light palette lives under
+ * [data-theme="light"] in globals.css).
+ */
+
+type Theme = 'dark' | 'light';
+const STORAGE_KEY = 'aihot-theme';
 
 interface ThemeContextType {
   theme: Theme;
@@ -15,30 +23,24 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
+  // SSR-safe: start with 'dark' (matches :root defaults), then sync from
+  // localStorage after mount.
   const [theme, setTheme] = useState<Theme>('dark');
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem('theme') as Theme | null;
-    if (saved) {
-      setTheme(saved);
-      document.documentElement.setAttribute('data-theme', saved);
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
+    const saved = localStorage.getItem(STORAGE_KEY) as Theme | null;
+    if (saved === 'light' || saved === 'dark') setTheme(saved);
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-  };
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem(STORAGE_KEY, theme);
+  }, [theme]);
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
+  const toggleTheme = useCallback(
+    () => setTheme(t => (t === 'dark' ? 'light' : 'dark')),
+    [],
+  );
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
@@ -48,9 +50,5 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 }
 
 export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider');
-  }
-  return context;
+  return useContext(ThemeContext);
 }
