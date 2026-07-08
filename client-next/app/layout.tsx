@@ -75,7 +75,10 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: { url: "/radar.svg", type: "image/svg+xml" },
+    icon: [
+      { url: "/icon", type: "image/svg+xml" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
     apple: { url: "/radar.svg", type: "image/svg+xml" },
   },
   manifest: "/site.webmanifest",
