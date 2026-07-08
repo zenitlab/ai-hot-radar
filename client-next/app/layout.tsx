@@ -11,12 +11,6 @@ export const metadata: Metadata = {
     default: "AI Hot Radar · AI 热点雷达",
     template: "%s | AI Hot Radar",
   },
-  icons: {
-    icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/icon', type: 'image/svg+xml' },
-    ],
-  },
   description: "实时聚合 20+ AI 信息源，AI 双阶段评分识别真伪，自动生成每日日报。追踪 OpenAI、Anthropic、Google AI 等官方动态，arXiv 最新论文，Twitter KOL 观点。",
   keywords: [
     "AI 资讯",
