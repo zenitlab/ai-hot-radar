@@ -2,7 +2,6 @@ import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
 
-// 图片元数据
 export const size = {
   width: 32,
   height: 32,
@@ -10,7 +9,6 @@ export const size = {
 
 export const contentType = 'image/png'
 
-// 图标生成
 export default async function Icon() {
   return new ImageResponse(
     (
@@ -25,29 +23,51 @@ export default async function Icon() {
           borderRadius: '7px',
         }}
       >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 64 64"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+        {/* 雷达波纹 */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            height: '100%',
+            paddingBottom: '4px',
+          }}
         >
-          <path
-            d="M 20 40 Q 32 28 44 40"
-            stroke="white"
-            strokeWidth="3.2"
-            strokeLinecap="round"
-            opacity="0.45"
+          {/* 外层波纹 */}
+          <div
+            style={{
+              width: '18px',
+              height: '9px',
+              borderLeft: '2px solid rgba(255,255,255,0.45)',
+              borderTop: '2px solid rgba(255,255,255,0.45)',
+              borderRight: '2px solid rgba(255,255,255,0.45)',
+              borderRadius: '18px 18px 0 0',
+              marginBottom: '-7px',
+            }}
           />
-          <path
-            d="M 14 44 Q 32 22 50 44"
-            stroke="white"
-            strokeWidth="3.2"
-            strokeLinecap="round"
-            opacity="0.7"
+          {/* 内层波纹 */}
+          <div
+            style={{
+              width: '12px',
+              height: '6px',
+              borderLeft: '2px solid rgba(255,255,255,0.7)',
+              borderTop: '2px solid rgba(255,255,255,0.7)',
+              borderRight: '2px solid rgba(255,255,255,0.7)',
+              borderRadius: '12px 12px 0 0',
+              marginBottom: '-4px',
+            }}
           />
-          <circle cx="32" cy="46" r="3.6" fill="white" />
-        </svg>
+          {/* 中心点 */}
+          <div
+            style={{
+              width: '4px',
+              height: '4px',
+              background: 'white',
+              borderRadius: '50%',
+            }}
+          />
+        </div>
       </div>
     ),
     {
