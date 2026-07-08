@@ -134,14 +134,18 @@ export class DigestService {
     this.logger.log(`Digest generated for ${date} (${items.length} items)`);
   }
 
-  /** Runs every morning at 08:00 Beijing time, generating the digest dated
-   *  *today*. By convention (see generateDigest) this digest summarizes the
-   *  just-completed previous Beijing day, so users opening the app any time
-   *  after 08:00 find today's digest already populated.
+  /** Runs every morning at 08:05 Beijing time (5 minutes after the 08:00 scan),
+   *  generating the digest dated *today*. By convention (see generateDigest)
+   *  this digest summarizes the just-completed previous Beijing day.
+   *
+   *  The 5-minute delay ensures the 08:00 hotspot scan completes first, so the
+   *  digest includes the latest overnight data. HotspotScheduler runs at 08:00
+   *  (via its cron); typical scan duration is 1-3 minutes, so 08:05 provides a
+   *  safe margin without making users wait too long for the morning digest.
    *
    *  Pinning the timezone explicitly so this works regardless of the server's
    *  local TZ (Docker images often default to UTC, dev machines vary). */
-  @Cron('0 0 8 * * *', { timeZone: 'Asia/Shanghai' })
+  @Cron('0 5 8 * * *', { timeZone: 'Asia/Shanghai' })
   async scheduledDigest(): Promise<void> {
     const today = this.getBeijingDate(0);
     await this.generateDigest(today);
