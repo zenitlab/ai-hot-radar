@@ -74,13 +74,7 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  icons: {
-    icon: [
-      { url: "/icon", type: "image/svg+xml" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-    apple: { url: "/radar.svg", type: "image/svg+xml" },
-  },
+  // icons 由 Next.js 从 app/icon.png 与 app/apple-icon.png 自动生成，无需手动声明
   manifest: "/site.webmanifest",
   alternates: {
     canonical: siteUrl,
