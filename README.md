@@ -165,6 +165,71 @@ curl http://localhost:3001/aihot-skill
 
 更多用法见前端「Agent 接入」页。
 
-## 六、License
+## 六、生产部署与发版
+
+> 完整说明见 [docs/DEPLOY.md](docs/DEPLOY.md) 与 [docs/DEPLOY-NEXTJS.md](docs/DEPLOY-NEXTJS.md)，这里只列日常发版流程与踩过的坑。
+
+### 架构
+
+```
+公网 HTTPS(443)
+   └─ 宿主机 nginx（宝塔面板，SSL + 反代）
+        ├─ location /      → 127.0.0.1:8080  前端容器（Next.js standalone）
+        └─ location /api/  → 127.0.0.1:3001  后端容器（NestJS）
+```
+
+前端镜像 `zenitlab/ai-hot-radar-frontend:latest`、后端 `...-backend:latest`，均由本地 `release.sh` 构建后推送到 Docker Hub，服务器 `docker compose pull` 拉取。
+
+### 发版流程（三步，缺一不可）
+
+```bash
+# 1. 本地 Mac：构建并推送新镜像到 Docker Hub
+./release.sh frontend            # 或 backend / all
+
+# 2. 服务器：拉取新镜像（务必看到 "Downloaded newer image"，
+#    显示 "up to date" 说明没拉到新镜像，多半是第 1 步没推成功）
+docker compose pull frontend
+
+# 3. 服务器：强制重建容器（漏了 --force-recreate 可能仍跑旧容器）
+docker compose up -d --force-recreate frontend
+```
+
+> `release.sh` 设置 `SERVER_HOST=user@host` 可在推完镜像后自动 SSH 部署。
+
+### ⚠️ 坑：发版后线上页面不更新
+
+**现象**：镜像已更新、容器已重建，但线上页面 / favicon 仍是旧的，甚至不同页面卡在不同版本。
+
+**根因**：宿主机 nginx 全局 `proxy.conf` 里的 `proxy_cache` 会被站点 `location /` 继承，把前端 **HTML 页面**按 URL 缓存了很久（Next.js 对静态 prerender 页面会下发 `Cache-Control: s-maxage=31536000`，即一年，nginx 照单全收）。容器本身是对的，是缓存挡住了。
+
+**根治**：在站点配置 `location /`（反代到 8080 那段）里关闭 HTML 缓存，已生效：
+
+```nginx
+location / {
+    proxy_pass http://127.0.0.1:8080;
+    proxy_cache off;          # 关键：HTML 页面不缓存，每次回源新容器
+    # ...其余 proxy_set_header 不变
+}
+```
+
+`/api/`(3001) 与 `/_next/static/`（带 hash 的静态资源）不受影响，性能无损。改完发版即时生效，无需再手动清缓存。
+
+若临时需要清一次已有缓存：
+
+```bash
+sudo rm -rf /www/server/nginx/proxy_cache_dir/*   # 清空缓存目录，按需回源重建
+```
+
+### 排查小抄
+
+```bash
+# 直连容器看真实内容（绕过 nginx 缓存）
+curl -s http://127.0.0.1:8080/curated | grep -oE 'rel="icon" href="[^"]*"'
+
+# 从公网核对（以 curl 为准，别以自己浏览器为准——浏览器会本地缓存 favicon）
+curl -s https://www.aihotradar.com/curated | grep -oE 'rel="icon" href="[^"]*"'
+```
+
+## 七、License
 
 MIT
