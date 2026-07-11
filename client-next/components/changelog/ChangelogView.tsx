@@ -15,6 +15,16 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-07-10",
+    version: "v0.8.4",
+    tag: "fix",
+    items: [
+      "🐛 修复夜间不扫描：v0.8.3 的分时段调度实际失效——两个 @Cron 叠加在同一方法上，夜间那条被静默覆盖，导致 23:50 后整晚不再扫描。现拆为两个独立方法，夜间 00:00-07:59 每小时扫描恢复正常",
+      "🕐 定时任务显式锁定 Asia/Shanghai 时区，避免线上 Docker 默认 UTC 导致扫描窗口偏移",
+      "📱 修复移动端浏览器上下栏显示突兀蓝色：theme-color 改为随浅色/深色主题自适应（米色 / 深炭色），与站点主题一致",
+    ],
+  },
+  {
     date: "2026-07-08",
     version: "v0.8.3",
     tag: "tweak",

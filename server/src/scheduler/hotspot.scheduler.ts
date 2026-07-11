@@ -109,11 +109,20 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     }, 3000);
   }
 
-  /** Runs every 10 minutes during active hours (08:00-23:59), and hourly during night (00:00-07:59).
-   *  This reduces API costs during low-activity hours while keeping data fresh.
-   *  Both cron expressions fire at :00 of their respective hours, avoiding collision. */
-  @Cron('0 */10 8-23 * * *')  // Every 10 min from 08:00-23:59
-  @Cron('0 0 0-7 * * *')      // Every hour from 00:00-07:59
+  /** Daytime cadence: every 10 minutes from 08:00-23:59 (Asia/Shanghai). */
+  @Cron('0 */10 8-23 * * *', { timeZone: 'Asia/Shanghai' })
+  async runDaytimeScan(): Promise<void> {
+    await this.runHotspotCheck();
+  }
+
+  /** Night cadence: hourly from 00:00-07:59 (Asia/Shanghai) to cut API cost during low activity.
+   *  NOTE: @nestjs/schedule does NOT support stacking multiple @Cron on one method — the last
+   *  applied decorator silently overwrites the others. Keep these as two separate methods. */
+  @Cron('0 0 0-7 * * *', { timeZone: 'Asia/Shanghai' })
+  async runNightScan(): Promise<void> {
+    await this.runHotspotCheck();
+  }
+
   async runHotspotCheck(): Promise<void> {
     if (this.isScanning) {
       this.logger.warn('⚠️ Scan already in progress, skipping this trigger');
