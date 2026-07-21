@@ -213,8 +213,8 @@ function ModelIntelTable({ items }: { items: DigestModelItem[] }) {
             </tr>
           </thead>
           <tbody>
-            {items.map((item, i) => (
-              <tr key={i} className="border-t border-[var(--card-border)] hover:bg-[var(--card-bg-hover)] transition-colors">
+            {items.map((item) => (
+              <tr key={item.model} className="border-t border-[var(--card-border)] hover:bg-[var(--card-bg-hover)] transition-colors">
                 <td className="px-4 py-3 font-semibold text-[var(--text-primary)]">
                   <span className="block max-w-[140px] truncate" title={item.model}>{item.model}</span>
                 </td>
@@ -234,9 +234,9 @@ function ModelIntelTable({ items }: { items: DigestModelItem[] }) {
 
       {/* Mobile: stacked cards — readable instead of horizontally truncated */}
       <div className="md:hidden space-y-2.5">
-        {items.map((item, i) => (
+        {items.map((item) => (
           <div
-            key={i}
+            key={item.model}
             className="p-4 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)]"
           >
             <div className="flex items-center gap-2 flex-wrap mb-2">
@@ -577,7 +577,7 @@ export function DigestView() {
               {data!.highlights?.length > 0 && (
                 <Section icon={<Flame className="w-4 h-4" />} title="今日重点" count={data!.highlights.length} accent="red">
                   <div className="space-y-3">
-                    {data!.highlights.map((h, i) => <HighlightCard key={i} item={h} />)}
+                    {data!.highlights.map((h) => <HighlightCard key={h.url} item={h} />)}
                   </div>
                 </Section>
               )}
@@ -595,14 +595,14 @@ export function DigestView() {
                   {data!.domestic?.length > 0 && (
                     <Section icon={<Globe2 className="w-4 h-4" />} title="国内动态" count={data!.domestic.length} accent="emerald">
                       <div className="space-y-2">
-                        {data!.domestic.map((item, i) => <SimpleItem key={i} item={item} />)}
+                        {data!.domestic.map((item) => <SimpleItem key={item.url} item={item} />)}
                       </div>
                     </Section>
                   )}
                   {data!.international?.length > 0 && (
                     <Section icon={<Globe className="w-4 h-4" />} title="国外动态" count={data!.international.length} accent="cyan">
                       <div className="space-y-2">
-                        {data!.international.map((item, i) => <SimpleItem key={i} item={item} />)}
+                        {data!.international.map((item) => <SimpleItem key={item.url} item={item} />)}
                       </div>
                     </Section>
                   )}
@@ -613,7 +613,7 @@ export function DigestView() {
               {data!.products?.length > 0 && (
                 <Section icon={<Package className="w-4 h-4" />} title="AI 产品动态" count={data!.products.length} accent="purple">
                   <div className="space-y-2">
-                    {data!.products.map((item, i) => <SimpleItem key={i} item={item} />)}
+                    {data!.products.map((item) => <SimpleItem key={item.url} item={item} />)}
                   </div>
                 </Section>
               )}
@@ -622,7 +622,7 @@ export function DigestView() {
               {data!.community?.length > 0 && (
                 <Section icon={<Users className="w-4 h-4" />} title="社区热议" count={data!.community.length} accent="amber">
                   <div className="space-y-2">
-                    {data!.community.map((item, i) => <SimpleItem key={i} item={item} />)}
+                    {data!.community.map((item) => <SimpleItem key={item.url} item={item} />)}
                   </div>
                 </Section>
               )}
@@ -631,7 +631,7 @@ export function DigestView() {
               {data!.papers?.length > 0 && (
                 <Section icon={<BookOpen className="w-4 h-4" />} title="论文 & 技术趋势" count={data!.papers.length} accent="pink">
                   <div className="space-y-2">
-                    {data!.papers.map((item, i) => <PaperItem key={i} item={item} />)}
+                    {data!.papers.map((item) => <PaperItem key={item.url} item={item} />)}
                   </div>
                 </Section>
               )}

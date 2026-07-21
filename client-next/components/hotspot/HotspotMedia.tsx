@@ -39,7 +39,7 @@ export function HotspotMedia({ media }: Props) {
           const spanClass = count === 3 && i === 0 ? 'row-span-2' : '';
           return (
             <MediaTile
-              key={i}
+              key={m.url}
               item={m}
               spanClass={spanClass}
               singleItem={count === 1}

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   ArrowUpDown, Filter, X, Clock, Flame, TrendingUp, Target,
   ChevronDown, ChevronRight, Check, RotateCcw
@@ -139,7 +139,7 @@ function Dropdown({
         {open && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 4, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 4, scale: 0.96 }}
@@ -161,7 +161,7 @@ function Dropdown({
                   <span className={cn(option.color)}>{option.label}</span>
                 </button>
               ))}
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>
@@ -332,7 +332,7 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
       {/* Expanded Filter Panel */}
       <AnimatePresence>
         {showFilters && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -345,7 +345,7 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
               <Dropdown label="时间" value={filters.timeRange} options={TIME_RANGE_OPTIONS} onChange={(v) => update('timeRange', v)} />
               <Dropdown label="真实性" value={filters.isReal} options={REAL_OPTIONS} onChange={(v) => update('isReal', v)} />
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

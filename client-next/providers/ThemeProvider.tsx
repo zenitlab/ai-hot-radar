@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from 'react';
 
 /**
  * Theme provider — behavior mirrors the original client/src/hooks/useTheme.ts:
@@ -42,8 +42,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  // Memoize the context value so consumers only re-render when theme
+  // actually changes, not on every ThemeProvider render.
+  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );

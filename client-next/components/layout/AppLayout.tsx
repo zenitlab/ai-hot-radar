@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence, LazyMotion, domAnimation, MotionConfig } from 'framer-motion';
 import { X, Star, Radio, Bookmark, CalendarDays } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
@@ -26,6 +26,10 @@ export function AppLayout({ unreadCount, children }: AppLayoutProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
+    <LazyMotion features={domAnimation} strict>
+    {/* MotionConfig automatically disables all Framer Motion animations when
+        the user has "prefers-reduced-motion: reduce" set in their OS (WCAG 2.3.3). */}
+    <MotionConfig reducedMotion="user">
     <div className="flex h-screen overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)]">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-60 flex-shrink-0 border-r border-[var(--border-subtle)] bg-[var(--bg-surface)]">
@@ -37,7 +41,7 @@ export function AppLayout({ unreadCount, children }: AppLayoutProps) {
         {sidebarOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             {/* Backdrop with fade */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -46,7 +50,7 @@ export function AppLayout({ unreadCount, children }: AppLayoutProps) {
               onClick={() => setSidebarOpen(false)}
             />
             {/* Drawer with slide */}
-            <motion.aside
+            <m.aside
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
@@ -60,7 +64,7 @@ export function AppLayout({ unreadCount, children }: AppLayoutProps) {
                 <X className="w-5 h-5" />
               </button>
               <Sidebar unreadCount={unreadCount} onNavigate={() => setSidebarOpen(false)} />
-            </motion.aside>
+            </m.aside>
           </div>
         )}
       </AnimatePresence>
@@ -101,5 +105,7 @@ export function AppLayout({ unreadCount, children }: AppLayoutProps) {
         </main>
       </div>
     </div>
+    </MotionConfig>
+    </LazyMotion>
   );
 }

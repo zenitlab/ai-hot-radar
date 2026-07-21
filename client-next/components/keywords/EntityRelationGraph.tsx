@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 import type { RelatedData } from '../../services/api';
 
@@ -29,7 +29,11 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
   const onClickRef = useRef(onNodeClick);
-  onClickRef.current = onNodeClick;
+  // Sync the latest callback without causing re-renders (layout effect
+  // runs synchronously after DOM mutations, before the browser paints).
+  useLayoutEffect(() => {
+    onClickRef.current = onNodeClick;
+  });
 
   useEffect(() => {
     if (!containerRef.current || !relatedData) return;
@@ -156,6 +160,12 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
         onClickRef.current(selectedNode === p.data.id ? null : p.data.id);
       }
     });
+
+    // Capture ref value for cleanup to avoid stale ref in the closure.
+    const chart = chartRef.current;
+    return () => {
+      chart.off('click');
+    };
   }, [entityName, relatedData, selectedNode]);
 
   useEffect(() => {

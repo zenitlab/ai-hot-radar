@@ -15,6 +15,21 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-07-21",
+    version: "v0.8.5",
+    tag: "fix",
+    items: [
+      "🔒 修复 XSS 安全漏洞：StructuredData JSON-LD 使用 HTML 安全序列化，防止 </script> 注入",
+      "🐛 修复 EntityRelationGraph useEffect 未返回清理函数，组件卸载后事件监听器泄漏",
+      "🐛 修复 EntityRelationGraph 渲染期间写入 ref.current（改用 useLayoutEffect 同步回调）",
+      "⚡ LazyMotion 优化：所有 Framer Motion 组件切换为 m + LazyMotion，减少约 30kb 包体积",
+      "♿ 新增 MotionConfig reducedMotion=\"user\"，自动遵守系统「减少动效」无障碍设置（WCAG 2.3.3）",
+      "⚡ ThemeProvider context 值用 useMemo 包裹，消除不必要的消费者重渲染",
+      "🐛 修复 fetch API 调用未检查 response.ok/status 就消费响应体（curatedApi / digestApi / chatApi / agentApi）",
+      "🐛 修复列表 key 使用数组索引（ChangelogView / DigestView / HotspotMedia），改用稳定 ID",
+    ],
+  },
+  {
     date: "2026-07-10",
     version: "v0.8.4",
     tag: "fix",
@@ -580,8 +595,8 @@ export function ChangelogView() {
         <div className="absolute left-2 top-2 bottom-2 w-px bg-[var(--card-border)]" />
 
         <ul className="space-y-6">
-          {CHANGELOG.map((entry, i) => (
-            <li key={i} className="relative pl-8">
+          {CHANGELOG.map((entry) => (
+            <li key={entry.date} className="relative pl-8">
               {/* dot */}
               <span className="absolute left-[3px] top-2 w-2.5 h-2.5 rounded-full bg-[var(--accent-blue)] dark:bg-blue-500 ring-4 ring-[var(--bg-base)]" />
 

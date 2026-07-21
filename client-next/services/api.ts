@@ -208,17 +208,30 @@ export const curatedApi = {
     if (opts.category) params.set('category', opts.category);
     if (opts.region) params.set('region', opts.region);
     if (opts.search) params.set('search', opts.search);
-    return fetch(`/api/curated?${params}`).then(r => r.json());
+    return fetch(`/api/curated?${params}`).then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+      return r.json();
+    });
   },
 };
 
 // Digest
 export const digestApi = {
-  getToday: () => fetch('/api/digest/today').then(r => r.json()),
+  getToday: () => fetch('/api/digest/today').then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+    return r.json();
+  }),
+  // Returns null when the digest doesn't exist yet for a given date (404 is expected).
   getByDate: (date: string) => fetch(`/api/digest/${date}`).then(r => r.ok ? r.json() : null),
-  getRecent: () => fetch('/api/digest/recent').then(r => r.json()),
+  getRecent: () => fetch('/api/digest/recent').then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+    return r.json();
+  }),
   generate: (date?: string) =>
-    fetch(`/api/digest/generate${date ? `?date=${date}` : ''}`, { method: 'POST' }).then(r => r.json()),
+    fetch(`/api/digest/generate${date ? `?date=${date}` : ''}`, { method: 'POST' }).then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+      return r.json();
+    }),
 };
 
 // Chat sessions
@@ -228,12 +241,24 @@ export const chatApi = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title }),
-    }).then(r => r.json()),
-  getSessions: () => fetch('/api/chat/sessions').then(r => r.json()),
+    }).then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+      return r.json();
+    }),
+  getSessions: () => fetch('/api/chat/sessions').then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+    return r.json();
+  }),
   deleteSession: (id: string) =>
-    fetch(`/api/chat/sessions/${id}`, { method: 'DELETE' }).then(r => r.json()),
+    fetch(`/api/chat/sessions/${id}`, { method: 'DELETE' }).then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+      return r.json();
+    }),
   getMessages: (sessionId: string) =>
-    fetch(`/api/chat/sessions/${sessionId}/messages`).then(r => r.json()),
+    fetch(`/api/chat/sessions/${sessionId}/messages`).then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+      return r.json();
+    }),
 };
 
 // Entities (My Follows knowledge cards)
@@ -316,7 +341,16 @@ export const entitiesApi = {
 
 // Agent
 export const agentApi = {
-  getCurated: (limit = 20) => fetch(`/api/agent/curated?limit=${limit}`).then(r => r.json()),
-  search: (q: string) => fetch(`/api/agent/search?q=${encodeURIComponent(q)}`).then(r => r.json()),
-  getStats: () => fetch('/api/agent/stats').then(r => r.json()),
+  getCurated: (limit = 20) => fetch(`/api/agent/curated?limit=${limit}`).then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+    return r.json();
+  }),
+  search: (q: string) => fetch(`/api/agent/search?q=${encodeURIComponent(q)}`).then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+    return r.json();
+  }),
+  getStats: () => fetch('/api/agent/stats').then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+    return r.json();
+  }),
 };

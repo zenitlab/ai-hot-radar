@@ -1,5 +1,5 @@
 'use client';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -16,7 +16,7 @@ export function Toast({ toast }: ToastProps) {
   return (
     <AnimatePresence>
       {toast && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: -20, x: '-50%' }}
           animate={{ opacity: 1, y: 0, x: '-50%' }}
           exit={{ opacity: 0, y: -20 }}
@@ -29,7 +29,7 @@ export function Toast({ toast }: ToastProps) {
         >
           {toast.type === 'success' ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
           <span className="text-sm font-medium">{toast.message}</span>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

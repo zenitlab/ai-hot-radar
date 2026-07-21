@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { ChevronUp } from 'lucide-react';
 
 /**
@@ -25,7 +25,7 @@ const BUTTON_CLASSES =
 
 function FloatingButton({ onClick }: { onClick: () => void }) {
   return (
-    <motion.button
+    <m.button
       key="back-to-top"
       initial={{ opacity: 0, scale: 0.8, y: 12 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -36,7 +36,7 @@ function FloatingButton({ onClick }: { onClick: () => void }) {
       className={BUTTON_CLASSES}
     >
       <ChevronUp className="w-5 h-5" />
-    </motion.button>
+    </m.button>
   );
 }
 
