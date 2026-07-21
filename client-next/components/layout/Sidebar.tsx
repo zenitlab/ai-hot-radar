@@ -59,7 +59,7 @@ interface SidebarProps {
  */
 function BrandMark() {
   return (
-    <span className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-blue)] to-[var(--accent-amber)] dark:from-blue-500 dark:to-purple-600 shadow-lg shadow-[var(--accent-blue)]/25">
+    <span className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-linear-to-br from-[var(--accent-blue)] to-[var(--accent-amber)] dark:from-blue-500 dark:to-purple-600 shadow-lg shadow-[var(--accent-blue)]/25">
       <svg viewBox="0 0 32 32" className="w-6 h-6">
         {/* concentric range rings */}
         <circle cx="16" cy="16" r="12" fill="none" stroke="white" strokeWidth="1" opacity="0.35" />
@@ -102,7 +102,7 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
         <div className="flex items-center gap-3">
           <BrandMark />
           <div className="flex flex-col leading-tight">
-            <span className="text-[15px] font-bold tracking-wide bg-gradient-to-r from-[var(--accent-blue)] via-[var(--accent-cyan)] to-[var(--accent-amber)] dark:from-blue-400 dark:via-cyan-400 dark:to-purple-400 bg-clip-text text-transparent">
+            <span className="text-[15px] font-bold tracking-wide bg-linear-to-r from-[var(--accent-blue)] via-[var(--accent-cyan)] to-[var(--accent-amber)] dark:from-blue-400 dark:via-cyan-400 dark:to-purple-400 bg-clip-text text-transparent">
               AI&nbsp;RADAR
             </span>
             <span className="text-[10px] text-[var(--text-muted)] tracking-wider uppercase">
@@ -128,7 +128,7 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
                     href={item.path}
                     onClick={() => handleClick(item.path)}
                     className={cn(
-                      "group relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all w-full text-left",
+                      "group relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors w-full text-left",
                       isActive
                         ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] dark:bg-blue-500/10 dark:text-blue-400 font-medium"
                         : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]",
@@ -137,7 +137,7 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
                     {/* Active indicator bar */}
                     <span
                       className={cn(
-                        "absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full transition-all",
+                        "absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full transition-colors",
                         isActive ? "bg-[var(--accent-blue)] dark:bg-blue-400" : "bg-transparent",
                       )}
                     />
@@ -165,7 +165,7 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
 
       {/* ── Footer: notifications ───────────────────────────────────── */}
       <div className="px-3 pb-4 pt-2 border-t border-[var(--border-subtle)]">
-        <button className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors text-sm w-full">
+        <button type="button" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors text-sm w-full">
           <Bell className="w-4 h-4" />
           <span>通知</span>
           {unreadCount > 0 && (

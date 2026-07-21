@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import {
   Plug, Copy, Check, ExternalLink, Sparkles, Rss, Code2,
   CalendarDays, Newspaper, LayoutList, Search, Zap, Terminal, BookOpen,
@@ -85,6 +85,7 @@ function CopyButton({ text }: { text: string }) {
   };
   return (
     <button
+      type="button"
       onClick={copy}
       className="p-1.5 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
       title={copied ? '已复制' : '复制'}
@@ -93,6 +94,24 @@ function CopyButton({ text }: { text: string }) {
     </button>
   );
 }
+
+/**
+ * Read the runtime origin (window.location.origin) as external mutable state.
+ *
+ * window.location isn't available during SSR, and it's an external mutable
+ * source — so we use useSyncExternalStore rather than a bare lazy useState
+ * initializer. getServerSnapshot returns '' so the SSR markup AND the first
+ * client (hydration) render both produce '', keeping hydration consistent;
+ * React then resolves the real origin during the hydration commit — before the
+ * browser paints — instead of after first paint like the old empty-deps
+ * useEffect did. That removes the visible flash while staying SSR-safe.
+ *
+ * The origin never changes for the lifetime of the page, so subscribe is a
+ * no-op (nothing to notify).
+ */
+const subscribeOrigin = () => () => {};
+const getOriginSnapshot = () => window.location.origin;
+const getOriginServerSnapshot = () => '';
 
 const METHOD_COLORS: Record<string, string> = {
   GET:    'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
@@ -103,12 +122,15 @@ const METHOD_COLORS: Record<string, string> = {
 
 export function AgentView() {
   const [activeTab, setActiveTab] = useState<AgentTab>('skill');
-  // Runtime origin — resolved after mount so SSR markup and the first client
-  // render agree (both render ''), avoiding hydration mismatches.
-  const [baseUrl, setBaseUrl] = useState('');
-  useEffect(() => {
-    setBaseUrl(window.location.origin);
-  }, []);
+  // Runtime origin — read via useSyncExternalStore so SSR and the first client
+  // render agree (both ''), then resolved to window.location.origin in the
+  // hydration commit (before paint), avoiding both hydration mismatch and the
+  // post-paint flash a setState-in-useEffect would cause.
+  const baseUrl = useSyncExternalStore(
+    subscribeOrigin,
+    getOriginSnapshot,
+    getOriginServerSnapshot,
+  );
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
@@ -134,6 +156,7 @@ export function AgentView() {
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setActiveTab(tab.id)}
               className={cn(
                 'flex flex-col items-center gap-1 py-2.5 px-3 rounded-xl transition-all',

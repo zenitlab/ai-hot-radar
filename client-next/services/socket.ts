@@ -30,7 +30,7 @@ export function subscribeToKeywords(keywords: string[]): void {
   s.emit('subscribe', keywords);
 }
 
-export function unsubscribeFromKeywords(keywords: string[]): void {
+function unsubscribeFromKeywords(keywords: string[]): void {
   const s = getSocket();
   s.emit('unsubscribe', keywords);
 }
@@ -101,7 +101,7 @@ export function onScanProgress(callback: (progress: ScanProgressEvent) => void):
   return () => s.off('scan:progress', callback);
 }
 
-export function disconnectSocket(): void {
+function disconnectSocket(): void {
   if (socket) {
     socket.disconnect();
     socket = null;

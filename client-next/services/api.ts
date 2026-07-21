@@ -144,7 +144,7 @@ export const hotspotsApi = {
 };
 
 // Notifications API
-export const notificationsApi = {
+const notificationsApi = {
   getAll: (params?: { page?: number; limit?: number; unreadOnly?: boolean }) => {
     const searchParams = new URLSearchParams();
     if (params) {
@@ -171,7 +171,7 @@ export const notificationsApi = {
 };
 
 // Settings API
-export const settingsApi = {
+const settingsApi = {
   getAll: () => request<Record<string, string>>('/settings'),
   
   update: (settings: Record<string, string>) => 
@@ -235,7 +235,7 @@ export const digestApi = {
 };
 
 // Chat sessions
-export const chatApi = {
+const chatApi = {
   createSession: (title?: string) =>
     fetch('/api/chat/sessions', {
       method: 'POST',
@@ -340,7 +340,7 @@ export const entitiesApi = {
 };
 
 // Agent
-export const agentApi = {
+const agentApi = {
   getCurated: (limit = 20) => fetch(`/api/agent/curated?limit=${limit}`).then(r => {
     if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
     return r.json();

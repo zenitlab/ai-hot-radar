@@ -30,7 +30,7 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
     try {
       const data = await entitiesApi.getAll();
       setEntities(data);
-      const activeNames = data.filter((e) => e.keyword.isActive).map((e) => e.keyword.text);
+      const activeNames = data.reduce<string[]>((acc, e) => { if (e.keyword.isActive) acc.push(e.keyword.text); return acc; }, []);
       if (activeNames.length > 0) subscribeToKeywords(activeNames);
     } catch (err) {
       console.error('Failed to load entities:', err);
@@ -152,7 +152,7 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
       <div
         className={cn(
           'flex-col border-r border-[var(--border-subtle)] overflow-hidden',
-          'lg:flex lg:w-[320px] lg:flex-shrink-0',
+          'lg:flex lg:w-[320px] lg:shrink-0',
           selectedEntity ? 'hidden lg:flex' : 'flex w-full',
         )}
       >
@@ -167,11 +167,13 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
               value={newKeyword}
               onChange={(e) => setNewKeyword(e.target.value)}
               placeholder="添加关键词，如 Claude..."
+              aria-label="添加关键词"
               disabled={isAdding}
-              className="flex-1 min-w-0 px-3 py-2 rounded-lg text-sm bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-all"
+              className="flex-1 min-w-0 px-3 py-2 rounded-lg text-sm bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
             />
             <button
               type="submit"
+              aria-label="添加关键词"
               disabled={isAdding || !newKeyword.trim()}
               className="px-3 py-2 rounded-xl bg-[var(--accent-blue)]/85 text-white text-sm font-medium flex items-center gap-1 hover:bg-[var(--accent-blue)] transition-colors disabled:opacity-50"
             >
@@ -217,14 +219,15 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
         {selectedEntity && (
           <div className="lg:hidden sticky top-0 z-10 flex items-center gap-3 px-3 py-2.5 bg-[var(--bg-base)]/95 backdrop-blur border-b border-[var(--border-subtle)]">
             <button
+              type="button"
               onClick={() => { setSelectedId(null); setDetail(null); }}
               aria-label="返回关键词列表"
-              className="flex items-center justify-center w-8 h-8 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors flex-shrink-0"
+              className="flex items-center justify-center w-8 h-8 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors shrink-0"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <div className="flex-1 min-w-0 flex items-center gap-2">
-              <Bookmark className="w-4 h-4 text-[var(--accent-blue)] dark:text-blue-400 flex-shrink-0" />
+              <Bookmark className="w-4 h-4 text-[var(--accent-blue)] dark:text-blue-400 shrink-0" />
               <span className="text-sm font-semibold text-[var(--text-primary)] truncate">
                 {selectedEntity.keyword.text}
               </span>
@@ -280,11 +283,14 @@ function DetailPanel({ entity, detail }: { entity: EntityCardSummary; detail: En
     }
   }, []);
 
-  // Reset node selection when entity changes
-  useEffect(() => {
+  // Reset node selection when entity changes — adjust state during render by
+  // comparing the previous prop value, instead of an effect (React-recommended).
+  const [prevEntityId, setPrevEntityId] = useState(entity.id);
+  if (entity.id !== prevEntityId) {
+    setPrevEntityId(entity.id);
     setSelectedNode(null);
     setNodeNews(null);
-  }, [entity.id]);
+  }
 
   const displayNews = selectedNode ? (nodeNews ?? []) : detail.latestNews;
   const newsTitle = selectedNode ? `与「${selectedNode}」相关资讯` : '最新相关资讯';
@@ -321,7 +327,9 @@ function DetailPanel({ entity, detail }: { entity: EntityCardSummary; detail: En
           <p className="text-[11px] text-[var(--text-muted)] mt-1.5 text-center">
             已选中节点：<span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">{selectedNode}</span>
             <button
+              type="button"
               onClick={() => handleNodeClick(null)}
+              aria-label="取消选中节点"
               className="ml-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
             >
               <X className="w-3 h-3 inline" /> 取消
@@ -369,7 +377,7 @@ function DetailPanel({ entity, detail }: { entity: EntityCardSummary; detail: En
                 href={n.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block p-4 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] hover:-translate-y-0.5 transition-all group"
+                className="block p-4 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] hover:-translate-y-0.5 transition group"
               >
                 {/* Source + importance + quality on top */}
                 <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] mb-1.5">
@@ -452,6 +460,7 @@ function RelatedSection({
         {items.map((item) => (
           <button
             key={item}
+            type="button"
             onClick={() => onTagClick(item)}
             className={cn(
               'text-[11px] px-2 py-0.5 rounded-full border font-medium transition-colors cursor-pointer',

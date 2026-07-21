@@ -7,26 +7,11 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { Keyword } from '../services/api';
-
-export interface FilterState {
-  source: string;
-  importance: string;
-  keywordId: string;
-  timeRange: string;
-  isReal: string;
-  sortBy: string;
-  sortOrder: string;
-}
-
-export const defaultFilterState: FilterState = {
-  source: '',
-  importance: '',
-  keywordId: '',
-  timeRange: '',
-  isReal: '',
-  sortBy: 'createdAt',
-  sortOrder: 'desc',
-};
+// FilterState and defaultFilterState live in lib/filterState to keep
+// this component file free of non-component exports (Fast Refresh).
+import { type FilterState, defaultFilterState } from '../lib/filterState';
+export type { FilterState } from '../lib/filterState';
+export { defaultFilterState } from '../lib/filterState';
 
 interface FilterSortBarProps {
   filters: FilterState;
@@ -105,14 +90,14 @@ const REAL_OPTIONS = [
 ];
 
 // Dropdown component
-function Dropdown({ 
-  label, 
-  value, 
-  options, 
-  onChange 
-}: { 
-  label: string; 
-  value: string; 
+function Dropdown({
+  label,
+  value,
+  options,
+  onChange
+}: {
+  label: string;
+  value: string;
   options: { value: string; label: string; color?: string }[];
   onChange: (v: string) => void;
 }) {
@@ -123,6 +108,7 @@ function Dropdown({
   return (
     <div className="relative">
       <button
+        type="button"
         onClick={() => setOpen(!open)}
         className={cn(
           "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap",
@@ -138,7 +124,12 @@ function Dropdown({
       <AnimatePresence>
         {open && (
           <>
-            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+            <button
+              type="button"
+              className="fixed inset-0 z-40 cursor-default"
+              aria-label="关闭下拉菜单"
+              onClick={() => setOpen(false)}
+            />
             <m.div
               initial={{ opacity: 0, y: 4, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -148,6 +139,7 @@ function Dropdown({
             >
               {options.map((option) => (
                 <button
+                  type="button"
                   key={option.value}
                   onClick={() => { onChange(option.value); setOpen(false); }}
                   className={cn(
@@ -214,7 +206,10 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
 
   const keywordOptions = [
     { value: '', label: '全部关键词' },
-    ...keywords.filter(k => k.isActive).map(k => ({ value: k.id, label: k.text })),
+    ...keywords.reduce<{ value: string; label: string }[]>((acc, k) => {
+      if (k.isActive) acc.push({ value: k.id, label: k.text });
+      return acc;
+    }, []),
   ];
 
   return (
@@ -227,15 +222,16 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
             ref={sortScrollRef}
             className="flex items-center gap-1 bg-[var(--sort-bar-bg)] rounded-xl border border-[var(--sort-bar-border)] p-1 overflow-x-auto scrollbar-hide touch-pan-x pr-7"
           >
-            <ArrowUpDown className="w-3.5 h-3.5 text-slate-600 ml-2 flex-shrink-0" />
+            <ArrowUpDown className="w-3.5 h-3.5 text-slate-600 ml-2 shrink-0" />
             {SORT_OPTIONS.map((opt) => {
               const Icon = opt.icon;
               return (
                 <button
+                  type="button"
                   key={opt.value}
                   onClick={() => update('sortBy', opt.value)}
                   className={cn(
-                    "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap flex-shrink-0",
+                    "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0",
                     filters.sortBy === opt.value
                       ? "bg-[var(--tab-active-bg)] text-[var(--tab-active-text)] border border-[var(--tab-active-border)]"
                       : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -250,8 +246,9 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
           {/* Right-edge fade + chevron hint when there are more sort options to scroll to */}
           {sortCanScrollRight && (
             <>
-              <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-10 rounded-r-xl bg-gradient-to-l from-[var(--sort-bar-bg)] via-[var(--sort-bar-bg)]/85 to-transparent" />
+              <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-10 rounded-r-xl bg-linear-to-l from-[var(--sort-bar-bg)] via-[var(--sort-bar-bg)]/85 to-transparent" />
               <button
+                type="button"
                 onClick={handleSortScrollRight}
                 aria-label="向右滚动查看更多排序"
                 className="absolute top-1/2 -translate-y-1/2 right-1.5 z-10 w-6 h-6 rounded-full flex items-center justify-center bg-[var(--card-bg)] border border-[var(--card-border-hover)] text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 shadow-sm transition-colors"
@@ -261,9 +258,9 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
             </>
           )}
         </div>
-
         {/* Filter Toggle */}
         <button
+          type="button"
           onClick={() => setShowFilters(!showFilters)}
           className={cn(
             "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all",
@@ -284,6 +281,7 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
         {/* Reset */}
         {(activeFilterCount > 0 || hasNonDefaultSort) && (
           <button
+            type="button"
             onClick={resetFilters}
             className="flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
@@ -291,7 +289,6 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
             重置
           </button>
         )}
-
         {/* Active Filter Tags */}
         {activeFilterCount > 0 && !showFilters && (
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -328,14 +325,14 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
           </div>
         )}
       </div>
-
       {/* Expanded Filter Panel */}
       <AnimatePresence>
         {showFilters && (
           <m.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0, scaleY: 0.95 }}
+            animate={{ opacity: 1, scaleY: 1 }}
+            exit={{ opacity: 0, scaleY: 0.95 }}
+            style={{ transformOrigin: 'top' }}
             transition={{ duration: 0.2 }}
           >
             <div className="flex items-center gap-2 flex-wrap p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)]">
@@ -356,7 +353,12 @@ function FilterTag({ label, onRemove }: { label: string; onRemove: () => void })
   return (
     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] dark:bg-blue-500/10 dark:text-blue-400 text-[10px] font-medium border border-[var(--accent-blue)]/20 dark:border-blue-500/20">
       {label}
-      <button onClick={onRemove} className="hover:text-white transition-colors">
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label={`移除筛选条件 ${label}`}
+        className="hover:text-white transition-colors"
+      >
         <X className="w-2.5 h-2.5" />
       </button>
     </span>

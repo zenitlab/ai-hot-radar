@@ -102,9 +102,10 @@ export function HotspotView() {
       void statsData; // global stats kept for potential future use
       setKeywords(keywordsData as unknown as Keyword[]);
 
-      const activeKeywords = (keywordsData as unknown as Keyword[])
-        .filter((k) => k.isActive)
-        .map((k) => k.text);
+      const activeKeywords = (keywordsData as unknown as Keyword[]).reduce<string[]>(
+        (acc, k) => { if (k.isActive) acc.push(k.text); return acc; },
+        [],
+      );
       if (activeKeywords.length > 0) subscribeToKeywords(activeKeywords);
     } catch (err) {
       console.error("Failed to load hotspots:", err);
@@ -237,6 +238,7 @@ export function HotspotView() {
             </span>
           )}
           <button
+            type="button"
             onClick={handleManualCheck}
             disabled={isChecking}
             className={cn(
@@ -272,18 +274,24 @@ export function HotspotView() {
             }}
           />
         </div>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           <div className="relative flex-1 lg:flex-initial">
+            <label htmlFor="hotspot-search" className="sr-only">
+              搜索热点
+            </label>
             <input
+              id="hotspot-search"
               ref={searchRef}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               placeholder="搜索标题/摘要…"
-              className="w-full lg:w-44 pl-3 pr-7 py-1.5 rounded-xl text-sm bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-active)] transition-all"
+              className="w-full lg:w-44 pl-3 pr-7 py-1.5 rounded-xl text-sm bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-active)] transition-colors"
             />
             {searchInput && (
               <button
+                type="button"
+                aria-label="清除搜索"
                 onClick={handleClearSearch}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
@@ -292,8 +300,9 @@ export function HotspotView() {
             )}
           </div>
           <button
+            type="button"
             onClick={handleSearch}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm bg-[var(--card-bg)] border border-[var(--input-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-all flex-shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm bg-[var(--card-bg)] border border-[var(--input-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-colors shrink-0"
           >
             <Search className="w-3.5 h-3.5" />
             搜索
@@ -311,6 +320,7 @@ export function HotspotView() {
             </span>
           </span>
           <button
+            type="button"
             onClick={handleClearSearch}
             className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors underline"
           >
@@ -363,9 +373,11 @@ export function HotspotView() {
       {totalPages > 1 && hotspots.length > 0 && (
         <div className="flex items-center justify-center gap-3 mt-6">
           <button
+            type="button"
+            aria-label="上一页"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage <= 1}
-            className="p-2 rounded-xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-2 rounded-xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -384,9 +396,12 @@ export function HotspotView() {
               return (
                 <button
                   key={page}
+                  type="button"
+                  aria-label={`第 ${page} 页`}
+                  aria-current={currentPage === page ? "page" : undefined}
                   onClick={() => setCurrentPage(page)}
                   className={cn(
-                    "w-8 h-8 rounded-lg text-xs font-medium transition-all",
+                    "w-8 h-8 rounded-lg text-xs font-medium transition-colors",
                     currentPage === page
                       ? "bg-[var(--tab-active-bg)] text-[var(--tab-active-text)] border border-[var(--tab-active-border)]"
                       : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--tab-hover-bg)]",
@@ -398,9 +413,11 @@ export function HotspotView() {
             })}
           </div>
           <button
+            type="button"
+            aria-label="下一页"
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage >= totalPages}
-            className="p-2 rounded-xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-2 rounded-xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ChevronRight className="w-4 h-4" />
           </button>

@@ -9,16 +9,20 @@ interface TopBarProps {
 
 export function TopBar({ onMenuClick, theme, onThemeToggle }: TopBarProps) {
   return (
-    <header className="flex items-center justify-between h-12 px-4 border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] flex-shrink-0">
+    <header className="flex items-center justify-between h-12 px-4 border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] shrink-0">
       <button
+        type="button"
         onClick={onMenuClick}
+        aria-label="打开菜单"
         className="lg:hidden p-1.5 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
       >
         <Menu className="w-5 h-5" />
       </button>
       <div className="hidden lg:block" />
       <button
+        type="button"
         onClick={onThemeToggle}
+        aria-label={theme === 'dark' ? '切换浅色模式' : '切换深色模式'}
         className="p-1.5 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
         title={theme === 'dark' ? '切换浅色模式' : '切换深色模式'}
       >

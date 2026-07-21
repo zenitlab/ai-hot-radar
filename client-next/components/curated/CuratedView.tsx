@@ -54,7 +54,7 @@ function CuratedCard({ item, index = 0 }: { item: Hotspot; index?: number }) {
       target="_blank"
       rel="noopener noreferrer"
       style={{ animationDelay: `${index * 30}ms` }}
-      className="block p-5 sm:p-6 rounded-3xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200 group"
+      className="block p-5 sm:p-6 rounded-3xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition duration-200 group"
     >
       {/* Top row: source icon + label · category · keyword (left) | heat + score (right) */}
       <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -234,6 +234,7 @@ export function CuratedView() {
           {(['today', 'week'] as Period[]).map(p => (
             <button
               key={p}
+              type="button"
               onClick={() => setPeriod(p)}
               className={cn(
                 'px-3 py-1.5 rounded-lg text-sm transition-colors',
@@ -277,12 +278,13 @@ export function CuratedView() {
         <div className="flex-1 min-w-0">
           <HotspotTabs activeTab={activeTab} onChange={setActiveTab} />
         </div>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           <div className="relative flex-1 lg:flex-initial">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)] pointer-events-none" />
             <input
               ref={searchRef}
               type="text"
+              aria-label="搜索标题/摘要"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -291,6 +293,8 @@ export function CuratedView() {
             />
             {searchInput && (
               <button
+                type="button"
+                aria-label="清除搜索"
                 onClick={handleClearSearch}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               >
@@ -299,8 +303,9 @@ export function CuratedView() {
             )}
           </div>
           <button
+            type="button"
             onClick={handleSearch}
-            className="px-3 py-1.5 rounded-xl text-xs font-medium bg-[var(--card-bg)] border border-[var(--input-border)] text-[var(--text-primary)] hover:border-[var(--accent-blue)]/50 hover:bg-[var(--card-bg-hover)] transition-all flex-shrink-0"
+            className="px-3 py-1.5 rounded-xl text-xs font-medium bg-[var(--card-bg)] border border-[var(--input-border)] text-[var(--text-primary)] hover:border-[var(--accent-blue)]/50 hover:bg-[var(--card-bg-hover)] transition-colors shrink-0"
           >
             搜索
           </button>
@@ -310,7 +315,7 @@ export function CuratedView() {
       {appliedSearch && (
         <div className="mb-3 text-xs text-[var(--text-muted)]">
           搜索: <span className="text-[var(--accent-blue)] dark:text-blue-400">"{appliedSearch}"</span>
-          <button onClick={handleClearSearch} className="ml-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+          <button type="button" onClick={handleClearSearch} className="ml-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
             清除
           </button>
         </div>

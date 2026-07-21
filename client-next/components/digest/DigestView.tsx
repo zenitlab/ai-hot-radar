@@ -25,6 +25,12 @@ function getBeijingToday(): string {
   return new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
+/** Format a YYYY-MM-DD string as `M月D日` (no leading zeros). */
+function formatLabel(date: string): string {
+  const [, m, d] = date.split('-');
+  return `${parseInt(m, 10)}月${parseInt(d, 10)}日`;
+}
+
 /** Last 3 calendar months in Beijing time, newest first, stopping at today.
  *  E.g., if today is 2026-06-08 → returns Jun 8~1, May 31~1, Apr 30~1.
  *  If today is 2026-07-12 → returns Jul 12~1, Jun 30~1, May 31~1.
@@ -123,7 +129,7 @@ function HighlightCard({ item }: { item: DigestHighlight }) {
       href={item.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block p-5 sm:p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200"
+      className="group block p-5 sm:p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition duration-200"
     >
       {/* Source */}
       <div className="flex items-center gap-1 text-[13px] text-[var(--text-muted)] mb-2">
@@ -176,7 +182,7 @@ function HighlightCard({ item }: { item: DigestHighlight }) {
 function SimpleItem({ item }: { item: DigestSimpleItem }) {
   return (
     <a href={item.url} target="_blank" rel="noopener noreferrer"
-      className="flex items-start gap-2 p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] transition-all group">
+      className="flex items-start gap-2 p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] transition-colors group">
       <div className="flex-1 min-w-0">
         <p className="text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
           {item.title}
@@ -269,7 +275,7 @@ function ModelIntelTable({ items }: { items: DigestModelItem[] }) {
 function PaperItem({ item }: { item: DigestPaperItem }) {
   return (
     <a href={item.url} target="_blank" rel="noopener noreferrer"
-      className="block p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] transition-all group">
+      className="block p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] transition-colors group">
       <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors line-clamp-2">
         {item.title}
       </p>
@@ -422,7 +428,7 @@ export function DigestView() {
   return (
     <div className="flex h-full overflow-hidden">
       {/* ── Left: timeline ──────────────────────────────────── */}
-      <div className="hidden lg:flex w-[220px] flex-shrink-0 flex-col border-r border-[var(--border-subtle)] overflow-hidden">
+      <div className="hidden lg:flex w-[220px] shrink-0 flex-col border-r border-[var(--border-subtle)] overflow-hidden">
         <div className="px-4 pt-4 pb-3 border-b border-[var(--border-subtle)] shrink-0">
           <h1 className="flex items-center gap-2.5 text-base font-bold text-[var(--text-primary)] tracking-tight">
             <CalendarDays className="w-4 h-4 text-[var(--accent-blue)] dark:text-blue-400" />
@@ -445,6 +451,7 @@ export function DigestView() {
               <div key={month}>
                 {/* Month header — clickable to toggle collapse when expandable */}
                 <button
+                  type="button"
                   onClick={() => expandable && toggleMonth(month)}
                   disabled={!expandable}
                   className={cn(
@@ -473,6 +480,7 @@ export function DigestView() {
                 return (
                   <button
                     key={date}
+                    type="button"
                     ref={isSelected ? selectedRef : undefined}
                     onClick={() => setSelectedDate(date)}
                     className={cn(
@@ -541,9 +549,10 @@ export function DigestView() {
           {/* Show top-right button only when content exists (regen). Empty state has its own '立即生成日报' button. */}
           {hasContent && (
             <button
+              type="button"
               onClick={handleGenerate}
               disabled={generating}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-[var(--card-bg)] text-[var(--text-secondary)] border border-[var(--card-border)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-all disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-[var(--card-bg)] text-[var(--text-secondary)] border border-[var(--card-border)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] transition-colors disabled:opacity-50"
             >
               <RefreshCw className={cn('w-3 h-3', generating && 'animate-spin')} />
               {generating ? '生成中...' : '重新生成'}
@@ -565,7 +574,7 @@ export function DigestView() {
             <div className="space-y-8">
               {/* Summary banner — soft accent bar in light mode, gradient in dark */}
               {data!.summary && (
-                <div className="px-4 py-3 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] border-l-4 border-l-[var(--accent-blue)] dark:bg-gradient-to-r dark:from-blue-500/10 dark:to-purple-500/8 dark:border dark:border-blue-500/20">
+                <div className="px-4 py-3 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] border-l-4 border-l-[var(--accent-blue)] dark:bg-linear-to-r dark:from-blue-500/10 dark:to-purple-500/8 dark:border dark:border-blue-500/20">
                   <p className="text-sm text-[var(--text-primary)] leading-relaxed">
                     <span className="text-[var(--text-muted)] text-xs mr-2 font-medium">今日一句话</span>
                     {data!.summary}
@@ -686,15 +695,11 @@ function DateNav({
   const canGoNext = next <= today;
   const isToday = selectedDate === today;
 
-  const formatLabel = (date: string): string => {
-    const [, m, d] = date.split('-');
-    return `${parseInt(m, 10)}月${parseInt(d, 10)}日`;
-  };
-
   return (
     <nav className="border-t border-[var(--border-subtle)]">
       <div className="flex items-center justify-between max-w-3xl px-6 py-3 text-sm gap-2">
         <button
+          type="button"
           onClick={() => onSelect(prev)}
           className="group flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors min-w-0"
         >
@@ -703,6 +708,7 @@ function DateNav({
         </button>
 
         <button
+          type="button"
           onClick={() => onSelect(today)}
           disabled={isToday}
           className={cn(
@@ -717,6 +723,7 @@ function DateNav({
 
         {canGoNext ? (
           <button
+            type="button"
             onClick={() => onSelect(next)}
             className="group flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors min-w-0"
           >
@@ -781,6 +788,7 @@ function DigestEmptyState({ date, today, onGenerate, generating }: {
 
       {date <= today && (
         <button
+          type="button"
           onClick={onGenerate}
           disabled={generating}
           className="mt-5 flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--accent-blue)]/85 text-white text-sm font-medium hover:bg-[var(--accent-blue)] transition-colors disabled:opacity-50 shadow-sm"

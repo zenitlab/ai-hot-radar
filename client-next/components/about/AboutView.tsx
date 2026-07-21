@@ -8,6 +8,7 @@ import {
   Plug,
   ExternalLink,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { BackToTop } from "../common/BackToTop";
 import { OrganizationSchema, WebSiteSchema } from "../seo/StructuredData";
@@ -219,9 +220,11 @@ export function AboutView() {
             {/* WeChat QR */}
             <div className="shrink-0 flex flex-col items-center gap-2">
               <div className="w-44 h-44 rounded-2xl bg-white p-4 shadow-sm border border-[var(--card-border)]">
-                <img
+                <Image
                   src="/wechat-qr.png"
                   alt="作者微信二维码"
+                  width={144}
+                  height={144}
                   className="w-full h-full object-contain"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).style.display =

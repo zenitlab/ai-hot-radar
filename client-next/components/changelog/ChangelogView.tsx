@@ -16,6 +16,22 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-07-21",
+    version: "v0.8.6",
+    tag: "fix",
+    items: [
+      "🩺 引入 React Doctor 代码体检并完成全面修复：健康分从 26/100 提升到 76/100，问题数从 134 降到 6（剩余为工具误报与可选的大组件重构）",
+      "🐛 修复 43 处 <button> 缺少 type 属性——默认 type=\"submit\" 会在表单内误触提交，全部显式声明 type=\"button\"",
+      "⚡ 修复 3 处 Framer Motion 动画 height（触发逐帧重排），改用 scaleY + transformOrigin 平滑展开/收起",
+      "🖼️ 4 处原生 <img> 改用 next/image，自动优化格式、响应式 srcset 与懒加载",
+      "♿ 补齐无障碍标签：交互控件 aria-label、静态元素 role、表单字段可见 label、autoPlay 视频补 muted+playsInline",
+      "⚡ AgentView 首屏闪烁修复：useEffect 初始化改为 useState 惰性初始化，避免首次绘制后状态跳变",
+      "🎨 Tailwind v4 迁移：flex-shrink-0 → shrink-0、bg-gradient-* → bg-linear-*、transition-all 收窄为具名过渡",
+      "🧹 清理死代码：删除 4 个无引用文件（EntityGraph / ui.badge / ui.button / sortHotspots）+ 移除 3 个未使用依赖",
+      "🔤 字体加载优化：Google Fonts 从 <link> 改为 next/font 自托管，消除渲染阻塞与布局偏移",
+    ],
+  },
+  {
+    date: "2026-07-21",
     version: "v0.8.5",
     tag: "fix",
     items: [

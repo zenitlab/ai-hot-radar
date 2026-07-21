@@ -39,7 +39,7 @@ export function Skeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'rounded-xl bg-gradient-to-r from-[var(--input-bg)] via-[var(--card-bg-hover)] to-[var(--input-bg)] bg-[length:200%_100%] animate-shimmer',
+        'rounded-xl bg-linear-to-r from-[var(--input-bg)] via-[var(--card-bg-hover)] to-[var(--input-bg)] bg-[length:200%_100%] animate-shimmer',
         className,
       )}
     />
@@ -63,7 +63,7 @@ export function SkeletonList({
   );
 }
 
-export function InlineSpinner({ className }: { className?: string }) {
+function InlineSpinner({ className }: { className?: string }) {
   return (
     <span
       className={cn(

@@ -14,61 +14,62 @@ function safeJsonLd(data: unknown): string {
     .replace(/&/g, '\\u0026');
 }
 
-export function OrganizationSchema() {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'AI Hot Radar',
-    alternateName: 'AI 热点雷达',
-    url: 'https://aihotradar.com',
-    logo: 'https://aihotradar.com/radar.svg',
-    description: '实时聚合 AI 资讯，AI 评分精选，自动生成日报',
-    foundingDate: '2026',
-    sameAs: [
-      'https://github.com/zenitlab/ai-hot-radar',
-    ],
-    contactPoint: {
-      '@type': 'ContactPoint',
-      email: 'gundam_zzc@126.com',
-      contactType: 'Customer Service',
-    },
-  };
+// Static schemas live at module scope so they are never rebuilt on re-render.
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'AI Hot Radar',
+  alternateName: 'AI 热点雷达',
+  url: 'https://aihotradar.com',
+  logo: 'https://aihotradar.com/radar.svg',
+  description: '实时聚合 AI 资讯，AI 评分精选，自动生成日报',
+  foundingDate: '2026',
+  sameAs: [
+    'https://github.com/zenitlab/ai-hot-radar',
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'gundam_zzc@126.com',
+    contactType: 'Customer Service',
+  },
+};
 
+export function OrganizationSchema() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(organizationSchema) }}
     />
   );
 }
+
+const webSiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'AI Hot Radar',
+  alternateName: 'AI 热点雷达',
+  url: 'https://aihotradar.com',
+  description: '实时聚合 AI 资讯，AI 评分精选，自动生成日报',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: 'https://aihotradar.com/keywords?q={search_term_string}',
+    },
+    'query-input': 'required name=search_term_string',
+  },
+};
 
 export function WebSiteSchema() {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'AI Hot Radar',
-    alternateName: 'AI 热点雷达',
-    url: 'https://aihotradar.com',
-    description: '实时聚合 AI 资讯，AI 评分精选，自动生成日报',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: 'https://aihotradar.com/keywords?q={search_term_string}',
-      },
-      'query-input': 'required name=search_term_string',
-    },
-  };
-
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(webSiteSchema) }}
     />
   );
 }
 
-export function BreadcrumbSchema({ items }: { items: Array<{ name: string; url: string }> }) {
+function BreadcrumbSchema({ items }: { items: Array<{ name: string; url: string }> }) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -88,7 +89,7 @@ export function BreadcrumbSchema({ items }: { items: Array<{ name: string; url: 
   );
 }
 
-export function ArticleSchema({
+function ArticleSchema({
   headline,
   description,
   datePublished,

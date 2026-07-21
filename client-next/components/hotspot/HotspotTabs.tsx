@@ -55,9 +55,10 @@ export function HotspotTabs({ activeTab, onChange }: HotspotTabsProps) {
         {TABS.map(tab => (
           <button
             key={tab.value}
+            type="button"
             onClick={() => onChange(tab.value)}
             className={cn(
-              'flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap',
+              'shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap',
               activeTab === tab.value
                 ? 'bg-[var(--tab-active-bg)] text-[var(--tab-active-text)] border border-[var(--tab-active-border)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--tab-hover-bg)]',
@@ -70,8 +71,9 @@ export function HotspotTabs({ activeTab, onChange }: HotspotTabsProps) {
       {/* Right-edge fade + chevron — only when there's more to scroll on the right */}
       {canScrollRight && (
         <>
-          <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-gradient-to-l from-[var(--bg-base)] via-[var(--bg-base)]/80 to-transparent" />
+          <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-linear-to-l from-[var(--bg-base)] via-[var(--bg-base)]/80 to-transparent" />
           <button
+            type="button"
             onClick={handleScrollRight}
             aria-label="向右滚动查看更多"
             className="absolute top-1/2 -translate-y-1/2 right-0 z-10 w-6 h-6 rounded-full flex items-center justify-center bg-[var(--card-bg)] border border-[var(--card-border-hover)] text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 shadow-sm transition-colors"

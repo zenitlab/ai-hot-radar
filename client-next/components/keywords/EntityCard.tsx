@@ -43,15 +43,22 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
 
   return (
     <div
-      onClick={onClick}
       className={cn(
-        'p-4 rounded-2xl border cursor-pointer transition-all duration-200',
+        'relative p-4 rounded-2xl border transition-all duration-200',
         'hover:-translate-y-0.5',
         isSelected
           ? 'bg-[var(--accent-blue)]/8 border-[var(--accent-blue)]/40 dark:bg-blue-500/12 dark:border-blue-500/45 shadow-md shadow-[var(--accent-blue)]/10 ring-1 ring-[var(--accent-blue)]/20 dark:ring-blue-500/20'
           : 'bg-[var(--card-bg)] border-[var(--card-border)] hover:border-[var(--card-border-hover)]',
       )}
     >
+      {/* Main select action — a sibling overlay button so nested controls stay valid */}
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={`查看 ${entity.name}`}
+        className="absolute inset-0 z-10 rounded-2xl cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/40"
+      />
+
       {/* Header row */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 min-w-0">
@@ -61,8 +68,9 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
           </span>
           <h3 className="font-semibold text-[var(--text-primary)] truncate">{entity.name}</h3>
         </div>
-        <div className="flex items-center gap-1 shrink-0 ml-2">
+        <div className="relative z-20 flex items-center gap-1 shrink-0 ml-2">
           <button
+            type="button"
             onClick={onRefresh}
             title="刷新"
             disabled={isRefreshing}
@@ -71,6 +79,7 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
             <RefreshCw className={cn('w-3.5 h-3.5', isRefreshing && 'animate-spin')} />
           </button>
           <button
+            type="button"
             onClick={onDelete}
             title="删除"
             className="p-1 rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
@@ -128,14 +137,13 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
 
       {/* Latest news */}
       {entity.latestNews.length > 0 && (
-        <div className="space-y-1">
+        <div className="relative z-20 space-y-1">
           {entity.latestNews.slice(0, 2).map((n) => (
             <a
               key={n.id}
               href={n.url}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
               className="block text-[11px] text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors truncate leading-snug"
             >
               • {n.title}

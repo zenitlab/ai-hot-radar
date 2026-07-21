@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 import { Play, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import type { MediaItem } from '../../types';
@@ -92,11 +93,13 @@ function MediaTile({
         singleItem ? 'aspect-video max-h-[280px] w-full' : 'aspect-square max-h-[200px] w-full',
       )}
     >
-      <img
+      <Image
         src={src}
+        fill
         loading="lazy"
         alt=""
-        className="w-full h-full object-contain transition-transform group-hover/media:scale-[1.02]"
+        sizes="(max-width: 768px) 50vw, 25vw"
+        className="object-contain transition-transform group-hover/media:scale-[1.02]"
         onError={(e) => {
           // Hide broken images so layout doesn't show a broken icon
           (e.currentTarget as HTMLImageElement).style.display = 'none';
@@ -104,7 +107,7 @@ function MediaTile({
       />
       {isVideo && (
         <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="w-14 h-14 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/40 shadow-xl group-hover/media:bg-black/80 group-hover/media:scale-110 transition-all">
+          <span className="w-14 h-14 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/40 shadow-xl group-hover/media:bg-black/80 group-hover/media:scale-110 transition">
             <Play className="w-6 h-6 text-white ml-0.5" fill="white" />
           </span>
         </span>
@@ -125,6 +128,7 @@ function VideoModal({ item, onClose }: { item: MediaItem; onClose: () => void })
       onClick={onClose}
     >
       <button
+        type="button"
         onClick={onClose}
         className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
         aria-label="关闭"
@@ -136,6 +140,7 @@ function VideoModal({ item, onClose }: { item: MediaItem; onClose: () => void })
         poster={item.previewUrl}
         controls
         autoPlay
+        muted
         playsInline
         className="max-w-full max-h-[85vh] rounded-lg shadow-2xl"
         onClick={(e) => e.stopPropagation()}
@@ -151,16 +156,20 @@ function ImageLightbox({ item, onClose }: { item: MediaItem; onClose: () => void
       onClick={onClose}
     >
       <button
+        type="button"
         onClick={onClose}
         className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
         aria-label="关闭"
       >
         <X className="w-5 h-5" />
       </button>
-      <img
+      <Image
         src={item.url}
         alt=""
-        className="max-w-full max-h-[90vh] rounded-lg shadow-2xl"
+        width={0}
+        height={0}
+        sizes="100vw"
+        className="max-w-full max-h-[90vh] w-auto h-auto rounded-lg shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       />
     </div>

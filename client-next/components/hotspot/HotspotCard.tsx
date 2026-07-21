@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle, Flame, Zap, TrendingUp,
   Eye, Activity, Clock, Target, MessageCircle, Repeat2, Quote, User,
@@ -84,12 +85,12 @@ export function HotspotCard({
   const heat = getHeatLevel(heatScore);
 
   return (
-    <motion.div
+    <m.div
       key={hotspot.id}
       initial={disableEntrance ? false : { opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: disableEntrance ? 0 : index * 0.03 }}
-      className="group p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition-all duration-200"
+      className="group p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition duration-200"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
@@ -166,7 +167,7 @@ export function HotspotCard({
           {hotspot.authorName && (
             <div className="flex items-center gap-2 mb-3">
               {hotspot.authorAvatar ? (
-                <img src={hotspot.authorAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+                <Image src={hotspot.authorAvatar} alt="" width={20} height={20} className="rounded-full object-cover" />
               ) : (
                 <User className="w-4 h-4 text-[var(--text-muted)]" />
               )}
@@ -251,6 +252,7 @@ export function HotspotCard({
           {hotspot.relevanceReason && (
             <div className="mt-2">
               <button
+                type="button"
                 onClick={toggleReason}
                 className="flex items-center gap-1 text-[11px] text-[var(--accent-blue)]/70 dark:text-blue-400/70 hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors"
               >
@@ -259,16 +261,18 @@ export function HotspotCard({
               </button>
               <AnimatePresence>
                 {reasonOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
+                  <m.div
+                    key="reason"
+                    initial={{ opacity: 0, scaleY: 0.95 }}
+                    animate={{ opacity: 1, scaleY: 1 }}
+                    exit={{ opacity: 0, scaleY: 0.95 }}
+                    style={{ transformOrigin: 'top' }}
                     className="overflow-hidden"
                   >
                     <p className="text-xs text-[var(--text-secondary)] mt-1 pl-4 border-l-2 border-[var(--accent-blue)]/20 dark:border-blue-500/20">
                       {hotspot.relevanceReason}
                     </p>
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </div>
@@ -278,6 +282,7 @@ export function HotspotCard({
           {hotspot.content && hotspot.content !== hotspot.summary && (
             <div className="mt-2">
               <button
+                type="button"
                 onClick={toggleContent}
                 className="flex items-center gap-1 text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               >
@@ -287,16 +292,18 @@ export function HotspotCard({
               </button>
               <AnimatePresence>
                 {contentOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
+                  <m.div
+                    key="content"
+                    initial={{ opacity: 0, scaleY: 0.95 }}
+                    animate={{ opacity: 1, scaleY: 1 }}
+                    exit={{ opacity: 0, scaleY: 0.95 }}
+                    style={{ transformOrigin: 'top' }}
                     className="overflow-hidden"
                   >
                     <p className="text-xs text-[var(--text-secondary)] mt-1 pl-4 border-l-2 border-[var(--card-border-hover)] whitespace-pre-wrap break-words max-h-40 overflow-y-auto">
                       {hotspot.content}
                     </p>
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </div>
@@ -304,6 +311,6 @@ export function HotspotCard({
         </div>
 
       </div>
-    </motion.div>
+    </m.div>
   );
 }

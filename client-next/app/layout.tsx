@@ -1,12 +1,27 @@
 import type { Metadata, Viewport } from "next";
+import { Fraunces } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
 
+// Self-hosted via next/font: zero layout shift, no render-blocking request.
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aihotradar.com";
 
+// `new URL()` throws on a malformed NEXT_PUBLIC_SITE_URL (e.g. missing scheme).
+// Validate first and fall back to the literal so the call can never throw.
+const DEFAULT_SITE_URL = "https://aihotradar.com";
+const safeSiteUrl = URL.canParse(siteUrl) ? siteUrl : DEFAULT_SITE_URL;
+const metadataBase = new URL(safeSiteUrl);
+
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase,
   title: {
     default: "AI Hot Radar · AI 热点雷达",
     template: "%s | AI Hot Radar",
@@ -92,18 +107,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning className={fraunces.variable}>
       <head>
-        {/* Fraunces serif (light-mode H1s). Preconnect speeds up the first
-            paint by warming the TLS connection before the font request. */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&display=swap"
-          rel="stylesheet"
-        />
       </head>
-      <body className="min-h-screen">
+      <body className="min-h-dvh">
         <ThemeProvider>
           <AppLayout unreadCount={0}>{children}</AppLayout>
         </ThemeProvider>

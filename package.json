@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "react-doctor": "^0.8.1"
+  },
+  "scripts": {
+    "doctor": "npx react-doctor@latest"
+  }
+}

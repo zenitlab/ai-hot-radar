@@ -30,9 +30,9 @@ export function AppLayout({ unreadCount, children }: AppLayoutProps) {
     {/* MotionConfig automatically disables all Framer Motion animations when
         the user has "prefers-reduced-motion: reduce" set in their OS (WCAG 2.3.3). */}
     <MotionConfig reducedMotion="user">
-    <div className="flex h-screen overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)]">
+    <div className="flex h-dvh overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)]">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-60 flex-shrink-0 border-r border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+      <aside className="hidden lg:flex flex-col w-60 shrink-0 border-r border-[var(--border-subtle)] bg-[var(--bg-surface)]">
         <Sidebar unreadCount={unreadCount} />
       </aside>
 
@@ -58,6 +58,8 @@ export function AppLayout({ unreadCount, children }: AppLayoutProps) {
               className="relative flex flex-col w-60 h-full bg-[var(--bg-surface)] border-r border-[var(--border-subtle)] shadow-2xl"
             >
               <button
+                type="button"
+                aria-label="关闭菜单"
                 onClick={() => setSidebarOpen(false)}
                 className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               >
@@ -87,6 +89,7 @@ export function AppLayout({ unreadCount, children }: AppLayoutProps) {
             };
             return (
               <button
+                type="button"
                 key={path}
                 onClick={handleTap}
                 className={`flex flex-col items-center justify-center flex-1 py-2 text-xs gap-1 transition-colors ${
