@@ -9,7 +9,8 @@ import { ChinaSearchService } from '../services/china-search.service';
 import { EmailService } from '../services/email.service';
 import { ScoringService } from '../services/scoring.service';
 import { RssService } from '../services/rss.service';
-import { KEYWORD_GROUPS, X_ACCOUNTS } from '../rss-feeds/feeds.config';
+import { RedditService } from '../services/reddit.service';
+import { KEYWORD_GROUPS, X_ACCOUNTS, REDDIT_SUBREDDITS } from '../rss-feeds/feeds.config';
 import type { SourceTier, XAccountConfig } from '../rss-feeds/feeds.config';
 import type { SearchResult } from '../types';
 import { getAuthorityScore, resolveClusterKey, planClusterMains, type ClusterClaim } from '../utils/authority';
@@ -78,6 +79,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     private readonly emailService: EmailService,
     private readonly scoringService: ScoringService,
     private readonly rssService: RssService,
+    private readonly redditService: RedditService,
   ) {}
 
   getScanStatus() {
@@ -137,12 +139,13 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     this.aiService.resetStats();
 
     try {
-      // RSS + default search sources + X accounts all run in parallel
+      // RSS + default search sources + X accounts + Reddit all run in parallel
       this.emitProgress('sources_start');
       await Promise.all([
         this.processRssItems(),
         this.processDefaultSources(),
         this.processXAccounts(),
+        this.processRedditSources(),
       ]);
       this.emitProgress('sources_done');
 
@@ -1011,5 +1014,180 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     }
 
     this.logger.log(`📡 RSS processing done: ${created} new items`);
+  }
+
+  /** Fetch and score posts from all configured Reddit subreddits */
+  private async processRedditSources(): Promise<void> {
+    this.logger.log(`🟠 Fetching Reddit sources (${REDDIT_SUBREDDITS.length} subreddits)...`);
+    const allPosts = await this.redditService.fetchAllSubreddits();
+    this.logger.log(`🟠 Got ${allPosts.length} Reddit posts`);
+
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000); // 48h freshness window
+    // Upper bound: reject posts with future timestamps (same logic as filterByFreshness for RSS)
+    const futureLimit = new Date(Date.now() + 60 * 60 * 1000); // 1h clock-skew tolerance
+
+    // Filter by freshness and basic quality
+    const freshPosts = allPosts.filter(p => p.publishedAt >= cutoff && p.publishedAt <= futureLimit);
+
+    // Bulk-check existing URLs
+    const sources = freshPosts.map(p => `reddit_${p.subredditConfig.subreddit.toLowerCase()}`);
+    const existingPairs = new Set(
+      (await this.prisma.hotspot.findMany({
+        where: { url: { in: freshPosts.map(p => p.url) } },
+        select: { url: true, source: true },
+      })).map(h => `${h.url}|${h.source}`),
+    );
+
+    const newPosts = freshPosts.filter((p, idx) =>
+      !existingPairs.has(`${p.url}|${sources[idx]}`)
+    );
+    this.logger.log(`🟠 ${newPosts.length} new Reddit posts to score (${freshPosts.length - newPosts.length} already exist)`);
+
+    if (newPosts.length === 0) return;
+
+    // Apply same keyword pre-filter as RSS for non-research subreddits
+    const toScore = newPosts.filter(p => {
+      // Research subs (MachineLearning, deeplearning) — always pass through
+      if (['MachineLearning', 'deeplearning', 'learnmachinelearning'].includes(p.subredditConfig.subreddit)) return true;
+      return titleLooksAiRelated(p.title, p.content);
+    });
+    this.logger.log(`🟠 ${toScore.length} posts after AI keyword pre-filter`);
+
+    let created = 0;
+    const CONCURRENCY = 15;
+
+    // Preload existing cluster mains
+    const existingMains = await this.prisma.hotspot.findMany({
+      where: { createdAt: { gte: oneDayAgo }, isClusterMain: true },
+      select: { id: true, clusterKey: true, source: true, sourceTier: true, title: true },
+    });
+    const claimedClusters = new Map<string, ClusterClaim>();
+    for (const m of existingMains) {
+      if (!m.clusterKey) continue;
+      claimedClusters.set(m.clusterKey, {
+        hotspotId: m.id,
+        authority: getAuthorityScore(m.source, m.sourceTier as SourceTier | null),
+        tokens: tokenizeTitle(m.title),
+      });
+    }
+
+    for (let i = 0; i < toScore.length; i += CONCURRENCY) {
+      const batch = toScore.slice(i, i + CONCURRENCY);
+      const batchSources = batch.map(p => `reddit_${p.subredditConfig.subreddit.toLowerCase()}`);
+
+      // Score all items in parallel
+      const scorings = await Promise.all(
+        batch.map(p => this.scoringService.score(
+          p.title,
+          p.content,
+          p.subredditConfig.tier,
+          p.subredditConfig.defaultCategory,
+          p.publishedAt,
+        )),
+      );
+
+      // Cluster key resolution
+      const clusterTokens = batch.map(p => tokenizeTitle(p.title));
+      const keys = batch.map((_, j) =>
+        resolveClusterKey(clusterTokens[j], scorings[j].clusterKey, claimedClusters),
+      );
+
+      // Plan cluster mains within this batch
+      const authorities = batch.map((p, idx) =>
+        getAuthorityScore(batchSources[idx], p.subredditConfig.tier),
+      );
+      const mainIdx = new Map<string, number>();
+      const demotions: string[] = [];
+      for (let j = 0; j < batch.length; j++) {
+        const sc = scorings[j];
+        if (!sc.isCurated && sc.qualityScore < 60) continue;
+        const auth = authorities[j];
+        const existing = claimedClusters.get(keys[j]);
+        const winnerIdx = mainIdx.get(keys[j]);
+        const winnerAuth = winnerIdx !== undefined ? authorities[winnerIdx] : -Infinity;
+        const bestPriorAuth = Math.max(existing?.authority ?? -Infinity, winnerAuth);
+        if (auth > bestPriorAuth) {
+          mainIdx.set(keys[j], j);
+          if (existing?.hotspotId && auth > existing.authority) {
+            demotions.push(existing.hotspotId);
+          }
+        }
+      }
+
+      const results = await Promise.allSettled(
+        batch.map(async (post, idx) => {
+          const source = batchSources[idx];
+          const scoring = scorings[idx];
+          if (!scoring.isCurated && scoring.qualityScore < 60) return null;
+
+          const isClusterMain = mainIdx.get(keys[idx]) === idx;
+
+          const hotspot = await this.prisma.hotspot.create({
+            data: {
+              title: post.title,
+              content: post.content,
+              url: post.url,
+              source,
+              sourceId: post.sourceId,
+              sourceTier: post.subredditConfig.tier,
+              category: scoring.category,
+              region: scoring.region,
+              qualityScore: scoring.qualityScore,
+              isCurated: scoring.isCurated,
+              tags: scoring.tags.length > 0 ? JSON.stringify(scoring.tags) : null,
+              clusterKey: keys[idx],
+              isClusterMain,
+              importance: scoring.importance,
+              summary: scoring.summary || null,
+              isReal: true,
+              relevance: Math.round(scoring.qualityScore),
+              publishedAt: post.publishedAt,
+              likeCount: post.score,
+              commentCount: post.commentCount,
+              authorName: post.author || null,
+              keywordId: null,
+            },
+          });
+
+          if (isClusterMain) {
+            claimedClusters.set(keys[idx], { hotspotId: hotspot.id, authority: authorities[idx], tokens: clusterTokens[idx] });
+          }
+
+          if (scoring.isCurated && ['high', 'urgent'].includes(scoring.importance)) {
+            const notification = await this.prisma.notification.create({
+              data: {
+                type: 'hotspot',
+                title: `🟠 Reddit ${post.subredditConfig.name}: ${post.title.slice(0, 50)}`,
+                content: scoring.summary || post.title,
+                hotspotId: hotspot.id,
+              },
+            });
+            this.gateway.server.emit('notification', {
+              type: 'hotspot',
+              title: notification.title,
+              content: notification.content,
+              hotspotId: hotspot.id,
+              importance: scoring.importance,
+            });
+          }
+          return hotspot;
+        }),
+      );
+
+      created += results.filter(r => r.status === 'fulfilled' && r.value).length;
+
+      const uniqueDemotions = [...new Set(demotions)];
+      if (uniqueDemotions.length > 0) {
+        await this.prisma.hotspot.updateMany({
+          where: { id: { in: uniqueDemotions } },
+          data: { isClusterMain: false },
+        });
+      }
+
+      this.logger.log(`🟠 Reddit batch ${Math.floor(i / CONCURRENCY) + 1}: processed, total created=${created}`);
+    }
+
+    this.logger.log(`🟠 Reddit processing done: ${created} new items`);
   }
 }

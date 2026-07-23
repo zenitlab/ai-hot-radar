@@ -65,6 +65,20 @@ const SOURCE_OPTIONS = [
   { value: 'rss_hacker_news', label: 'HN Best' },
   { value: 'rss_v2ex', label: 'V2EX' },
   { value: 'rss_juejin', label: '掘金' },
+  // Reddit communities
+  { value: 'reddit_machinelearning', label: 'r/MachineLearning' },
+  { value: 'reddit_localllama', label: 'r/LocalLLaMA' },
+  { value: 'reddit_openai', label: 'r/OpenAI' },
+  { value: 'reddit_claudeai', label: 'r/ClaudeAI' },
+  { value: 'reddit_bard', label: 'r/Bard (Gemini)' },
+  { value: 'reddit_chatgpt', label: 'r/ChatGPT' },
+  { value: 'reddit_stablediffusion', label: 'r/StableDiffusion' },
+  { value: 'reddit_midjourney', label: 'r/midjourney' },
+  { value: 'reddit_artificial', label: 'r/artificial' },
+  { value: 'reddit_singularity', label: 'r/singularity' },
+  { value: 'reddit_deeplearning', label: 'r/deeplearning' },
+  { value: 'reddit_aiassistants', label: 'r/AIAssistants' },
+  { value: 'reddit_learnmachinelearning', label: 'r/learnML' },
 ];
 
 const IMPORTANCE_OPTIONS = [

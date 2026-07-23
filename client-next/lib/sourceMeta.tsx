@@ -1,4 +1,4 @@
-import { Twitter, Globe, Eye, Activity, Search, Zap } from 'lucide-react';
+import { Twitter, Globe, Eye, Activity, Search, Zap, MessageSquare } from 'lucide-react';
 
 /**
  * Source → icon / display-label helpers shared by the hotspot radar, curated
@@ -12,6 +12,7 @@ export function getSourceIcon(source: string, className = 'w-4 h-4') {
   if (source === 'weibo') return <Activity className={className} />;
   if (source === 'sogou') return <Search className={className} />;
   if (source === 'hackernews') return <Zap className={className} />;
+  if (source.startsWith('reddit_')) return <MessageSquare className={className} />;
   return <Globe className={className} />;
 }
 
@@ -58,6 +59,23 @@ const RSS_LABELS: Record<string, string> = {
   wheresyoured: "Where's Your Ed At",
 };
 
+/** subreddit slug → display label */
+const REDDIT_LABELS: Record<string, string> = {
+  machinelearning:        'r/MachineLearning',
+  localllama:             'r/LocalLLaMA',
+  openai:                 'r/OpenAI',
+  claudeai:               'r/ClaudeAI',
+  bard:                   'r/Bard (Gemini)',
+  chatgpt:                'r/ChatGPT',
+  stablediffusion:        'r/StableDiffusion',
+  midjourney:             'r/midjourney',
+  artificial:             'r/artificial',
+  singularity:            'r/singularity',
+  aiassistants:           'r/AIAssistants',
+  deeplearning:           'r/deeplearning',
+  learnmachinelearning:   'r/learnML',
+};
+
 /** Human-readable label for a source string (e.g. `rss_the_decoder` → `The Decoder`). */
 export function getSourceLabel(source: string): string {
   if (SOURCE_LABELS[source]) return SOURCE_LABELS[source];
@@ -66,5 +84,9 @@ export function getSourceLabel(source: string): string {
     return RSS_LABELS[cat] ?? cat.replace(/_/g, ' ');
   }
   if (source.startsWith('twitter_')) return '@' + source.slice(8);
+  if (source.startsWith('reddit_')) {
+    const sub = source.slice(7);
+    return REDDIT_LABELS[sub] ?? `r/${sub}`;
+  }
   return source;
 }

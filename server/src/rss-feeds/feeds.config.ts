@@ -233,6 +233,167 @@ export const X_ACCOUNTS: XAccountConfig[] = [
   { username: 'xiaohu',          name: '小互 (xiaohu)',   tier: 'T2', region: 'domestic', defaultCategory: 'community' },
 ];
 
+/**
+ * Reddit subreddits to monitor as first-class sources.
+ * Fetched via Reddit public JSON API (no auth required).
+ * Source naming: reddit_{subreddit.toLowerCase()}
+ */
+export interface RedditSubredditConfig {
+  /** Subreddit name without r/ */
+  subreddit: string;
+  /** Display name for logs/UI */
+  name: string;
+  tier: SourceTier;
+  region: ContentRegion;
+  defaultCategory?: ContentCategory;
+  /** Sort mode: 'hot' (trending) or 'new' (latest) */
+  sortMode: 'hot' | 'new';
+  /** Minimum upvote score to accept a post */
+  minScore: number;
+  /** Max posts to fetch per round */
+  limit: number;
+}
+
+export const REDDIT_SUBREDDITS: RedditSubredditConfig[] = [
+  // ===== T1: 顶级研究社区 =====
+  {
+    subreddit: 'MachineLearning',
+    name: 'r/MachineLearning',
+    tier: 'T1',
+    region: 'international',
+    defaultCategory: 'research',
+    sortMode: 'hot',
+    minScore: 20,
+    limit: 20,
+  },
+  // ===== T1: 主要 AI 公司官方子版块 =====
+  {
+    subreddit: 'OpenAI',
+    name: 'r/OpenAI',
+    tier: 'T1',
+    region: 'international',
+    defaultCategory: 'model',
+    sortMode: 'hot',
+    minScore: 15,
+    limit: 15,
+  },
+  {
+    subreddit: 'ClaudeAI',
+    name: 'r/ClaudeAI (Anthropic)',
+    tier: 'T1',
+    region: 'international',
+    defaultCategory: 'model',
+    sortMode: 'hot',
+    minScore: 10,
+    limit: 15,
+  },
+  {
+    subreddit: 'Bard',
+    name: 'r/Bard (Gemini)',
+    tier: 'T1.5',
+    region: 'international',
+    defaultCategory: 'model',
+    sortMode: 'hot',
+    minScore: 10,
+    limit: 15,
+  },
+  // ===== T1.5: 活跃的开源模型社区（重度覆盖 DeepSeek/Qwen/Llama 等国内模型） =====
+  {
+    subreddit: 'LocalLLaMA',
+    name: 'r/LocalLLaMA',
+    tier: 'T1.5',
+    region: 'international',
+    defaultCategory: 'model',
+    sortMode: 'hot',
+    minScore: 10,
+    limit: 25,
+  },
+  // ===== T1.5: 产品社区 =====
+  {
+    subreddit: 'ChatGPT',
+    name: 'r/ChatGPT',
+    tier: 'T1.5',
+    region: 'international',
+    defaultCategory: 'product',
+    sortMode: 'hot',
+    minScore: 20,
+    limit: 15,
+  },
+  {
+    subreddit: 'StableDiffusion',
+    name: 'r/StableDiffusion',
+    tier: 'T1.5',
+    region: 'international',
+    defaultCategory: 'product',
+    sortMode: 'hot',
+    minScore: 15,
+    limit: 15,
+  },
+  {
+    subreddit: 'midjourney',
+    name: 'r/midjourney',
+    tier: 'T1.5',
+    region: 'international',
+    defaultCategory: 'product',
+    sortMode: 'hot',
+    minScore: 15,
+    limit: 15,
+  },
+  // ===== T2: 行业讨论 =====
+  {
+    subreddit: 'artificial',
+    name: 'r/artificial',
+    tier: 'T2',
+    region: 'international',
+    defaultCategory: 'industry',
+    sortMode: 'hot',
+    minScore: 10,
+    limit: 15,
+  },
+  {
+    subreddit: 'singularity',
+    name: 'r/singularity',
+    tier: 'T2',
+    region: 'international',
+    defaultCategory: 'industry',
+    sortMode: 'hot',
+    minScore: 15,
+    limit: 15,
+  },
+  // ===== T2: 产品/工具社区 =====
+  {
+    subreddit: 'AIAssistants',
+    name: 'r/AIAssistants',
+    tier: 'T2',
+    region: 'international',
+    defaultCategory: 'product',
+    sortMode: 'new',
+    minScore: 5,
+    limit: 15,
+  },
+  // ===== T2: 研究/学习 =====
+  {
+    subreddit: 'deeplearning',
+    name: 'r/deeplearning',
+    tier: 'T2',
+    region: 'international',
+    defaultCategory: 'research',
+    sortMode: 'hot',
+    minScore: 10,
+    limit: 15,
+  },
+  {
+    subreddit: 'learnmachinelearning',
+    name: 'r/learnML',
+    tier: 'T2',
+    region: 'international',
+    defaultCategory: 'tips',
+    sortMode: 'hot',
+    minScore: 10,
+    limit: 15,
+  },
+];
+
 export const RSS_FEEDS: RssFeedConfig[] = [
   // ===== T1: Official AI blogs =====
   {

@@ -6,9 +6,10 @@ import { ChinaSearchService } from './china-search.service';
 import { EmailService } from './email.service';
 import { RssService } from './rss.service';
 import { ScoringService } from './scoring.service';
+import { RedditService } from './reddit.service';
 
 @Module({
-  providers: [AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService],
-  exports: [AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService],
+  providers: [AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService, RedditService],
+  exports: [AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService, RedditService],
 })
 export class ServicesModule {}

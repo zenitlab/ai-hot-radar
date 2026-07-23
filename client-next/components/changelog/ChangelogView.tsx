@@ -15,6 +15,17 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-07-23",
+    version: "v0.8.7",
+    tag: "feature",
+    items: [
+      "🟠 新增 Reddit 数据源：接入 13 个精选 AI 子版块（r/MachineLearning / r/LocalLLaMA / r/OpenAI / r/ClaudeAI 等），覆盖模型/产品/行业/社区/论文/教程全分类",
+      "🟠 Reddit 数据与现有 RSS / X账号 / 搜索引擎并发抓取，复用 AI 两阶段评分 + 聚类去重逻辑，无缝融入精选和热点雷达",
+      "🔍 来源筛选新增 Reddit 全部 13 个子版块（FilterSortBar）",
+      "🎨 Reddit 来源图标与标签映射（sourceMeta）",
+    ],
+  },
+  {
     date: "2026-07-21",
     version: "v0.8.6",
     tag: "fix",
