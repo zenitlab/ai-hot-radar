@@ -107,7 +107,15 @@ export class HotspotsService {
     // Exception: when filtering by a specific source, dropping that source's non-main
     // cards would make whole events vanish from the source view — so skip the filter.
     if (!source) where.isClusterMain = true;
-    if (source) where.source = source;
+    if (source) {
+      // 'reddit' is a prefix group — match all reddit_* sources (reddit_machinelearning etc.)
+      // Same pattern applies to future prefix groups (rss, twitter_).
+      if (source === 'reddit') {
+        where.source = { startsWith: 'reddit_' };
+      } else {
+        where.source = source;
+      }
+    }
     if (importance) where.importance = importance;
     if (keywordId) where.keywordId = keywordId;
     if (isReal !== undefined && isReal !== '') where.isReal = isReal === 'true';
