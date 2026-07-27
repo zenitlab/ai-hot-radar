@@ -15,6 +15,18 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-07-27",
+    version: "v0.8.8",
+    tag: "feature",
+    items: [
+      "🤖 GEO 生成式引擎优化：针对国内外 AI 搜索引擎（豆包搜索、秘塔 AI、百度 AI、ChatGPT Search、Perplexity、Claude 等）优化站点可发现性",
+      "📊 新增结构化数据（Schema.org）：Organization 与 WebSite Schema，帮助 AI 理解站点身份与搜索能力",
+      "🤝 明确允许 AI 爬虫：robots.txt 主动欢迎 GPTBot、Claude-Web、PerplexityBot、Bytespider（字节）、BaiduSpider、360Spider 等",
+      "📄 新增 /ai.txt 标准文件：声明站点用途、数据来源、爬取策略、API 接口、支持的国内外 AI 搜索引擎",
+      "📚 完整 GEO 文档：优化指南、实施清单、验证方法、监控指标（docs/GEO.md）",
+    ],
+  },
+  {
     date: "2026-07-23",
     version: "v0.8.7",
     tag: "feature",

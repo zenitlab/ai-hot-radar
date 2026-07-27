@@ -24,10 +24,17 @@ Description: 实时聚合 20+ AI 信息源（Twitter、HackerNews、arXiv、官�
 Language: zh-CN
 Purpose: news-aggregation, ai-content-curation
 Topics: artificial-intelligence, machine-learning, llm, openai, anthropic, ai-news
+Target-Audience: AI practitioners, researchers, developers in China and globally
 
 # Contact
 Contact-Email: support@aihotradar.com
 GitHub: https://github.com/zenitlab/ai-hot-radar
+
+# Supported AI Search Engines
+# 国际
+Optimized-For: ChatGPT Search, Perplexity, Claude, Google Gemini, You.com
+# 国内
+Optimized-For-CN: 豆包搜索, 百度 AI 搜索, 360 AI 搜索, 搜狗 AI 问答, 秘塔 AI 搜索, Kimi, 通义千问, 文心一言
 
 # Crawling Policy
 Allow-AI-Training: no

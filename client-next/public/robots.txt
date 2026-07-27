@@ -16,6 +16,8 @@ Sitemap: https://aihotradar.com/sitemap.xml
 Crawl-delay: 1
 
 # GEO: 明确欢迎 AI 搜索引擎爬虫
+
+# 国际 AI 搜索引擎
 User-agent: GPTBot
 Allow: /
 
@@ -35,4 +37,23 @@ User-agent: PerplexityBot
 Allow: /
 
 User-agent: Google-Extended
+Allow: /
+
+# 国内 AI 搜索引擎
+User-agent: Bytespider
+Allow: /
+
+User-agent: BaiduSpider
+Allow: /
+
+User-agent: Baiduspider-cpro
+Allow: /
+
+User-agent: 360Spider
+Allow: /
+
+User-agent: Sogou web spider
+Allow: /
+
+User-agent: YisouSpider
 Allow: /
