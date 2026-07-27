@@ -3,6 +3,7 @@ import { Fraunces } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { generateOrganizationSchema, generateWebSiteSchema } from "@/lib/structured-data";
 
 // Self-hosted via next/font: zero layout shift, no render-blocking request.
 const fraunces = Fraunces({
@@ -106,9 +107,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const orgSchema = generateOrganizationSchema();
+  const siteSchema = generateWebSiteSchema();
+
   return (
     <html lang="zh-CN" suppressHydrationWarning className={fraunces.variable}>
       <head>
+        {/* GEO: 结构化数据帮助 AI 搜索引擎理解站点身份与功能 */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
+        />
       </head>
       <body className="min-h-dvh">
         <ThemeProvider>
