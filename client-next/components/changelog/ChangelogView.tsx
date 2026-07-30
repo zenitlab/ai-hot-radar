@@ -15,6 +15,15 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-07-31",
+    version: "v0.9.0",
+    tag: "feature",
+    items: [
+      "🏷️ 资讯卡片改用语义化标签：每条内容以 <article> 独立成块，时间戳加 <time datetime> 机器可读属性，AI 抓取时能准确识别每条资讯的边界与发布时间",
+      "📋 精选与热点页新增 ItemList 结构化数据：明确告知 AI 这是聚合列表而非单篇文章，每个条目携带独立的标题、链接与发布时间，便于按来源归属引用",
+    ],
+  },
+  {
     date: "2026-07-30",
     version: "v0.8.9",
     tag: "feature",

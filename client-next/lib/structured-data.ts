@@ -104,19 +104,28 @@ export function generateDigestSchema(date: string, sections: string[]) {
 
 /**
  * 热点列表 ItemList Schema
- * 用于精选/热点页，帮助 AI 理解这是一个聚合列表
+ * 用于精选/热点页，帮助 AI 理解这是一个聚合列表而非单篇文章
+ *
+ * `name` / `description` 由调用方传入：精选页与热点页的语义不同，共用一段
+ * 描述会让 AI 无法区分两者。
  */
-export function generateHotspotListSchema(items: Array<{
-  title: string;
-  url: string;
-  publishedAt: string;
-  description?: string;
-}>) {
+export function generateHotspotListSchema(
+  items: Array<{
+    title: string;
+    url: string;
+    publishedAt: string;
+    description?: string;
+  }>,
+  meta: { name: string; description: string } = {
+    name: 'AI 热点资讯',
+    description: 'AI 评分筛选后的高质量 AI 行业资讯',
+  },
+) {
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'AI 热点资讯',
-    description: 'AI 评分筛选后的高质量 AI 行业资讯',
+    name: meta.name,
+    description: meta.description,
     numberOfItems: items.length,
     itemListElement: items.map((item, index) => ({
       '@type': 'ListItem',

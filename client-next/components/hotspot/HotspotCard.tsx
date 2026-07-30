@@ -85,7 +85,9 @@ export function HotspotCard({
   const heat = getHeatLevel(heatScore);
 
   return (
-    <m.div
+    // <article> so crawlers can tell where one story ends and the next begins —
+    // the list is otherwise an undifferentiated run of <div>s.
+    <m.article
       key={hotspot.id}
       initial={disableEntrance ? false : { opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
@@ -235,16 +237,26 @@ export function HotspotCard({
 
           {/* Timestamps */}
           <div className="flex flex-wrap items-center gap-3 text-[11px] text-[var(--text-muted)]">
+            {/* datetime carries the machine-readable timestamp; the visible text
+                stays relative ("3 小时前"), which crawlers can't parse alone. */}
             {hotspot.publishedAt && (
-              <span className="flex items-center gap-1" title={`发布于 ${formatDateTime(hotspot.publishedAt)}`}>
+              <time
+                dateTime={hotspot.publishedAt}
+                className="flex items-center gap-1"
+                title={`发布于 ${formatDateTime(hotspot.publishedAt)}`}
+              >
                 <Clock className="w-3 h-3" />
                 发布 {relativeTime(hotspot.publishedAt)}
-              </span>
+              </time>
             )}
-            <span className="flex items-center gap-1" title={`抓取于 ${formatDateTime(hotspot.createdAt)}`}>
+            <time
+              dateTime={hotspot.createdAt}
+              className="flex items-center gap-1"
+              title={`抓取于 ${formatDateTime(hotspot.createdAt)}`}
+            >
               <Activity className="w-3 h-3" />
               抓取 {relativeTime(hotspot.createdAt)}
-            </span>
+            </time>
           </div>
 
           {/* AI relevance reason — only present for keyword-matched cards.
@@ -311,6 +323,6 @@ export function HotspotCard({
         </div>
 
       </div>
-    </m.div>
+    </m.article>
   );
 }

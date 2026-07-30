@@ -48,114 +48,124 @@ function CuratedCard({ item, index = 0 }: { item: Hotspot; index?: number }) {
     heatScore >= 40 ? { label: '温', color: 'text-amber-500 dark:text-amber-400' } :
     null;
 
+  // <article> marks each card as a self-contained item so crawlers can tell
+  // where one story ends and the next begins — the list is otherwise a flat run
+  // of <a> elements with no structural boundary.
   return (
-    <a
-      href={item.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{ animationDelay: `${index * 30}ms` }}
-      className="block p-5 sm:p-6 rounded-3xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition duration-200 group"
-    >
-      {/* Top row: source icon + label · category · keyword (left) | heat + score (right) */}
-      <div className="flex flex-wrap items-center gap-2 mb-3">
-        <span className="flex items-center gap-1 text-[12px] text-[var(--text-muted)] font-medium">
-          {getSourceIcon(item.source, 'w-3.5 h-3.5')}
-          {getSourceLabel(item.source)}
-        </span>
-        {item.category && CATEGORY_LABEL[item.category] && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-elevated)] text-[var(--text-secondary)]">
-            {CATEGORY_LABEL[item.category]}
+    <article>
+      <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ animationDelay: `${index * 30}ms` }}
+          className="block p-5 sm:p-6 rounded-3xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition duration-200 group"
+        >
+        {/* Top row: source icon + label · category · keyword (left) | heat + score (right) */}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <span className="flex items-center gap-1 text-[12px] text-[var(--text-muted)] font-medium">
+            {getSourceIcon(item.source, 'w-3.5 h-3.5')}
+            {getSourceLabel(item.source)}
           </span>
-        )}
-        {item.keyword && (
-          <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] border border-[var(--accent-blue)]/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
-            {item.keyword.text}
-          </span>
-        )}
-        <div className="ml-auto flex items-center gap-1.5">
-          {heat && (
-            <span className={cn('flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-[var(--input-bg)] border border-[var(--input-border)] font-medium', heat.color)}>
-              <ThermometerSun className="w-3 h-3" />
-              {heat.label} {heatScore}
+          {item.category && CATEGORY_LABEL[item.category] && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-elevated)] text-[var(--text-secondary)]">
+              {CATEGORY_LABEL[item.category]}
             </span>
           )}
-          {item.qualityScore != null && (
-            <span className="text-xs font-mono px-2.5 py-0.5 rounded-full border border-[var(--accent-blue)]/30 text-[var(--accent-blue)] dark:text-blue-400">
-              {Math.round(item.qualityScore)}
+          {item.keyword && (
+            <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] border border-[var(--accent-blue)]/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
+              {item.keyword.text}
             </span>
           )}
-        </div>
-      </div>
-
-      {/* Title — large, semibold, reading-first */}
-      <h3 className="text-[17px] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors leading-snug mb-2.5">
-        {item.title}
-        <ExternalLink className="inline-block w-3.5 h-3.5 ml-1 mb-0.5 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
-      </h3>
-
-      {/* AI Summary — quote-style block, identical to HotspotCard */}
-      {item.summary && (
-        <div className="mb-3 pl-3 border-l-2 border-[var(--accent-blue)]/40 dark:border-blue-400/40">
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <Sparkles className="w-3 h-3 text-[var(--accent-blue)] dark:text-blue-400" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--accent-blue)]/80 dark:text-blue-400/70">
-              AI 摘要
-            </span>
+          <div className="ml-auto flex items-center gap-1.5">
+            {heat && (
+              <span className={cn('flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-[var(--input-bg)] border border-[var(--input-border)] font-medium', heat.color)}>
+                <ThermometerSun className="w-3 h-3" />
+                {heat.label} {heatScore}
+              </span>
+            )}
+            {item.qualityScore != null && (
+              <span className="text-xs font-mono px-2.5 py-0.5 rounded-full border border-[var(--accent-blue)]/30 text-[var(--accent-blue)] dark:text-blue-400">
+                {Math.round(item.qualityScore)}
+              </span>
+            )}
           </div>
-          <p className="text-[14px] text-[var(--text-secondary)] leading-[1.7] line-clamp-3">
-            {item.summary}
-          </p>
         </div>
-      )}
 
-      {/* Engagement metrics — only when there are any */}
-      {(item.likeCount || item.retweetCount || item.commentCount || item.viewCount) && (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--text-muted)] mb-2.5">
-          {item.likeCount != null && item.likeCount > 0 && (
-            <span className="flex items-center gap-1" title="点赞">
-              <Zap className="w-3 h-3" />
-              {item.likeCount.toLocaleString()}
-            </span>
-          )}
-          {item.retweetCount != null && item.retweetCount > 0 && (
-            <span className="flex items-center gap-1" title="转发">
-              <Repeat2 className="w-3 h-3" />
-              {item.retweetCount.toLocaleString()}
-            </span>
-          )}
-          {item.commentCount != null && item.commentCount > 0 && (
-            <span className="flex items-center gap-1" title="评论">
-              <MessageCircle className="w-3 h-3" />
-              {item.commentCount.toLocaleString()}
-            </span>
-          )}
-          {item.viewCount != null && item.viewCount > 0 && (
-            <span className="flex items-center gap-1" title="浏览">
-              <Eye className="w-3 h-3" />
-              {item.viewCount.toLocaleString()}
-            </span>
-          )}
-        </div>
-      )}
+        {/* Title — large, semibold, reading-first */}
+        <h3 className="text-[17px] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors leading-snug mb-2.5">
+          {item.title}
+          <ExternalLink className="inline-block w-3.5 h-3.5 ml-1 mb-0.5 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
+        </h3>
 
-      {/* Bottom row: tags (left) + time (right) — same baseline */}
-      <div className="flex items-end justify-between gap-3">
-        <div className="flex flex-wrap gap-1.5 flex-1 min-w-0">
-          {tags.slice(0, 4).map((tag: string) => (
-            <span
-              key={tag}
-              className="text-[11px] px-2.5 py-1 rounded-md bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
-            >
-              {tag}
-            </span>
-          ))}
+        {/* AI Summary — quote-style block, identical to HotspotCard */}
+        {item.summary && (
+          <div className="mb-3 pl-3 border-l-2 border-[var(--accent-blue)]/40 dark:border-blue-400/40">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <Sparkles className="w-3 h-3 text-[var(--accent-blue)] dark:text-blue-400" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--accent-blue)]/80 dark:text-blue-400/70">
+                AI 摘要
+              </span>
+            </div>
+            <p className="text-[14px] text-[var(--text-secondary)] leading-[1.7] line-clamp-3">
+              {item.summary}
+            </p>
+          </div>
+        )}
+
+        {/* Engagement metrics — only when there are any */}
+        {(item.likeCount || item.retweetCount || item.commentCount || item.viewCount) && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--text-muted)] mb-2.5">
+            {item.likeCount != null && item.likeCount > 0 && (
+              <span className="flex items-center gap-1" title="点赞">
+                <Zap className="w-3 h-3" />
+                {item.likeCount.toLocaleString()}
+              </span>
+            )}
+            {item.retweetCount != null && item.retweetCount > 0 && (
+              <span className="flex items-center gap-1" title="转发">
+                <Repeat2 className="w-3 h-3" />
+                {item.retweetCount.toLocaleString()}
+              </span>
+            )}
+            {item.commentCount != null && item.commentCount > 0 && (
+              <span className="flex items-center gap-1" title="评论">
+                <MessageCircle className="w-3 h-3" />
+                {item.commentCount.toLocaleString()}
+              </span>
+            )}
+            {item.viewCount != null && item.viewCount > 0 && (
+              <span className="flex items-center gap-1" title="浏览">
+                <Eye className="w-3 h-3" />
+                {item.viewCount.toLocaleString()}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Bottom row: tags (left) + time (right) — same baseline */}
+        <div className="flex items-end justify-between gap-3">
+          <div className="flex flex-wrap gap-1.5 flex-1 min-w-0">
+            {tags.slice(0, 4).map((tag: string) => (
+              <span
+                key={tag}
+                className="text-[11px] px-2.5 py-1 rounded-md bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          {/* datetime carries the machine-readable timestamp; the visible text
+              stays relative ("3 小时前"), which crawlers can't parse on its own. */}
+          <time
+            dateTime={item.publishedAt || item.createdAt}
+            className="flex items-center gap-1 text-[11px] text-[var(--text-muted)] shrink-0"
+          >
+            <Clock className="w-3 h-3" />
+            {relativeTime(item.publishedAt || item.createdAt)}
+          </time>
         </div>
-        <span className="flex items-center gap-1 text-[11px] text-[var(--text-muted)] shrink-0">
-          <Clock className="w-3 h-3" />
-          {relativeTime(item.publishedAt || item.createdAt)}
-        </span>
-      </div>
-    </a>
+      </a>
+    </article>
   );
 }
 
