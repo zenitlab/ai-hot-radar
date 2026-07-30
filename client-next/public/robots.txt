@@ -12,6 +12,10 @@ Disallow: /_next/static/
 # Sitemap
 Sitemap: https://aihotradar.com/sitemap.xml
 
+# 内容地图与 AI 使用条款（非 robots.txt 标准字段，供支持的抓取方参考）
+# llms.txt: 站点结构与接口清单
+# ai.txt:   索引/训练授权范围与引用要求
+
 # Crawl-delay for polite bots
 Crawl-delay: 1
 
@@ -27,6 +31,10 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
+# Anthropic 现役抓取 UA；anthropic-ai 与 Claude-Web 为早期 UA，保留以兼容
+User-agent: ClaudeBot
+Allow: /
+
 User-agent: anthropic-ai
 Allow: /
 
@@ -36,7 +44,17 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
+# Google-Extended 不控制抓取，仅控制内容是否用于训练 Gemini
 User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Amazonbot
 Allow: /
 
 # 国内 AI 搜索引擎

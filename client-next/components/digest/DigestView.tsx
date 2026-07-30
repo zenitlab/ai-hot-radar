@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   ExternalLink, RefreshCw, Zap, CalendarDays, ChevronDown, ChevronRight,
   ChevronLeft, ArrowRight, Flame, Cpu, Globe2, Globe, Package, Users, BookOpen,
@@ -29,6 +31,28 @@ function getBeijingToday(): string {
 function formatLabel(date: string): string {
   const [, m, d] = date.split('-');
   return `${parseInt(m, 10)}月${parseInt(d, 10)}日`;
+}
+
+/**
+ * Format a timestamp in Beijing time, pinned to an explicit locale and zone.
+ *
+ * Digest content is server-rendered, so a bare `toLocaleString()` would use the
+ * container's clock (UTC) on the server and the visitor's zone in the browser,
+ * producing different text for the same node and a hydration mismatch. Digest
+ * dates are Beijing-based throughout, so pin both sides to Asia/Shanghai.
+ */
+function formatGeneratedAt(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString('zh-CN', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
 }
 
 /** Last 3 calendar months in Beijing time, newest first, stopping at today.
@@ -295,15 +319,41 @@ function PaperItem({ item }: { item: DigestPaperItem }) {
 
 // ── Main view ─────────────────────────────────────────────────────────────────
 
-export function DigestView() {
+/**
+ * `date` comes from the `/digest/[date]` route segment rather than local state,
+ * so every day is a distinct, indexable URL. `initialDigest` / `initialRecent`
+ * are prefetched on the server so the report is present in the initial HTML —
+ * AI crawlers don't run JS, and a digest is the most quotable content on the
+ * site, so it must not depend on an effect.
+ *
+ * All props are optional to keep the component usable without a server parent.
+ */
+export function DigestView({
+  date,
+  initialDigest = null,
+  initialRecent = [],
+}: {
+  date?: string;
+  initialDigest?: DailyDigest | null;
+  initialRecent?: { date: string; summary?: string }[];
+} = {}) {
   const today = getBeijingToday();
   const allDates = lastThreeMonths();
 
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [digest, setDigest] = useState<DailyDigest | null>(null);
+  // Route-driven when `date` is provided; falls back to today otherwise.
+  const selectedDate = date ?? today;
+  const [digest, setDigest] = useState<DailyDigest | null>(initialDigest);
   // Map: date → one-line summary (empty string if no digest)
-  const [dateMap, setDateMap] = useState<Map<string, string>>(new Map());
-  const [loading, setLoading] = useState(true);
+  const [dateMap, setDateMap] = useState<Map<string, string>>(() => {
+    const m = new Map<string, string>();
+    for (const d of initialRecent) m.set(d.date, d.summary ?? '');
+    return m;
+  });
+  // Server already rendered this date's digest — skip the loading state.
+  const [loading, setLoading] = useState(initialDigest === null);
+  // Guards the per-date fetch from re-requesting what the server already sent.
+  // Keyed by date so navigating to another day still fetches on the client.
+  const skipInitialFetch = useRef(initialDigest !== null ? selectedDate : null);
   // Reactive read of the module-level job singleton — survives remount,
   // so generation state persists when the user switches tabs and returns.
   const generating = useSyncExternalStore(
@@ -311,8 +361,9 @@ export function DigestView() {
     () => digestJobs.isGenerating(selectedDate),
     () => false, // server snapshot: no job is ever running during SSR/prerender
   );
-  const selectedRef = useRef<HTMLButtonElement>(null);
+  const selectedRef = useRef<HTMLAnchorElement>(null);
   const rightColRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Month open/closed overrides. By default the current month and the month
   // containing the selected date are open; every other month is collapsed.
@@ -332,8 +383,10 @@ export function DigestView() {
     });
   };
 
-  // Load sidebar date list (dates that have digests + their summaries)
+  // Load sidebar date list (dates that have digests + their summaries).
+  // Skipped when the server already supplied it.
   useEffect(() => {
+    if (initialRecent.length > 0) return;
     digestApi
       .getRecent()
       .then((list: { date: string; summary?: string }[]) => {
@@ -342,6 +395,9 @@ export function DigestView() {
         setDateMap(m);
       })
       .catch(() => {});
+    // `initialRecent` is a server-render constant; re-running on identity
+    // change would refetch on every navigation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Scroll selected date into view on mount
@@ -354,16 +410,24 @@ export function DigestView() {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<{ path: string }>).detail;
       if (detail?.path === '/digest') {
-        setSelectedDate(today);
+        // Date lives in the URL now, so navigate instead of setting state.
+        if (selectedDate !== today) router.push(`/digest/${today}`);
         rightColRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
     window.addEventListener('nav:reset', handler);
     return () => window.removeEventListener('nav:reset', handler);
-  }, [today]);
+  }, [today, selectedDate, router]);
 
   // Load digest for selected date
   useEffect(() => {
+    // Server already rendered this exact date — don't refetch it. Cleared on
+    // first run so navigating to another date fetches normally.
+    if (skipInitialFetch.current === selectedDate) {
+      skipInitialFetch.current = null;
+      return;
+    }
+
     setLoading(true);
     setDigest(null);
     digestApi
@@ -478,13 +542,13 @@ export function DigestView() {
                 const summary = dateMap.get(date) ?? '';
 
                 return (
-                  <button
+                  <Link
                     key={date}
-                    type="button"
+                    href={`/digest/${date}`}
                     ref={isSelected ? selectedRef : undefined}
-                    onClick={() => setSelectedDate(date)}
+                    aria-current={isSelected ? 'page' : undefined}
                     className={cn(
-                      'w-full text-left px-4 py-2.5 transition-all border-b border-[var(--border-subtle)]/40',
+                      'block w-full text-left px-4 py-2.5 transition-all border-b border-[var(--border-subtle)]/40',
                       isSelected
                         ? 'bg-[var(--accent-blue)]/10 border-l-2 border-l-[var(--accent-blue)] dark:bg-blue-500/10 dark:border-l-blue-500'
                         : 'hover:bg-[var(--card-bg)]',
@@ -525,7 +589,7 @@ export function DigestView() {
                         暂无日报
                       </p>
                     ) : null}
-                  </button>
+                  </Link>
                 );
               })}
             </div>
@@ -647,7 +711,10 @@ export function DigestView() {
 
               {data?.generatedAt && (
                 <p className="text-[11px] text-[var(--text-muted)] pb-4">
-                  日报生成于 {new Date(data.generatedAt).toLocaleString('zh-CN')}
+                  {/* Explicit timeZone: this now renders on the server too, and
+                      the container's UTC clock would otherwise disagree with the
+                      browser's local time and trip a hydration mismatch. */}
+                  日报生成于 {formatGeneratedAt(data.generatedAt)}
                 </p>
               )}
             </div>
@@ -658,7 +725,7 @@ export function DigestView() {
         <DateNav
           selectedDate={selectedDate}
           today={today}
-          onSelect={(d) => setSelectedDate(d)}
+          onSelect={(d) => router.push(`/digest/${d}`)}
         />
 
         <BackToTopFor getContainer={() => rightColRef.current} />

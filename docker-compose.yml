@@ -7,6 +7,9 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://server:3001
+      # Used by server-side rendering (lib/server-api.ts), which needs an
+      # absolute URL because server components have no origin.
+      - INTERNAL_API_URL=http://server:3001
       - NODE_ENV=production
     depends_on:
       - server

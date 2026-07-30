@@ -3,7 +3,7 @@ import { Fraunces } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { generateOrganizationSchema, generateWebSiteSchema } from "@/lib/structured-data";
+import { generateOrganizationSchema, generateWebSiteSchema, safeJsonLd } from "@/lib/structured-data";
 
 // Self-hosted via next/font: zero layout shift, no render-blocking request.
 const fraunces = Fraunces({
@@ -91,6 +91,21 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * RSS feeds, rendered as literal <link> tags rather than via
+ * `metadata.alternates.types`.
+ *
+ * Metadata objects are merged **shallowly** across segments, so any nested
+ * field is replaced wholesale by the last segment that defines it. Every page
+ * layout here sets `alternates.canonical`, which would drop the feed list
+ * declared at the root. Emitting the tags directly keeps them on every page.
+ */
+const RSS_FEEDS = [
+  { url: `${siteUrl}/api/agent/rss/curated.xml`, title: "AI Hot Radar · 精选资讯" },
+  { url: `${siteUrl}/api/agent/rss/all.xml`, title: "AI Hot Radar · 全部资讯" },
+  { url: `${siteUrl}/api/agent/rss/digest.xml`, title: "AI Hot Radar · AI 日报" },
+];
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -113,14 +128,24 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning className={fraunces.variable}>
       <head>
+        {/* GEO: RSS 是生态支持最广的机器可读格式，便于聚合器与 AI 工具发现数据 */}
+        {RSS_FEEDS.map((feed) => (
+          <link
+            key={feed.url}
+            rel="alternate"
+            type="application/rss+xml"
+            title={feed.title}
+            href={feed.url}
+          />
+        ))}
         {/* GEO: 结构化数据帮助 AI 搜索引擎理解站点身份与功能 */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(orgSchema) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(siteSchema) }}
         />
       </head>
       <body className="min-h-dvh">

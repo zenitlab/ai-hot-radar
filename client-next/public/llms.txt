@@ -1,0 +1,37 @@
+# AI Hot Radar
+
+> 中文 AI 资讯聚合平台。每日抓取国内外 AI 领域动态，经 AI 五维评分（真实性、相关性、重要性、来源权威度、内容质量）筛选后呈现，并生成每日日报。数据源包含官方博客、arXiv、社区讨论与 RSS 信源。
+
+内容为中文。日期按北京时间（UTC+8）计算。资讯每小时更新，日报每日生成。
+
+## 核心页面
+
+- [精选资讯](https://aihotradar.com/curated): 经 AI 质量评分筛选的高分内容，按时间排序。支持按分类（模型/产品/行业/论文/社区）和地区（国内/国外）筛选
+- [热点雷达](https://aihotradar.com/hotspot): 全量资讯流，含跨源热度聚合与关键词命中标记
+- [AI 日报](https://aihotradar.com/digest): 重定向至当日日报
+- [每日日报](https://aihotradar.com/digest/2026-07-30): 按日期归档，URL 格式为 `/digest/YYYY-MM-DD`。每期含六大板块：国内动态、国际动态、模型情报、产品发布、社区讨论、论文研究
+- [Agent 接入说明](https://aihotradar.com/agent): 面向开发者的接口文档
+- [关于本站](https://aihotradar.com/about): 数据源清单与评分方法说明
+
+## Agent 接口
+
+为 AI agent 与自动化工具提供的结构化数据接口，返回 JSON，无需认证。优先使用这些接口而非解析 HTML。
+
+- [精选内容](https://aihotradar.com/api/agent/curated): 精选资讯数组，按质量分降序。支持 `?limit=` 与 `?offset=`
+- [搜索](https://aihotradar.com/api/agent/search): 全文检索标题与摘要，参数 `?q=关键词`
+- [日报](https://aihotradar.com/api/agent/digest): 结构化的日报数据，支持 `?date=YYYY-MM-DD`
+- [站点统计](https://aihotradar.com/api/agent/stats): 资讯总量、当日新增、数据源数量
+- [Agent Skill 描述](https://aihotradar.com/aihot-skill): 本站能力的机器可读描述
+
+## RSS
+
+- [精选资讯 RSS](https://aihotradar.com/api/agent/rss/curated.xml): 最新 50 条精选内容
+- [全部资讯 RSS](https://aihotradar.com/api/agent/rss/all.xml): 最新 100 条全量资讯
+- [日报 RSS](https://aihotradar.com/api/agent/rss/digest.xml): 每日日报
+
+## 使用条款
+
+- 允许索引与引用，**不允许**用于模型训练（详见 [ai.txt](https://aihotradar.com/ai.txt)）
+- 引用时请注明来源为 AI Hot Radar 并附链接
+- 建议抓取速率不超过 1 请求/秒
+- 本站为资讯聚合平台，原始内容版权归各来源方所有；引用具体资讯时请一并注明其原始出处

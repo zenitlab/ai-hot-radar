@@ -34,11 +34,31 @@ import { cn } from "../../lib/utils";
 import type { Hotspot, HotspotTab } from "../../types";
 import type { Keyword } from "../../services/api";
 
-export function HotspotView() {
-  const [hotspots, setHotspots] = useState<Hotspot[]>([]);
+/**
+ * `initialHotspots` / `initialTotal` / `initialTotalPages` are prefetched on
+ * the server by `app/hotspot/page.tsx` so the unfiltered first page is present
+ * in the initial HTML — AI crawlers don't run JS, so anything fetched only in
+ * an effect is invisible to them. All are optional: without them the component
+ * keeps its original fetch-on-mount behaviour.
+ */
+export function HotspotView({
+  initialHotspots = [],
+  initialTotal = 0,
+  initialTotalPages = 1,
+}: {
+  initialHotspots?: Hotspot[];
+  initialTotal?: number;
+  initialTotalPages?: number;
+} = {}) {
+  const [hotspots, setHotspots] = useState<Hotspot[]>(initialHotspots);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
-  const [stats, setStats] = useState<{ total: number } | null>(null);
+  const [stats, setStats] = useState<{ total: number } | null>(
+    initialHotspots.length > 0 ? { total: initialTotal } : null,
+  );
   const [isLoading, setIsLoading] = useState(false);
+  // Guards the load effect from re-requesting data the server already sent.
+  // Only armed when server data exists, so the empty-state path still fetches.
+  const skipInitialLoad = useRef(initialHotspots.length > 0);
   const [isChecking, setIsChecking] = useState(false);
   const [scanProgress, setScanProgress] = useState<string>("");
   const [lastCheckTime, setLastCheckTime] = useState<Date | null>(null);
@@ -46,7 +66,7 @@ export function HotspotView() {
     ...defaultFilterState,
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(initialTotalPages);
   const [activeTab, setActiveTab] = useState<HotspotTab>("all");
   // Bumped on every successful load so the list container re-keys and plays one
   // quick fade+slide — clear "refreshed" feedback on tab/sort switches (even when
@@ -115,7 +135,28 @@ export function HotspotView() {
   }, [filters, currentPage, activeTab, appliedSearch]);
 
   useEffect(() => {
-    // eslint-disable-next-line
+    // First run with server-provided data: it already matches the default
+    // filters, so refetching would duplicate the request. Disarm and let every
+    // subsequent filter/page/tab change load normally.
+    if (skipInitialLoad.current) {
+      skipInitialLoad.current = false;
+      // Keywords aren't part of the server payload, so still fetch those —
+      // they gate the WebSocket subscription for live updates.
+      keywordsApi
+        .getAll()
+        .then((kws) => {
+          const list = kws as unknown as Keyword[];
+          setKeywords(list);
+          const active = list.reduce<string[]>((acc, k) => {
+            if (k.isActive) acc.push(k.text);
+            return acc;
+          }, []);
+          if (active.length > 0) subscribeToKeywords(active);
+        })
+        .catch((err) => console.error('Failed to load keywords:', err));
+      return;
+    }
+
     loadData();
   }, [loadData]);
 

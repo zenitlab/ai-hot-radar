@@ -3,16 +3,7 @@
  * Based on schema.org standards used by Google, Bing, etc.
  */
 
-/**
- * HTML-safe JSON serialization to prevent XSS via </script> or < injection.
- * JSON.stringify does not HTML-escape, so we escape the critical characters.
- */
-function safeJsonLd(data: unknown): string {
-  return JSON.stringify(data)
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/&/g, '\\u0026');
-}
+import { safeJsonLd } from '../../lib/structured-data';
 
 // Static schemas live at module scope so they are never rebuilt on re-render.
 const organizationSchema = {
@@ -65,68 +56,6 @@ export function WebSiteSchema() {
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: safeJsonLd(webSiteSchema) }}
-    />
-  );
-}
-
-function BreadcrumbSchema({ items }: { items: Array<{ name: string; url: string }> }) {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: items.map((item, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: item.name,
-      item: item.url,
-    })),
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }}
-    />
-  );
-}
-
-function ArticleSchema({
-  headline,
-  description,
-  datePublished,
-  dateModified,
-  author = 'AI Hot Radar',
-}: {
-  headline: string;
-  description: string;
-  datePublished: string;
-  dateModified?: string;
-  author?: string;
-}) {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline,
-    description,
-    author: {
-      '@type': 'Organization',
-      name: author,
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'AI Hot Radar',
-      logo: {
-        '@type': 'ImageObject',
-        url: 'https://aihotradar.com/radar.svg',
-      },
-    },
-    datePublished,
-    dateModified: dateModified || datePublished,
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }}
     />
   );
 }

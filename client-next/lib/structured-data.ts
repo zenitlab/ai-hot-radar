@@ -8,6 +8,22 @@ type JsonLd = Record<string, unknown>;
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://aihotradar.com';
 
 /**
+ * HTML-safe JSON serialization for `<script type="application/ld+json">`.
+ *
+ * `JSON.stringify` does not HTML-escape, so a `</script>` sequence inside any
+ * string value would close the tag early and allow injection. Always use this
+ * instead of bare `JSON.stringify` when rendering JSON-LD — it matters as soon
+ * as a schema carries scraped data (article titles, summaries) rather than
+ * hardcoded constants.
+ */
+export function safeJsonLd(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+}
+
+/**
  * 网站主体 Organization Schema
  * 用于根 layout，建立站点身份
  */
@@ -82,7 +98,7 @@ export function generateDigestSchema(date: string, sections: string[]) {
     description: `每日 AI 行业动态精选：${sections.slice(0, 3).join('、')}等 ${sections.length} 个板块`,
     articleSection: sections,
     inLanguage: 'zh-CN',
-    url: `${SITE_URL}/digest?date=${date}`,
+    url: `${SITE_URL}/digest/${date}`,
   };
 }
 

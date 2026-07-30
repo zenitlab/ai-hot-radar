@@ -15,6 +15,20 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-07-30",
+    version: "v0.8.9",
+    tag: "feature",
+    items: [
+      "⚡ 精选、热点雷达、AI 日报改为服务端渲染：内容直接出现在首屏 HTML，AI 爬虫无需执行 JS 即可读取（此前只能拿到导航菜单，实测可见文本 164 → 7700 字符）",
+      "📅 日报按日期独立成页：URL 从 /digest 改为 /digest/2026-07-30，每天一个可被单独索引和引用的地址，配套每日独立的标题、摘要与 Article 结构化数据",
+      "🗺️ sitemap.xml 接入动态数据：自动收录全部历史日报，lastmod 使用真实发布时间",
+      "📄 新增 /llms.txt：面向大模型的站点内容地图，列出核心页面、Agent API 与 RSS 接口",
+      "🤝 robots.txt 补充现役 AI 爬虫：ClaudeBot、Applebot-Extended（Apple Intelligence）、meta-externalagent（Meta AI）、Amazonbot",
+      "📡 RSS 订阅声明加入页面 head：聚合器与 AI 工具可自动发现三个 feed",
+      "🧹 清理无用代码并修复 JSON-LD 转义，消除结构化数据的注入风险",
+    ],
+  },
+  {
     date: "2026-07-27",
     version: "v0.8.8",
     tag: "feature",

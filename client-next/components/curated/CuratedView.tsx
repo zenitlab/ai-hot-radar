@@ -160,16 +160,33 @@ function CuratedCard({ item, index = 0 }: { item: Hotspot; index?: number }) {
 }
 
 
-export function CuratedView() {
+/**
+ * `initialItems` / `initialTotal` are prefetched on the server by
+ * `app/curated/page.tsx` so the default view (today · all · no search) is
+ * present in the initial HTML — AI crawlers don't run JS, so anything fetched
+ * only in an effect is invisible to them. Both are optional: without them the
+ * component falls back to its original client-fetch-on-mount behaviour.
+ */
+export function CuratedView({
+  initialItems = [],
+  initialTotal = 0,
+}: {
+  initialItems?: Hotspot[];
+  initialTotal?: number;
+} = {}) {
   const [period, setPeriod] = useState<Period>('today');
   const [activeTab, setActiveTab] = useState<HotspotTab>('all');
   const [searchInput, setSearchInput] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
-  const [items, setItems] = useState<Hotspot[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<Hotspot[]>(initialItems);
+  const [total, setTotal] = useState(initialTotal);
+  // Server already rendered the list — skip the skeleton on first paint.
+  const [loading, setLoading] = useState(initialItems.length === 0);
   const [overview, setOverview] = useState<{ today: number; curated: number; keywords: number } | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  // Guards the filter effect from re-requesting data the server already sent.
+  // Only armed when server data exists, so the empty-state path still fetches.
+  const skipInitialFetch = useRef(initialItems.length > 0);
 
   // One-time fetch of overview metrics for the top stat strip.
   // "今日新增" = total hotspots created today (from /hotspots/stats)
@@ -193,6 +210,14 @@ export function CuratedView() {
   }, []);
 
   useEffect(() => {
+    // First run with server-provided data: it already matches the default
+    // filters, so refetching would duplicate the request. Disarm and let every
+    // subsequent filter change fetch normally.
+    if (skipInitialFetch.current) {
+      skipInitialFetch.current = false;
+      return;
+    }
+
     setLoading(true);
     const opts: { category?: string; region?: string; search?: string } = {};
     // Tab → category or region filter
