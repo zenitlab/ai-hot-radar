@@ -504,9 +504,11 @@ export function DigestView({
         <div className="flex-1 overflow-y-scroll">
           {groups.map(({ month, dates }) => {
             const datesWithDigest = dates.filter(d => dateMap.has(d)).length;
-            // Past months list only the days that actually have a digest; the
-            // current month keeps the full calendar so today stays reachable.
-            const visibleDates = month === currentMonth ? dates : dates.filter(d => dateMap.has(d));
+            // List only days that actually have a digest, plus today — today is
+            // kept even before its digest exists so it stays reachable as the
+            // entry point for manual generation. Listing the full calendar would
+            // pad the sidebar with dozens of "暂无日报" rows on a fresh install.
+            const visibleDates = dates.filter(d => dateMap.has(d) || d === today);
             // Only months with at least one digest (or the current month) can be
             // expanded — an empty past month has nothing to show.
             const expandable = month === currentMonth || datesWithDigest > 0;
