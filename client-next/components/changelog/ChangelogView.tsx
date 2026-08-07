@@ -20,6 +20,7 @@ const CHANGELOG: ChangelogEntry[] = [
     tag: "fix",
     items: [
       "📆 修复没有日报的日期解析报错：后端对不存在的日报返回 200 + 空响应体，前端直接当 JSON 解析会抛 Unexpected end of JSON input，服务端日志每次访问都刷一屏堆栈。现在先判空再解析，空日报走正常的空状态",
+      "🔌 修复 WebSocket 实时推送失效并导致连接泄漏：socket.io 握手请求被转发到前端，而 Next.js 的 rewrites 不处理 Upgrade 头，握手失败后连接不释放，线上累积了 1.9 万个未关闭的 socket。nginx 配置改为让 /socket.io/ 直连后端，Connection 头按需下发",
     ],
   },
   {
