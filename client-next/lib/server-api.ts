@@ -69,7 +69,13 @@ async function getJson<T>(path: string): Promise<T | null> {
       return null;
     }
 
-    return (await res.json()) as T;
+    // A 200 with an *empty* body is how the backend says "no such record":
+    // Nest serialises a `null` return as zero bytes, not the literal `null`.
+    // `res.json()` throws on empty input, so read text and guard first.
+    const text = await res.text();
+    if (!text.trim()) return null;
+
+    return JSON.parse(text) as T;
   } catch (err) {
     // Covers connection refused (backend down), DNS failure, and timeout.
     console.error(`[server-api] failed to fetch ${path}:`, err);
@@ -138,8 +144,9 @@ export async function fetchHotspotsSSR(limit = 20): Promise<HotspotsResponse> {
 
 /**
  * Fetch one day's digest. Returns `null` when that date has no digest yet —
- * the backend answers 200 with a `null` body rather than a 404, and callers
- * use `null` to render the empty state (or trigger `notFound()`).
+ * the backend answers 200 with an *empty* body rather than a 404 (see the
+ * empty-text guard in `getJson`), and callers use `null` to render the empty
+ * state (or trigger `notFound()`).
  */
 export async function fetchDigestSSR(date: string): Promise<DigestRecord | null> {
   return getJson<DigestRecord>(`/api/digest/${date}`);

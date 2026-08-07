@@ -15,6 +15,14 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-08-07",
+    version: "v0.9.1",
+    tag: "fix",
+    items: [
+      "📆 修复没有日报的日期解析报错：后端对不存在的日报返回 200 + 空响应体，前端直接当 JSON 解析会抛 Unexpected end of JSON input，服务端日志每次访问都刷一屏堆栈。现在先判空再解析，空日报走正常的空状态",
+    ],
+  },
+  {
     date: "2026-07-31",
     version: "v0.9.0",
     tag: "feature",

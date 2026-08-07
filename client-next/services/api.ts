@@ -221,8 +221,13 @@ export const digestApi = {
     if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
     return r.json();
   }),
-  // Returns null when the digest doesn't exist yet for a given date (404 is expected).
-  getByDate: (date: string) => fetch(`/api/digest/${date}`).then(r => r.ok ? r.json() : null),
+  // Returns null when the digest doesn't exist yet for a given date. The backend
+  // answers 200 with an *empty* body (Nest serialises `null` as zero bytes), not
+  // a 404 — so check for empty text before parsing, or `r.json()` throws.
+  getByDate: (date: string) =>
+    fetch(`/api/digest/${date}`)
+      .then(r => (r.ok ? r.text() : ''))
+      .then(text => (text.trim() ? JSON.parse(text) : null)),
   getRecent: () => fetch('/api/digest/recent').then(r => {
     if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
     return r.json();
