@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
+import { createLlmClient } from '../utils/llm-client';
 
 export interface DigestHighlight {
   title: string;
@@ -54,10 +55,7 @@ export class DigestService {
   private readonly model: string;
 
   constructor(private readonly prisma: PrismaService) {
-    this.client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY ?? '',
-      baseURL: process.env.OPENAI_BASE_URL ?? 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-    });
+    this.client = createLlmClient();
     this.model = process.env.MODEL_NAME ?? 'qwen-coder-turbo';
   }
 

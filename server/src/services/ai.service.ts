@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
+import { createLlmClient } from '../utils/llm-client';
 import type { AIAnalysis } from '../types';
 
 @Injectable()
@@ -31,9 +32,7 @@ export class AiService {
   private readonly maxRetries429: number;
 
   constructor() {
-    this.client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY ?? '',
-      baseURL: process.env.OPENAI_BASE_URL ?? 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    this.client = createLlmClient({
       timeout: 60000, // 60s — reasoning models routinely sit on the connection for 15s+
       maxRetries: 0,  // we do our own 429-aware retry below
     });
