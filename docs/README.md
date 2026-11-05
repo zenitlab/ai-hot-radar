@@ -94,6 +94,9 @@ DATABASE_URL="file:./dev.db"
 OPENAI_API_KEY=your_api_key_here
 OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 MODEL_NAME=qwen-coder-turbo
+# 腾讯云开发 CloudBase：LLM_PROVIDER=cloudbase + CLOUDBASE_ENV，无需 OPENAI_BASE_URL
+# LLM_PROVIDER=cloudbase
+# CLOUDBASE_ENV=your_cloudbase_env_id
 
 # Twitter API（可选）
 TWITTER_API_KEY=your_twitter_api_key

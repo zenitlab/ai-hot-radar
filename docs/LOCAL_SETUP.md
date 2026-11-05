@@ -42,6 +42,8 @@ cd ai-hot-radar
 
 任选一家注册并创建 API Key 即可。配置时需要同时填写 `OPENAI_API_KEY`、`OPENAI_BASE_URL`、`MODEL_NAME` 三项（参考 `.env.example` 的注释）。
 
+也可以使用 **腾讯云开发 CloudBase AI**：设置 `LLM_PROVIDER=cloudbase`、`CLOUDBASE_ENV`（环境 ID），`OPENAI_API_KEY` 填云开发 API Key，`MODEL_NAME` 填模型名（如 `hy3`），此时不需要 `OPENAI_BASE_URL`。
+
 ### 🔧 可选：Twitter API Key
 
 配置后可以从 Twitter/X 获取国际热点信息，不配置也不影响其他信息源。
@@ -214,7 +216,7 @@ npx prisma generate
 ### Q3：热点搜索没有结果
 
 **可能原因**：
-1. AI API Key 未填写或额度不足 → 检查 `.env` 中的 `OPENAI_API_KEY` / `OPENAI_BASE_URL`
+1. AI API Key 未填写或额度不足 → 检查 `.env` 中的 `OPENAI_API_KEY` / `OPENAI_BASE_URL`（CloudBase 模式检查 `LLM_PROVIDER` / `CLOUDBASE_ENV`）
 2. 关键词太冷门 → 尝试更热门的关键词，如 "AI"、"ChatGPT"
 3. 网络问题导致搜索引擎爬虫失败 → 检查终端日志中是否有报错信息
 

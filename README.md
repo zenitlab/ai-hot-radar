@@ -31,7 +31,7 @@ AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统每 10 �
 
 - **后端**：NestJS 11 + Express + Prisma + SQLite + Socket.io
 - **前端**：Next.js 15 + React 19 + TailwindCSS + lucide-react
-- **AI**：兼容 OpenAI 协议的任意模型（阿里云百炼 / 硅基流动 / DeepSeek / OpenAI 均可）
+- **AI**：兼容 OpenAI 协议的任意模型（阿里云百炼 / 硅基流动 / DeepSeek / OpenAI 均可），也支持腾讯云开发 CloudBase
 - **数据源**：RSS、Bing/HackerNews 搜索、twitterapi.io、Bilibili 抓取
 
 ## 二、核心功能
@@ -71,7 +71,7 @@ AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统每 10 �
 ### 前置条件
 
 - Node.js ≥ 18（推荐 20 LTS）
-- 一个兼容 OpenAI 协议的 AI API Key（阿里云百炼 / 硅基流动 / DeepSeek 任选其一）
+- 一个 AI API Key：兼容 OpenAI 协议的服务（阿里云百炼 / 硅基流动 / DeepSeek 任选其一），或腾讯云开发 CloudBase
 
 ### 1. 克隆并安装
 
@@ -98,6 +98,15 @@ MODEL_NAME=qwen-coder-turbo
 
 # 可选
 TWITTER_API_KEY=your_twitter_api_key_here
+```
+
+使用腾讯云开发 CloudBase AI（例如只允许 SDK 调用的小程序成长计划）时，改为：
+
+```env
+LLM_PROVIDER=cloudbase
+CLOUDBASE_ENV=your_cloudbase_env_id
+OPENAI_API_KEY=your_cloudbase_api_key
+MODEL_NAME=hy3
 ```
 
 ### 3. 启动（两个终端）

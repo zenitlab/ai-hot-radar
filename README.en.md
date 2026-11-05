@@ -31,7 +31,7 @@ AI Hot Radar is a hotspot tracker built for AI practitioners. Every 10 minutes i
 
 - **Backend**: NestJS 11 + Express + Prisma + SQLite + Socket.io
 - **Frontend**: Next.js 15 (App Router) + React 19 + TailwindCSS + lucide-react
-- **AI**: any OpenAI-compatible model (DashScope / SiliconFlow / DeepSeek / OpenAI)
+- **AI**: any OpenAI-compatible model (DashScope / SiliconFlow / DeepSeek / OpenAI), plus Tencent CloudBase
 - **Sources**: RSS, Bing / HackerNews scraping, twitterapi.io, Bilibili
 
 ## 2. Features
@@ -71,7 +71,7 @@ The system exposes itself in three ways for AI apps, RSS readers, and third-part
 ### Prerequisites
 
 - Node.js ≥ 18 (20 LTS recommended)
-- One OpenAI-compatible API key (DashScope / SiliconFlow / DeepSeek / OpenAI)
+- One AI API key: any OpenAI-compatible provider (DashScope / SiliconFlow / DeepSeek / OpenAI), or Tencent CloudBase
 
 ### Install
 
@@ -98,6 +98,15 @@ MODEL_NAME=qwen-coder-turbo
 
 # optional
 TWITTER_API_KEY=your_twitter_api_key_here
+```
+
+To use Tencent CloudBase AI (e.g. plans that only allow SDK calls), set instead:
+
+```env
+LLM_PROVIDER=cloudbase
+CLOUDBASE_ENV=your_cloudbase_env_id
+OPENAI_API_KEY=your_cloudbase_api_key
+MODEL_NAME=hy3
 ```
 
 ### Run (two terminals)

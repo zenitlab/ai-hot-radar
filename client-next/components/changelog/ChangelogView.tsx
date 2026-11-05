@@ -15,6 +15,14 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-11-05",
+    version: "v0.9.2",
+    tag: "feature",
+    items: [
+      "☁️ 支持腾讯云开发 CloudBase 作为 AI 提供方：部分 CloudBase 套餐（如小程序成长计划）不接受 OpenAI 格式的 HTTP 调用，现在设置 LLM_PROVIDER=cloudbase 即通过官方 SDK 调用，普通与流式输出均可用；不设置时仍走原有的 OpenAI 兼容接口",
+    ],
+  },
+  {
     date: "2026-08-07",
     version: "v0.9.1",
     tag: "fix",

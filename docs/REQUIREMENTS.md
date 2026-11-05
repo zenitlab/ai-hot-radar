@@ -110,6 +110,7 @@
 **模型选择：**
 - 任意兼容 OpenAI 协议的服务（百炼 / 硅基流动 / DeepSeek / OpenAI）
 - 通过 `OPENAI_BASE_URL` + `MODEL_NAME` 环境变量切换
+- 腾讯云开发 CloudBase AI：`LLM_PROVIDER=cloudbase` + `CLOUDBASE_ENV`，经 `@cloudbase/node-sdk` 调用
 
 **Prompt 设计：**
 ```

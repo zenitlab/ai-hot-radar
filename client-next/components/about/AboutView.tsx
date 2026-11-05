@@ -196,7 +196,7 @@ export function AboutView() {
               AI 模型
             </div>
             <div className="text-[var(--text-secondary)]">
-              兼容 OpenAI 协议（百炼 / 硅基流动 / DeepSeek / OpenAI）
+              兼容 OpenAI 协议（百炼 / 硅基流动 / DeepSeek / OpenAI），支持腾讯云开发 CloudBase
             </div>
           </div>
           <div>
