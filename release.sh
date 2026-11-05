@@ -48,8 +48,20 @@ command -v docker >/dev/null || die "未找到 docker"
 docker buildx version >/dev/null 2>&1 || die "未启用 docker buildx (Docker Desktop 默认带)"
 
 # 确认已登录 Docker Hub
-if ! docker info 2>/dev/null | grep -q "Username:"; then
-  warn "你似乎还没 docker login. 现在跑一次?"
+# 新版 docker info 不再显示 Username, 改为直接查凭据
+# (credsStore 走凭据助手, 否则看 config.json 的 auths).
+hub_logged_in() {
+  local cfg="${DOCKER_CONFIG:-$HOME/.docker}/config.json" store
+  [ -f "$cfg" ] || return 1
+  store=$(sed -n 's/.*"credsStore"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$cfg")
+  if [ -n "$store" ] && command -v "docker-credential-$store" >/dev/null; then
+    echo "https://index.docker.io/v1/" | "docker-credential-$store" get >/dev/null 2>&1
+  else
+    grep -q 'index.docker.io' "$cfg"
+  fi
+}
+if ! hub_logged_in; then
+  warn "还没 docker login. 现在跑一次?"
   read -r -p "回车继续登录, Ctrl-C 取消: " _ && docker login
 fi
 
@@ -69,13 +81,17 @@ fi
 
 build_push() {
   local svc=$1 dir=$2 image=$3
-  say "构建并推送 $svc → $image"
+  say "构建 $svc → $image"
+  # 先 --load 到本地, 再由 docker push 推送: buildx --push 由 buildkit
+  # 直连 auth.docker.io 鉴权, 不走 Docker Desktop 的代理设置, 网络受限时会超时.
   docker buildx build \
     --platform "$PLATFORM" \
     $NO_CACHE_FLAG \
     -t "$image" \
-    --push \
+    --load \
     "./$dir"
+  say "推送 $svc"
+  docker push "$image"
   ok "$svc 推送完成"
 }
 
