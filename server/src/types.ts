@@ -51,6 +51,7 @@ export interface AIAnalysis {
   importance: 'low' | 'medium' | 'high' | 'urgent';
   summary: string; // 与关键词的关联说明（不是单纯的内容介绍）
   eventKey?: string; // 语义事件指纹: 同一事件不同标题/语言归一为相同 slug, 用于聚类
+  aiFailed?: boolean; // true = AI 调用失败或未配置, 结果为默认分数, 不可当作真实判定缓存
 }
 
 export interface HotspotWithKeyword {

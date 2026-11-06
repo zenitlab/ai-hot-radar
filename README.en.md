@@ -25,7 +25,7 @@
 
 ## 1. Overview
 
-AI Hot Radar is a hotspot tracker built for AI practitioners. Every 10 minutes it pulls from 20+ sources — Twitter / X, Bing, HackerNews, IT Home, Xueqiu, Bilibili, Google DeepMind Blog and more — then runs a two-stage AI scoring pipeline (short pre-filter prompt + full 5-dim scoring) to drop noise and surface only what's worth reading.
+AI Hot Radar is a hotspot tracker built for AI practitioners. Every 30 minutes by day (hourly at night) it pulls from 20+ sources — Twitter / X, Bing, HackerNews, IT Home, Xueqiu, Bilibili, Google DeepMind Blog and more — then runs a two-stage AI scoring pipeline (short pre-filter prompt + full 5-dim scoring) to drop noise and surface only what's worth reading.
 
 **Stack**
 

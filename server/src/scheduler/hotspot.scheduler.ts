@@ -16,10 +16,14 @@ import type { SearchResult } from '../types';
 import { getAuthorityScore, resolveClusterKey, planClusterMains, type ClusterClaim } from '../utils/authority';
 import { tokenizeTitle, eventKeyToClusterKey } from '../utils/title-cluster';
 import { needsKeywordPrefilter, titleLooksAiRelated, looksLikeNonNewsPage } from '../utils/keyword-prefilter';
+import { ScoredCache } from '../utils/scored-cache';
+import type { ScoringResult } from '../services/scoring.service';
 
 const MAX_AGE_HOURS = 2 * 24;
 const TWITTER_QUOTA = 15;
 const OTHER_QUOTA = 10;
+/** How long a scored-but-rejected URL is skipped. Matches MAX_AGE_HOURS: older items are dropped by freshness anyway. */
+const REJECTED_TTL_MS = MAX_AGE_HOURS * 3600 * 1000;
 
 /** Result of the concurrent analyze segment for one keyword search item. */
 type AnalyzedKeywordItem = {
@@ -68,6 +72,10 @@ export class HotspotScheduler implements OnApplicationBootstrap {
   private lastScanStartedAt: Date | null = null;
   private lastScanFinishedAt: Date | null = null;
   private lastScanError: string | null = null;
+  /** URLs already scored and rejected, so search sources don't re-score them every round. */
+  private readonly scoredCache = new ScoredCache(REJECTED_TTL_MS);
+  /** Per-round memo: several keywords often surface the same URL; score it once. */
+  private roundScoring = new Map<string, Promise<ScoringResult>>();
 
   constructor(
     private readonly gateway: HotspotGateway,
@@ -111,8 +119,8 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     }, 3000);
   }
 
-  /** Daytime cadence: every 10 minutes from 08:00-23:59 (Asia/Shanghai). */
-  @Cron('0 */10 8-23 * * *', { timeZone: 'Asia/Shanghai' })
+  /** Daytime cadence: every 30 minutes from 08:00-23:59 (Asia/Shanghai). Was 10 min; 30 cuts AI calls ~3x. */
+  @Cron('0 */30 8-23 * * *', { timeZone: 'Asia/Shanghai' })
   async runDaytimeScan(): Promise<void> {
     await this.runHotspotCheck();
   }
@@ -137,6 +145,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     this.logger.log('🔍 Starting hotspot check...');
     const roundStart = Date.now();
     this.aiService.resetStats();
+    this.roundScoring.clear();
 
     try {
       // RSS + default search sources + X accounts + Reddit all run in parallel
@@ -211,6 +220,18 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     this.logger.log(`🧹 Cleanup: removed ${delHotspot.count} hotspots and ${delNotif.count} notifications older than 30d`);
   }
 
+  /** Cache items that scoring dropped (same gate as the persist step). AI failures are not cached. */
+  private rememberRejections(keys: string[], scorings: ScoringResult[]): void {
+    for (let j = 0; j < keys.length; j++) {
+      const sc = scorings[j];
+      if (!sc.aiFailed && !sc.isCurated && sc.qualityScore < 60) this.scoredCache.markRejected(keys[j]);
+    }
+  }
+
+  private keywordCacheKey(keyword: { id: string }, item: SearchResult): string {
+    return `kw:${keyword.id}|${item.url}|${item.source}`;
+  }
+
   private logRoundStats(roundStart: number): void {
     const stats = this.aiService.getStats();
     const elapsedSec = ((Date.now() - roundStart) / 1000).toFixed(1);
@@ -221,7 +242,8 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     this.logger.log(
       `📊 AI usage this round: ${stats.calls} calls (${stats.errors} errors), ` +
       `${stats.totalTokens} tokens (prompt=${stats.promptTokens}, completion=${stats.completionTokens}), ` +
-      `avg ${avgLatency}ms/call, total ${elapsedSec}s | ${byKindStr}`,
+      `avg ${avgLatency}ms/call, total ${elapsedSec}s | ${byKindStr} | ` +
+      `skipped ${this.scoredCache.takeHits()} previously rejected (cache ${this.scoredCache.size})`,
     );
   }
 
@@ -258,8 +280,9 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         select: { url: true, source: true },
       })).map(h => `${h.url}|${h.source}`)
     );
-    const newItems = all.filter(item => !existingPairs.has(`${item.url}|${item.source}`));
-    this.logger.log(`🌐 ${newItems.length} new items to score (${all.length - newItems.length} exist)`);
+    const newItems = all.filter(item =>
+      !existingPairs.has(`${item.url}|${item.source}`) && !this.scoredCache.isRejected(`${item.url}|${item.source}`));
+    this.logger.log(`🌐 ${newItems.length} new items to score (${all.length - newItems.length} exist or rejected before)`);
 
     let created = 0;
     const CONCURRENCY = 15;
@@ -297,6 +320,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           item.title, item.content, tiers[idx], hints[idx], item.publishedAt,
         )),
       );
+      this.rememberRejections(slice.map(item => `${item.url}|${item.source}`), scorings);
 
       // 方案2: remap each item to an existing similar cluster (token Jaccard) before planning.
       const clusterTokens = slice.map(item => tokenizeTitle(item.title));
@@ -435,7 +459,10 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         select: { url: true, source: true },
       })).map(h => `${h.url}|${h.source}`),
     );
-    const newItems = fresh.filter((_, idx) => !existingPairs.has(`${fresh[idx].tweet.url}|${sources[idx]}`));
+    const newItems = fresh.filter((_, idx) => {
+      const key = `${fresh[idx].tweet.url}|${sources[idx]}`;
+      return !existingPairs.has(key) && !this.scoredCache.isRejected(key);
+    });
     this.logger.log(`🐦 ${newItems.length} new tweets to score (${fresh.length - newItems.length} already exist)`);
 
     if (newItems.length === 0) return;
@@ -469,6 +496,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           it.tweet.title, it.tweet.content, it.account.tier, it.account.defaultCategory, it.tweet.publishedAt,
         )),
       );
+      this.rememberRejections(slice.map((it, idx) => `${it.tweet.url}|${sliceSources[idx]}`), scorings);
 
       // 方案2: remap each tweet to an existing similar cluster (token Jaccard) before planning.
       const clusterTokens = slice.map(it => tokenizeTitle(it.tweet.title));
@@ -591,7 +619,9 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           select: { url: true, source: true },
         })).map(h => `${h.url}|${h.source}`),
       );
-      const fresh = sortedResults.filter(item => !existingPairs.has(`${item.url}|${item.source}`));
+      const fresh = sortedResults.filter(item =>
+        !existingPairs.has(`${item.url}|${item.source}`)
+        && !this.scoredCache.isRejected(this.keywordCacheKey(keyword, item)));
 
       // Preload existing cluster mains with their authority scores so a more authoritative
       // new item can demote an old main (e.g. OpenAI Blog beats earlier V2EX repost).
@@ -730,13 +760,25 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     const preMatch = this.aiService.preMatchKeyword(fullText, expandedKeywords);
     const analysis = await this.aiService.analyzeContent(fullText, keyword.text, preMatch);
 
-    if (!analysis.isReal || analysis.relevance < 50) return null;
-    if (!analysis.keywordMentioned && analysis.relevance < 65) return null;
+    const failsGate = !analysis.isReal || analysis.relevance < 50
+      || (!analysis.keywordMentioned && analysis.relevance < 65);
+    if (failsGate) {
+      // Relevance is keyword-specific, so the cache key includes the keyword.
+      if (!analysis.aiFailed) this.scoredCache.markRejected(this.keywordCacheKey(keyword, item));
+      return null;
+    }
 
     const tier: SourceTier =
       item.source === 'twitter' && item.author?.verified && (item.author?.followers || 0) > 10000
         ? 'T1.5' : 'T2';
-    const scoring = await this.scoringService.score(item.title, item.content, tier, undefined, item.publishedAt);
+    // Scoring is keyword-independent: share one call across keywords that found the same URL this round.
+    const memoKey = `${item.url}|${item.source}|${tier}`;
+    let scoringP = this.roundScoring.get(memoKey);
+    if (!scoringP) {
+      scoringP = this.scoringService.score(item.title, item.content, tier, undefined, item.publishedAt);
+      this.roundScoring.set(memoKey, scoringP);
+    }
+    const scoring = await scoringP;
 
     // L1: prefer the model's semantic event fingerprint; fall back to token-md5
     // (computeClusterKey via scoring.clusterKey) when the model gave nothing usable.
@@ -878,6 +920,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     const newItems = validItems.filter(item => {
       const source = `rss_${item.feedConfig.category}`;
       if (existingUrls.has(`${item.url}|${source}`)) return false;
+      if (this.scoredCache.isRejected(`${item.url}|${source}`)) return false;
       // Weed out portal / login pages that RSS scrapers sometimes pick up
       // (e.g. partnerhub.anthropic.com/signin from Google News site:anthropic.com).
       if (looksLikeNonNewsPage(item.url, item.title)) return false;
@@ -916,6 +959,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           item.title, item.content, item.feedConfig.tier, item.feedConfig.defaultCategory, item.publishedAt,
         )),
       );
+      this.rememberRejections(batch.map(item => `${item.url}|rss_${item.feedConfig.category}`), scorings);
 
       // 方案2: remap each item to an existing similar cluster (token Jaccard) before planning.
       const clusterTokens = batch.map(item => tokenizeTitle(item.title));
@@ -1040,7 +1084,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     );
 
     const newPosts = freshPosts.filter((p, idx) =>
-      !existingPairs.has(`${p.url}|${sources[idx]}`)
+      !existingPairs.has(`${p.url}|${sources[idx]}`) && !this.scoredCache.isRejected(`${p.url}|${sources[idx]}`)
     );
     this.logger.log(`🟠 ${newPosts.length} new Reddit posts to score (${freshPosts.length - newPosts.length} already exist)`);
 
@@ -1086,6 +1130,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           p.publishedAt,
         )),
       );
+      this.rememberRejections(batch.map((p, idx) => `${p.url}|${batchSources[idx]}`), scorings);
 
       // Cluster key resolution
       const clusterTokens = batch.map(p => tokenizeTitle(p.title));

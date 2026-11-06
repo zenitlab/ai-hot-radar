@@ -331,6 +331,7 @@ ${matchHint}
         keywordMentioned: matchResult.matched,
         importance: 'low',
         summary: content.slice(0, 50) + '...',
+        aiFailed: true,
       };
     }
 
@@ -402,6 +403,7 @@ ${matchHint}
         keywordMentioned: matchResult.matched,
         importance: 'low',
         summary: content.slice(0, 50) + '...',
+        aiFailed: true,
       };
     }
   }

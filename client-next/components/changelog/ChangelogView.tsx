@@ -15,6 +15,15 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-11-06",
+    version: "v0.9.3",
+    tag: "tweak",
+    items: [
+      "💰 大幅降低 AI 调用量：已评分但未入选的内容会被记住 48 小时，不再每轮重复送去打分；同一轮里多个关注词搜到同一条内容时只评分一次",
+      "⏰ 白天扫描频率从每 10 分钟调整为每 30 分钟，夜间仍为每小时一次",
+    ],
+  },
+  {
     date: "2026-11-05",
     version: "v0.9.2",
     tag: "feature",

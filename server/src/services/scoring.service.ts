@@ -22,6 +22,7 @@ export interface FiveDimScore {
   importance: 'low' | 'medium' | 'high' | 'urgent';
   summary: string;
   tags: string[];
+  aiFailed?: boolean; // true = scoring call failed, scores are placeholders
 }
 
 export interface ScoringResult extends FiveDimScore {
@@ -187,7 +188,7 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
     } catch {
       return {
         relevToAi: 5, novelty: 5, audience: 5, quality: 5,
-        importance: 'low', summary: '', tags: [],
+        importance: 'low', summary: '', tags: [], aiFailed: true,
       };
     }
   }

@@ -49,7 +49,7 @@ RSS-Feed: ${siteUrl}/api/agent/rss/curated.xml
 Skill-Package: ${siteUrl}/aihot-skill
 
 # Data Freshness
-Update-Frequency: every 10 minutes (hotspot), daily at 08:00 Beijing (digest)
+Update-Frequency: every 30 minutes (hotspot), daily at 08:00 Beijing (digest)
 Historical-Data: 30 days retention
 
 # Citation Preference

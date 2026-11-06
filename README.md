@@ -25,7 +25,7 @@
 
 ## 一、项目简介
 
-AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统每 10 分钟从 Twitter / X、Bing、HackerNews、IT之家、雪球、Bilibili、Google DeepMind Blog 等 20+ 信息源抓取最新资讯，通过两阶段 AI 评分（短 prompt 预筛 + 5 维评分）筛掉噪音，把真正值得看的内容沉淀到「精选」「AI 日报」「我的关注」三个视图中。
+AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统白天每 30 分钟、夜间每小时从 Twitter / X、Bing、HackerNews、IT之家、雪球、Bilibili、Google DeepMind Blog 等 20+ 信息源抓取最新资讯，通过两阶段 AI 评分（短 prompt 预筛 + 5 维评分）筛掉噪音，把真正值得看的内容沉淀到「精选」「AI 日报」「我的关注」三个视图中。
 
 技术栈：
 
