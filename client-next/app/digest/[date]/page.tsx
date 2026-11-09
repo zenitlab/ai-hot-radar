@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { ogImages, twitterImages } from '@/lib/og-meta';
 import { notFound } from 'next/navigation';
 
 import { DigestView } from '@/components/digest/DigestView';
@@ -50,8 +51,8 @@ export async function generateMetadata({
   return {
     title,
     description,
-    openGraph: { title: `${title} | AI Hot Radar`, description, type: 'article' },
-    twitter: { title: `${title} | AI Hot Radar`, description },
+    openGraph: { ...ogImages, title: `${title} | AI Hot Radar`, description, type: 'article' },
+    twitter: { ...twitterImages, title: `${title} | AI Hot Radar`, description },
     alternates: { canonical: `/digest/${date}` },
   };
 }

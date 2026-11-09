@@ -57,20 +57,13 @@ export const metadata: Metadata = {
     siteName: "AI Hot Radar",
     title: "AI Hot Radar · AI 热点雷达",
     description: "实时聚合 20+ AI 信息源，AI 评分精选，自动生成每日日报",
-    images: [
-      {
-        url: `${siteUrl}/og-image.png`,
-        width: 1200,
-        height: 630,
-        alt: "AI Hot Radar - AI 热点雷达",
-      },
-    ],
+    // Share image comes from app/opengraph-image.tsx (file-based, inherited by
+    // every route); the old public/og-image.png was a 1×1 placeholder.
   },
   twitter: {
     card: "summary_large_image",
     title: "AI Hot Radar · AI 热点雷达",
     description: "实时聚合 20+ AI 信息源，AI 评分精选，自动生成每日日报",
-    images: [`${siteUrl}/og-image.png`],
     creator: "@aihotradar",
   },
   robots: {
