@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ScoringService, TYPE_WEIGHTS, type FiveDimScore } from '../services/scoring.service.js';
+import { CURATED_THRESHOLD } from '../rss-feeds/feeds.config.js';
 
 const svc = new ScoringService({} as never);
 const dims = (over: Partial<FiveDimScore>): FiveDimScore => ({
@@ -32,9 +33,9 @@ describe('computeQualityScore', () => {
     expect(tool).toBeGreaterThan(event);
   });
 
-  it('applies the tier multiplier and caps at 100', () => {
+  it('does not inflate scores by source tier (tier only picks the threshold)', () => {
     const d = dims({ relevToAi: 8, novelty: 8, audience: 8, quality: 8, actionable: 8 });
-    expect(svc.computeQualityScore(d, 'T1')).toBe(100); // 80 * 1.3 → capped
+    expect(svc.computeQualityScore(d, 'T1')).toBe(80);
     expect(svc.computeQualityScore(d, 'T2')).toBe(80);
   });
 });
@@ -44,5 +45,12 @@ describe('typeFromCategory', () => {
     expect(svc.typeFromCategory('research')).toBe('research_paper');
     expect(svc.typeFromCategory('tips')).toBe('tool_or_tip');
     expect(svc.typeFromCategory('unknown')).toBe('industry_event');
+  });
+});
+
+describe('CURATED_THRESHOLD', () => {
+  it('trusts official sources more by lowering their bar, not raising their score', () => {
+    expect(CURATED_THRESHOLD.T1).toBeLessThan(CURATED_THRESHOLD['T1.5']);
+    expect(CURATED_THRESHOLD['T1.5']).toBeLessThan(CURATED_THRESHOLD.T2);
   });
 });

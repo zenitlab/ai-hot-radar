@@ -3,7 +3,6 @@ import { AiService } from './ai.service';
 import { computeClusterKey } from '../utils/title-cluster';
 import {
   SourceTier,
-  TIER_MULTIPLIER,
   CURATED_THRESHOLD,
   SEARCH_SOURCE_TIER,
 } from '../rss-feeds/feeds.config';
@@ -236,7 +235,7 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
   }
 
   /** Step 3: Code-computed final quality score */
-  computeQualityScore(dims: FiveDimScore, tier: SourceTier): number {
+  computeQualityScore(dims: FiveDimScore, _tier: SourceTier): number {
     const w = TYPE_WEIGHTS[dims.contentType] ?? TYPE_WEIGHTS.industry_event;
     const raw =
       dims.relevToAi * w[0] +
@@ -244,8 +243,9 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
       dims.audience * w[2] +
       dims.quality * w[3] +
       dims.actionable * w[4];
-    // raw max = 100 (weights sum to 10, dims max 10), apply tier multiplier
-    return Math.min(100, Math.round((raw / 100) * TIER_MULTIPLIER[tier] * 100));
+    // raw max = 100 (weights sum to 10, dims max 10). Tier only picks the
+    // curation threshold (CURATED_THRESHOLD); it no longer inflates the score.
+    return Math.min(100, Math.round(raw));
   }
 
   /** Fallback content type when the model gave none, from the pre-filter category. */

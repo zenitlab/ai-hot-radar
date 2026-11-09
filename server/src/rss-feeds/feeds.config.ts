@@ -13,17 +13,19 @@ export interface RssFeedConfig {
   defaultCategory?: ContentCategory;
 }
 
-/** Source tier multipliers for quality score calculation */
-export const TIER_MULTIPLIER: Record<SourceTier, number> = {
-  T1: 1.3,
-  'T1.5': 1.1,
-  T2: 1.0,
-};
-
-/** Minimum quality score to be curated, by tier */
+/**
+ * Minimum quality score to be curated, by tier.
+ *
+ * Tier does NOT change the score itself (borrowed from AIHOT's selection.ts):
+ * a ×1.3 multiplier used to push almost every official-blog post to ~100, so a
+ * PR piece from a vendor blog outranked a genuinely important story. Now the
+ * score reflects the content only, and trusted sources get a lower bar instead.
+ * Values are the old thresholds divided by the old multipliers (58/1.3, 63/1.1),
+ * so roughly the same items get curated as before.
+ */
 export const CURATED_THRESHOLD: Record<SourceTier, number> = {
-  T1: 58,
-  'T1.5': 63,
+  T1: 45,
+  'T1.5': 57,
   T2: 68,
 };
 
