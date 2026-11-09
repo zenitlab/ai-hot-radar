@@ -33,7 +33,7 @@ import { PageLoader } from "../common/Loader";
 import { EmptyState } from "../common/EmptyState";
 import { cn } from "../../lib/utils";
 import type { Hotspot, HotspotTab } from "../../types";
-import type { Keyword } from "../../services/api";
+import type { Keyword, TrendingEvent } from "../../services/api";
 
 /**
  * `initialHotspots` / `initialTotal` / `initialTotalPages` are prefetched on
@@ -46,10 +46,12 @@ export function HotspotView({
   initialHotspots = [],
   initialTotal = 0,
   initialTotalPages = 1,
+  initialTrending,
 }: {
   initialHotspots?: Hotspot[];
   initialTotal?: number;
   initialTotalPages?: number;
+  initialTrending?: TrendingEvent[];
 } = {}) {
   const [hotspots, setHotspots] = useState<Hotspot[]>(initialHotspots);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
@@ -305,7 +307,7 @@ export function HotspotView({
         </p>
       )}
 
-      <TrendingStrip />
+      <TrendingStrip initialEvents={initialTrending} />
 
       {/* Tabs + Search row — stacked on mobile, side-by-side on lg+ */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 mb-4">

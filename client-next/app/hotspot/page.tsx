@@ -1,5 +1,5 @@
 import { HotspotView } from '@/components/hotspot/HotspotView';
-import { fetchHotspotsSSR } from '@/lib/server-api';
+import { fetchHotspotsSSR, fetchTrendingSSR } from '@/lib/server-api';
 import { generateHotspotListSchema, safeJsonLd } from '@/lib/structured-data';
 
 /**
@@ -14,7 +14,10 @@ import { generateHotspotListSchema, safeJsonLd } from '@/lib/structured-data';
 export const dynamic = 'force-dynamic';
 
 export default async function HotspotPage() {
-  const { data, pagination } = await fetchHotspotsSSR(20);
+  const [{ data, pagination }, trending] = await Promise.all([
+    fetchHotspotsSSR(20),
+    fetchTrendingSSR(5),
+  ]);
 
   // ItemList tells AI engines this page is an aggregated feed rather than one
   // article, so individual entries can be attributed to their own source.
@@ -46,6 +49,7 @@ export default async function HotspotPage() {
         initialHotspots={data}
         initialTotal={pagination.total}
         initialTotalPages={pagination.totalPages}
+        initialTrending={trending}
       />
     </>
   );

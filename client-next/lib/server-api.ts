@@ -13,6 +13,7 @@
  */
 
 import type { DigestData, Hotspot } from '../types';
+import type { TrendingEvent } from '../services/api';
 
 const API_ORIGIN =
   process.env.INTERNAL_API_URL ||
@@ -162,4 +163,13 @@ export async function fetchDigestSSR(date: string): Promise<DigestRecord | null>
 export async function fetchRecentDigestsSSR(): Promise<DigestSummary[]> {
   const data = await getJson<DigestSummary[]>('/api/digest/recent');
   return Array.isArray(data) ? data : [];
+}
+
+/**
+ * Fetch the "多源热议" events for the initial HTML, so crawlers see which
+ * stories several sources are covering. Empty on any failure.
+ */
+export async function fetchTrendingSSR(limit = 5): Promise<TrendingEvent[]> {
+  const data = await getJson<{ data: TrendingEvent[] }>(`/api/hotspots/trending?limit=${limit}`);
+  return Array.isArray(data?.data) ? data.data : [];
 }

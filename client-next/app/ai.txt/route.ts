@@ -20,7 +20,7 @@ export async function GET() {
 # About
 Site-Name: AI Hot Radar
 Site-URL: ${siteUrl}
-Description: 实时聚合 20+ AI 信息源（Twitter、HackerNews、arXiv、官方博客等），通过 AI 双阶段评分筛选高质量资讯，每日自动生成 AI 行业日报。
+Description: 实时聚合 20+ AI 信息源（Twitter、HackerNews、arXiv、官方博客等），通过 AI 双阶段评分筛选高质量资讯，按跨来源热度排出多家同时报道的事件，每日自动生成 AI 行业日报。
 Language: zh-CN
 Purpose: news-aggregation, ai-content-curation
 Topics: artificial-intelligence, machine-learning, llm, openai, anthropic, ai-news
@@ -46,6 +46,7 @@ Last-Updated: 2026-07-27
 API-Endpoint: ${siteUrl}/api/agent
 API-Docs: ${siteUrl}/agent
 RSS-Feed: ${siteUrl}/api/agent/rss/curated.xml
+Trending-Endpoint: ${siteUrl}/api/hotspots/trending
 Skill-Package: ${siteUrl}/aihot-skill
 
 # Data Freshness

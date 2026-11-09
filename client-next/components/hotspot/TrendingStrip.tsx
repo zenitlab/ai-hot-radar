@@ -8,18 +8,29 @@ import { getSourceLabel } from "../../lib/sourceMeta";
  * "多源热议" strip: events reported by 2+ independent sources in the last 48h,
  * ranked by cross-source heat (server: utils/event-heat.ts). Renders nothing
  * until there is at least one corroborated event, so it never shows an empty box.
+ *
+ * `initialEvents` is prefetched by app/hotspot/page.tsx so the list is in the
+ * first HTML (crawlers don't run JS). When it's provided, even as an empty
+ * array, the client doesn't refetch on mount.
  */
-export function TrendingStrip({ limit = 5 }: { limit?: number }) {
-  const [events, setEvents] = useState<TrendingEvent[]>([]);
+export function TrendingStrip({
+  limit = 5,
+  initialEvents,
+}: {
+  limit?: number;
+  initialEvents?: TrendingEvent[];
+}) {
+  const [events, setEvents] = useState<TrendingEvent[]>(initialEvents ?? []);
 
   useEffect(() => {
+    if (initialEvents) return;
     let cancelled = false;
     hotspotsApi
       .getTrending(limit)
       .then((r) => { if (!cancelled) setEvents(r.data); })
       .catch(() => { /* optional section: hide on error */ });
     return () => { cancelled = true; };
-  }, [limit]);
+  }, [limit, initialEvents]);
 
   if (events.length === 0) return null;
 

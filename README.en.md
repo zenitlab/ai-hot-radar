@@ -41,11 +41,12 @@ AI Hot Radar is a hotspot tracker built for AI practitioners. Every 30 minutes b
 - 8+ ingestion sources, with keyword pre-filter to drop non-AI items from general feeds (IT Home, 36Kr, etc.)
 - Two-stage AI scoring: cheap model pre-filter, full scorer for survivors — saves on AI cost
 - Cross-source dedup with authority weighting (OpenAI Blog beats a V2EX repost)
+- "Trending across sources": events covered by 2+ independent sources in the last 48h, ranked by cross-source heat (each source decays with a 24h half-life), tagged new / rising
 - Sorted by actual publish time, automatic 30-day cleanup at 03:30 daily
 
 ### 2.2 Curated
 
-A high-quality stream filtered by 5-axis AI scoring + source-tier bonus + threshold cut, ranked by importance.
+A high-quality stream filtered by 5-axis AI scoring (weights vary by content type; routine updates, promos and teasers are capped) + source-tier bonus + threshold cut, ranked by importance.
 
 ### 2.3 Daily Digest
 

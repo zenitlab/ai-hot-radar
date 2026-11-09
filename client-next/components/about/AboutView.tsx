@@ -24,14 +24,14 @@ const FEATURES = [
   {
     icon: Radio,
     title: "热点雷达",
-    desc: "20+ 信息源持续抓取，AI 双阶段评分识别真伪与重要度，同事件多源去重。",
+    desc: "20+ 信息源持续抓取，AI 双阶段评分识别真伪与重要度，同事件多源去重；「多源热议」按跨来源热度排出多家同时报道的事件。",
     accent:
       "text-[var(--accent-blue)] bg-[var(--accent-blue)]/10 dark:text-blue-400 dark:bg-blue-500/10",
   },
   {
     icon: Sparkles,
     title: "精选 + AI 日报",
-    desc: "经五维评分 + tier 加成筛出的高质量资讯流；每天早上 8:00 自动生成日报，六大板块覆盖。",
+    desc: "按内容类型加权的五维评分 + tier 加成筛出的高质量资讯流；每天早上 8:00 自动生成日报，一事一条、一周内不重复。",
     accent: "text-amber-600 bg-amber-500/10 dark:text-amber-400",
   },
   {

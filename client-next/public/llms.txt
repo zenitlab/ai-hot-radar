@@ -7,7 +7,7 @@
 ## 核心页面
 
 - [精选资讯](https://aihotradar.com/curated): 经 AI 质量评分筛选的高分内容，按时间排序。支持按分类（模型/产品/行业/论文/社区）和地区（国内/国外）筛选
-- [热点雷达](https://aihotradar.com/hotspot): 全量资讯流，含跨源热度聚合与关键词命中标记
+- [热点雷达](https://aihotradar.com/hotspot): 全量资讯流，含跨源热度聚合与关键词命中标记；顶部「多源热议」列出 48 小时内被 2 家以上独立来源报道的事件
 - [AI 日报](https://aihotradar.com/digest): 重定向至当日日报
 - [每日日报](https://aihotradar.com/digest/2026-07-30): 按日期归档，URL 格式为 `/digest/YYYY-MM-DD`。每期含六大板块：国内动态、国际动态、模型情报、产品发布、社区讨论、论文研究
 - [Agent 接入说明](https://aihotradar.com/agent): 面向开发者的接口文档
@@ -18,6 +18,7 @@
 为 AI agent 与自动化工具提供的结构化数据接口，返回 JSON，无需认证。优先使用这些接口而非解析 HTML。
 
 - [精选内容](https://aihotradar.com/api/agent/curated): 精选资讯数组，按质量分降序。支持 `?limit=` 与 `?offset=`
+- [多源热议](https://aihotradar.com/api/hotspots/trending): 跨源热度排序的事件数组，每项含 `heat`、`trend`（new/rising）、`sources`。支持 `?limit=`（最大 50）
 - [搜索](https://aihotradar.com/api/agent/search): 全文检索标题与摘要，参数 `?q=关键词`
 - [日报](https://aihotradar.com/api/agent/digest): 结构化的日报数据，支持 `?date=YYYY-MM-DD`
 - [站点统计](https://aihotradar.com/api/agent/stats): 资讯总量、当日新增、数据源数量
