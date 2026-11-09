@@ -10,7 +10,12 @@ export class HotspotsController {
     return this.hotspotsService.findAll(query);
   }
 
-  // /stats 必须在 /:id 之前声明
+  // /trending 和 /stats 必须在 /:id 之前声明
+  @Get('trending')
+  getTrending(@Query('limit') limit?: string) {
+    return this.hotspotsService.getTrending(limit);
+  }
+
   @Get('stats')
   getStats() {
     return this.hotspotsService.getStats();

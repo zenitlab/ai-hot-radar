@@ -3,6 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import type OpenAI from 'openai';
 import { createLlmClient } from '../utils/llm-client';
+import { composeDigestItems, REPEAT_WINDOW_DAYS } from '../utils/digest-compose';
 
 export interface DigestHighlight {
   title: string;
@@ -114,6 +115,8 @@ export class DigestService {
       });
     }
 
+    items = await this.composeItems(items, date);
+
     let data: DigestData;
     if (items.length === 0) {
       data = this.emptyDigest(date, 0);
@@ -144,6 +147,59 @@ export class DigestService {
    *  Pinning the timezone explicitly so this works regardless of the server's
    *  local TZ (Docker images often default to UTC, dev machines vary). */
   @Cron('0 5 8 * * *', { timeZone: 'Asia/Shanghai' })
+  /**
+   * Rule-based pre-selection (utils/digest-compose.ts): one item per event, no
+   * repeats of events covered in the last week unless they grew to 4+ sources,
+   * at most 2 per source. Returns main items first, then briefs.
+   */
+  private async composeItems(items: any[], date: string): Promise<any[]> {
+    if (items.length === 0) return items;
+
+    // Recent digests store URLs, not cluster keys: map their URLs back via hotspots.
+    const recent = await this.prisma.dailyDigest.findMany({
+      where: { date: { lt: date, gte: this.shiftDate(date, -REPEAT_WINDOW_DAYS) } },
+      select: { data: true },
+    });
+    const recentUrls = new Set<string>();
+    for (const d of recent) {
+      try {
+        const dd = JSON.parse(d.data) as Partial<DigestData>;
+        for (const arr of [dd.highlights, dd.domestic, dd.international, dd.products, dd.community, dd.papers]) {
+          for (const x of arr ?? []) if (x?.url) recentUrls.add(x.url);
+        }
+      } catch { /* skip malformed */ }
+    }
+    const recentClusterKeys = new Set<string>();
+    if (recentUrls.size > 0) {
+      const rows = await this.prisma.hotspot.findMany({
+        where: { url: { in: [...recentUrls] }, clusterKey: { not: null } },
+        select: { clusterKey: true },
+      });
+      for (const r of rows) if (r.clusterKey) recentClusterKeys.add(r.clusterKey);
+    }
+
+    const keys = [...new Set(items.map((h) => h.clusterKey).filter(Boolean))] as string[];
+    const sourceCount = new Map<string, number>();
+    if (keys.length > 0) {
+      const members = await this.prisma.hotspot.findMany({
+        where: { clusterKey: { in: keys } },
+        select: { clusterKey: true, source: true },
+      });
+      const sets = new Map<string, Set<string>>();
+      for (const m of members) {
+        if (!m.clusterKey) continue;
+        const set = sets.get(m.clusterKey) ?? new Set<string>();
+        set.add(m.source);
+        sets.set(m.clusterKey, set);
+      }
+      for (const [k, set] of sets) sourceCount.set(k, set.size);
+    }
+
+    const { main, briefs } = composeDigestItems(items, recentClusterKeys, sourceCount);
+    this.logger.log(`[Digest] composed ${main.length} main + ${briefs.length} briefs from ${items.length} candidates`);
+    return [...main, ...briefs];
+  }
+
   async scheduledDigest(): Promise<void> {
     const today = this.getBeijingDate(0);
     await this.generateDigest(today);

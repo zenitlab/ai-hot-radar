@@ -103,6 +103,13 @@ export const keywordsApi = {
     request<Keyword>(`/keywords/${id}/toggle`, { method: 'PATCH' })
 };
 
+export type TrendingEvent = Hotspot & {
+  heat: number;
+  trend: 'new' | 'rising' | null;
+  sources: string[];
+  sourceCount: number;
+};
+
 // Hotspots API
 export const hotspotsApi = {
   getAll: (params?: { 
@@ -130,6 +137,10 @@ export const hotspotsApi = {
   },
   
   getStats: () => request<Stats>('/hotspots/stats'),
+
+  /** Events corroborated by 2+ sources in the last 48h, ranked by cross-source heat. */
+  getTrending: (limit = 10) =>
+    request<{ data: TrendingEvent[] }>(`/hotspots/trending?limit=${limit}`),
   
   getById: (id: string) => request<Hotspot>(`/hotspots/${id}`),
   

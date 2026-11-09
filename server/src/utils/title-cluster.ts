@@ -80,8 +80,25 @@ export function jaccardSimilarity(a: string[], b: string[]): number {
   return union === 0 ? 0 : intersection / union;
 }
 
+/**
+ * Overlap coefficient: |intersection| / min(|A|, |B|), in [0, 1].
+ * Unlike Jaccard it isn't dragged down when one headline is much longer than the
+ * other ("OpenAI 发布 GPT-5.7" vs a 40-char rewrite of the same news). Borrowed
+ * from AIHOT's lexical recall (events/relate.ts).
+ */
+export function overlapCoefficient(a: string[], b: string[]): number {
+  if (a.length === 0 || b.length === 0) return 0;
+  const setA = new Set(a);
+  const setB = new Set(b);
+  let intersection = 0;
+  for (const t of setA) if (setB.has(t)) intersection++;
+  return intersection / Math.min(setA.size, setB.size);
+}
+
 // 方案2 tuning. Conservative on purpose: prefer leaving two events un-merged over
 // wrongly collapsing distinct events. Short titles (< MIN_TOKENS_FOR_FUZZY tokens)
 // skip fuzzy matching entirely because tiny token sets produce unstable similarity.
 export const TITLE_SIM_THRESHOLD = 0.6;
+/** Overlap bar is stricter than AIHOT's 0.25 because we have no LLM relation check behind it. */
+export const TITLE_OVERLAP_THRESHOLD = 0.75;
 export const MIN_TOKENS_FOR_FUZZY = 4;

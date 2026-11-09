@@ -909,7 +909,12 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     // Pre-check existence in bulk
-    const validItems = rssItems.filter(item => item.url && item.title);
+    // Stale-on-discovery: items already older than MAX_AGE_HOURS when we first see
+    // them (a new or recovered feed dumping its backlog) don't go into "today" —
+    // same window the search sources use. Items without a date are kept.
+    const staleCutoff = Date.now() - MAX_AGE_HOURS * 3600 * 1000;
+    const validItems = rssItems.filter(item =>
+      item.url && item.title && !(item.publishedAt && item.publishedAt.getTime() < staleCutoff));
     const existingUrls = new Set(
       (await this.prisma.hotspot.findMany({
         where: { url: { in: validItems.map(i => i.url) } },

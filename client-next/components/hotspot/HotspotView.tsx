@@ -27,6 +27,7 @@ import FilterSortBar, {
 } from "../FilterSortBar";
 import { HotspotCard } from "./HotspotCard";
 import { HotspotTabs } from "./HotspotTabs";
+import { TrendingStrip } from "./TrendingStrip";
 import { BackToTop } from "../common/BackToTop";
 import { PageLoader } from "../common/Loader";
 import { EmptyState } from "../common/EmptyState";
@@ -303,6 +304,8 @@ export function HotspotView({
           共 {stats.total} 条热点
         </p>
       )}
+
+      <TrendingStrip />
 
       {/* Tabs + Search row — stacked on mobile, side-by-side on lg+ */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 mb-4">

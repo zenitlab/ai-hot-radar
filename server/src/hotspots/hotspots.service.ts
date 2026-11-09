@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { computeEventHeat, WINDOW_HOURS } from '../utils/event-heat';
 import { PrismaService } from '../prisma/prisma.service';
 import { TwitterService } from '../services/twitter.service';
 import { SearchService } from '../services/search.service';
@@ -186,6 +187,56 @@ export class HotspotsService {
     return {
       data: hotspots.map(parseMedia),
       pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+    };
+  }
+
+  /**
+   * Trending events: clusters reported by >= 2 independent sources in the last
+   * 48h, ranked by decayed cross-source heat (see utils/event-heat.ts).
+   * Returns the cluster main of each event plus its heat, trend and sources.
+   */
+  async getTrending(limitRaw = '10') {
+    const limit = Math.min(Math.max(parseInt(limitRaw) || 10, 1), 50);
+    const since = new Date(Date.now() - WINDOW_HOURS * 3600_000);
+    const members = await this.prisma.hotspot.findMany({
+      where: {
+        clusterKey: { not: null },
+        // Fallback / non-AI scores sit below 60; they shouldn't vouch for an event.
+        qualityScore: { gte: 60 },
+        OR: [
+          { publishedAt: { gte: since } },
+          { AND: [{ publishedAt: null }, { createdAt: { gte: since } }] },
+        ],
+      },
+      select: { id: true, clusterKey: true, source: true, authorUsername: true, publishedAt: true, createdAt: true, isClusterMain: true },
+    });
+
+    const events = computeEventHeat(members).slice(0, limit);
+    if (events.length === 0) return { data: [] };
+
+    const mainIdByCluster = new Map<string, string>();
+    for (const m of members) {
+      if (m.isClusterMain && m.clusterKey && !mainIdByCluster.has(m.clusterKey)) mainIdByCluster.set(m.clusterKey, m.id);
+    }
+    const mainIds = events.map(e => mainIdByCluster.get(e.clusterKey) ?? e.itemIds[0]);
+    const mains = await this.prisma.hotspot.findMany({
+      where: { id: { in: mainIds } },
+      include: { keyword: { select: { id: true, text: true, category: true } } },
+    });
+    const byId = new Map(mains.map(h => [h.id, h]));
+
+    return {
+      data: events.flatMap((e, i) => {
+        const main = byId.get(mainIds[i]);
+        if (!main) return [];
+        return [{
+          ...parseMedia(main),
+          heat: e.heat,
+          trend: e.trend,
+          sources: e.participants,
+          sourceCount: e.participants.length,
+        }];
+      }),
     };
   }
 

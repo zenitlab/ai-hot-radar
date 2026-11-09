@@ -4,6 +4,7 @@ import {
   computeClusterKey,
   eventKeyToClusterKey,
   jaccardSimilarity,
+  overlapCoefficient,
 } from '../utils/title-cluster.js';
 import { resolveClusterKey, type ClusterClaim } from '../utils/authority.js';
 
@@ -72,6 +73,33 @@ describe('resolveClusterKey (方案2)', () => {
   it('skips fuzzy matching for very short titles', () => {
     const claims = new Map([['existing', claim(tokenizeTitle('OpenAI 发布编码代理 codex'))]]);
     expect(resolveClusterKey(tokenizeTitle('codex'), 'newkey', claims)).toBe('newkey');
+  });
+});
+
+describe('overlapCoefficient', () => {
+  it('scores a short title fully contained in a longer one as 1', () => {
+    expect(overlapCoefficient(['a', 'b'], ['a', 'b', 'c', 'd', 'e', 'f'])).toBe(1);
+  });
+  it('is 0 for disjoint sets', () => {
+    expect(overlapCoefficient(['a'], ['b'])).toBe(0);
+  });
+});
+
+describe('resolveClusterKey overlap matching', () => {
+  const claim = (tokens: string[]): ClusterClaim => ({ authority: 100, tokens });
+
+  it('merges a short headline into a longer rewrite of the same event', () => {
+    const longer = tokenizeTitle('重磅：OpenAI 正式发布 GPT-5.7 模型，推理速度提升 40%，API 价格下调');
+    const shorter = tokenizeTitle('OpenAI 正式发布 GPT-5.7 模型');
+    const claims = new Map([['existing', claim(longer)]]);
+    expect(resolveClusterKey(shorter, 'newkey', claims)).toBe('existing');
+  });
+
+  it('still keeps unrelated titles from the same company apart', () => {
+    const a = tokenizeTitle('OpenAI 正式发布 GPT-5.7 模型');
+    const b = tokenizeTitle('OpenAI 宣布完成新一轮 400 亿美元融资');
+    const claims = new Map([['existing', claim(a)]]);
+    expect(resolveClusterKey(b, 'newkey', claims)).toBe('newkey');
   });
 });
 

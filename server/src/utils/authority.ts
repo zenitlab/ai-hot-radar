@@ -1,7 +1,9 @@
 import type { SourceTier } from '../rss-feeds/feeds.config';
 import {
   jaccardSimilarity,
+  overlapCoefficient,
   TITLE_SIM_THRESHOLD,
+  TITLE_OVERLAP_THRESHOLD,
   MIN_TOKENS_FOR_FUZZY,
 } from './title-cluster';
 
@@ -69,13 +71,19 @@ export function resolveClusterKey(
   if (claims.has(exactKey)) return exactKey;
   if (tokens.length < MIN_TOKENS_FOR_FUZZY) return exactKey;
 
+  // Match on either measure: Jaccard for similar-length titles, overlap
+  // coefficient for a short headline contained in a longer rewrite. Ranked by
+  // how far each clears its own threshold so the two scales are comparable.
   let bestKey = exactKey;
-  let bestSim = TITLE_SIM_THRESHOLD;
+  let bestMargin = 0;
   for (const [key, claim] of claims) {
     if (!claim.tokens || claim.tokens.length < MIN_TOKENS_FOR_FUZZY) continue;
-    const sim = jaccardSimilarity(tokens, claim.tokens);
-    if (sim > bestSim) {
-      bestSim = sim;
+    const margin = Math.max(
+      jaccardSimilarity(tokens, claim.tokens) - TITLE_SIM_THRESHOLD,
+      overlapCoefficient(tokens, claim.tokens) - TITLE_OVERLAP_THRESHOLD,
+    );
+    if (margin > bestMargin) {
+      bestMargin = margin;
       bestKey = key;
     }
   }

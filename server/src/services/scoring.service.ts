@@ -14,11 +14,33 @@ export interface PreFilterResult {
   region: string;   // domestic|international
 }
 
+/**
+ * Content type decides how the five dimensions are weighted (borrowed from
+ * AIHOT's selection-score prompt). A paper is judged mostly on substance, a
+ * tool mostly on whether readers can use it, an industry event on reach.
+ */
+export type ContentType =
+  | 'model_release' | 'product_launch' | 'tool_or_tip' | 'research_paper'
+  | 'industry_event' | 'opinion' | 'tutorial';
+
+/** Weights per type for [relevToAi, novelty, audience, quality, actionable]; each row sums to 10. */
+export const TYPE_WEIGHTS: Record<ContentType, [number, number, number, number, number]> = {
+  model_release:  [3, 2, 2, 2, 1],
+  product_launch: [2, 2, 2, 1, 3],
+  tool_or_tip:    [1, 2, 2, 1, 4],
+  research_paper: [3, 3, 1, 2, 1],
+  industry_event: [3, 1, 4, 2, 0],
+  opinion:        [1, 3, 4, 1, 1],
+  tutorial:       [1, 1, 3, 1, 4],
+};
+
 export interface FiveDimScore {
+  contentType: ContentType;
   relevToAi: number;  // 0-10
   novelty: number;    // 0-10
   audience: number;   // 0-10
   quality: number;    // 0-10
+  actionable: number; // 0-10, can a reader use / act on it
   importance: 'low' | 'medium' | 'high' | 'urgent';
   summary: string;
   tags: string[];
@@ -124,10 +146,12 @@ region说明：
           content: `你是AI资讯质量评估专家。对给定内容进行5个维度评分（每项0-10整数）。
 输出严格JSON，不要有其他文字：
 {
+  "contentType": "model_release|product_launch|tool_or_tip|research_paper|industry_event|opinion|tutorial",
   "relevToAi": 0-10,
   "novelty": 0-10,
   "audience": 0-10,
   "quality": 0-10,
+  "actionable": 0-10,
   "importance": "low|medium|high|urgent",
   "summary": "一句话中文摘要（30字以内，论文请概括核心贡献）",
   "tags": ["标签1","标签2"]
@@ -138,10 +162,20 @@ region说明：
 - novelty: 信息新颖性（10=全新突破/首次发布/新论文，0=重复旧内容）
 - audience: AI从业者关注价值（10=必读，5=有参考，0=无价值）
 - quality: 内容深度（10=深度分析/原创研究，5=正常报道，0=标题党）
+- actionable: 读者能否据此行动（10=可直接上手使用/有明确步骤，0=纯资讯无可操作内容）
+
+contentType 选最贴切的一类：model_release 模型发布 / product_launch 产品发布 / tool_or_tip 工具或技巧 /
+research_paper 论文研究 / industry_event 行业事件（融资、政策、人事、财报）/ opinion 观点评论 / tutorial 教程讲解
+
+🚫 必须压住的噪声（命中则对应维度不得超过上限）：
+- 例行小版本更新、bug 修复、文档改动 → novelty ≤ 3
+- 营销软文、带货、课程推广 → quality ≤ 2，audience ≤ 3
+- 只有预告、传闻、"即将发布"而无实质内容 → novelty ≤ 3
+- 旧闻翻炒、换个标题重发 → novelty ≤ 2
 
 📌 加分信号（命中以下任意一项，对应维度上调 1-2 分）：
-1. 顶级实验室署名 / 来源（OpenAI / DeepMind / Anthropic / Meta FAIR / MSR /
-   Stanford / MIT / CMU / 清华 / 北大 / 智源 / 上交大）→ audience + quality 各 +1
+1. 有可核实的一手证据（官方公告原文、可下载权重/代码、实测数据、论文全文）→ quality +1
+   （不要因为署名是大厂或名校就加分，来源权威性由系统另行处理）
 2. 主流 Benchmark SOTA 声明（MMLU / GPQA / SWE-bench / ARC-AGI / MATH /
    HumanEval / HellaSwag / MMMU / GSM8K / LiveCodeBench / AIDER）→ novelty + quality 各 +1
 3. 提出新范式 / 新架构（非增量改进，例如 "introducing a new" / "novel framework"）
@@ -176,18 +210,26 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
         }
       }
 
+      const dim = (v: unknown) => Math.min(10, Math.max(0, Number(v) || 0));
+      const contentType: ContentType = json.contentType in TYPE_WEIGHTS
+        ? json.contentType
+        : this.typeFromCategory(preFilter.category);
       return {
-        relevToAi: Math.min(10, Math.max(0, Number(json.relevToAi) || 0)),
-        novelty: Math.min(10, Math.max(0, Number(json.novelty) || 0)),
-        audience: Math.min(10, Math.max(0, Number(json.audience) || 0)),
-        quality: Math.min(10, Math.max(0, Number(json.quality) || 0)),
+        contentType,
+        relevToAi: dim(json.relevToAi),
+        novelty: dim(json.novelty),
+        audience: dim(json.audience),
+        quality: dim(json.quality),
+        // Older/simpler models may omit the new field; neutral 5 keeps scores comparable.
+        actionable: json.actionable === undefined ? 5 : dim(json.actionable),
         importance,
         summary,
         tags: Array.isArray(json.tags) ? json.tags.slice(0, 3).map(String) : [],
       };
     } catch {
       return {
-        relevToAi: 5, novelty: 5, audience: 5, quality: 5,
+        contentType: this.typeFromCategory(preFilter.category),
+        relevToAi: 5, novelty: 5, audience: 5, quality: 5, actionable: 5,
         importance: 'low', summary: '', tags: [], aiFailed: true,
       };
     }
@@ -195,13 +237,27 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
 
   /** Step 3: Code-computed final quality score */
   computeQualityScore(dims: FiveDimScore, tier: SourceTier): number {
+    const w = TYPE_WEIGHTS[dims.contentType] ?? TYPE_WEIGHTS.industry_event;
     const raw =
-      dims.relevToAi * 3.0 +
-      dims.novelty * 3.0 +
-      dims.audience * 2.5 +
-      dims.quality * 1.5;
-    // raw max = 100, apply tier multiplier
+      dims.relevToAi * w[0] +
+      dims.novelty * w[1] +
+      dims.audience * w[2] +
+      dims.quality * w[3] +
+      dims.actionable * w[4];
+    // raw max = 100 (weights sum to 10, dims max 10), apply tier multiplier
     return Math.min(100, Math.round((raw / 100) * TIER_MULTIPLIER[tier] * 100));
+  }
+
+  /** Fallback content type when the model gave none, from the pre-filter category. */
+  typeFromCategory(category: string): ContentType {
+    switch (category) {
+      case 'model': return 'model_release';
+      case 'product': return 'product_launch';
+      case 'research': return 'research_paper';
+      case 'tips': return 'tool_or_tip';
+      case 'community': return 'opinion';
+      default: return 'industry_event';
+    }
   }
 
   /** Full scoring pipeline for a single item: pre-filter (cheap) → 5-dim scoring (only if AI-related) */
@@ -240,7 +296,8 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
 
     if (!preFilter.isAiRelated) {
       return {
-        relevToAi: 0, novelty: 0, audience: 0, quality: 0,
+        contentType: 'industry_event',
+        relevToAi: 0, novelty: 0, audience: 0, quality: 0, actionable: 0,
         importance: 'low', summary: '', tags: [],
         qualityScore: 0, isCurated: false,
         clusterKey,
