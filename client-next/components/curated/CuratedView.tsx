@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Star, Search, X, Flame, Sparkles, Bookmark,
-  ExternalLink, Clock, Zap, Repeat2, MessageCircle, Eye, ThermometerSun,
+  Clock, Zap, Repeat2, MessageCircle, Eye, ThermometerSun,
 } from 'lucide-react';
 import { curatedApi, hotspotsApi, keywordsApi } from '../../services/api';
 import { relativeTime } from '../../utils/relativeTime';
@@ -13,13 +13,10 @@ import { BackToTop } from '../common/BackToTop';
 import { SkeletonList } from '../common/Loader';
 import { EmptyState } from '../common/EmptyState';
 import type { Hotspot, HotspotTab } from '../../types';
+import { CATEGORY_LABEL } from '../../lib/categories';
+import Link from 'next/link';
 
 type Period = 'today' | 'week';
-
-const CATEGORY_LABEL: Record<string, string> = {
-  model: '模型发布', product: 'AI 产品', industry: '行业动态',
-  research: '论文研究', community: '社区讨论', tips: '使用技巧',
-};
 
 /**
  * Curated card — visually unified with HotspotCard but lighter on chrome.
@@ -53,10 +50,9 @@ function CuratedCard({ item, index = 0 }: { item: Hotspot; index?: number }) {
   // of <a> elements with no structural boundary.
   return (
     <article>
-      <a
-          href={item.url}
-          target="_blank"
-          rel="noopener noreferrer"
+      {/* Opens our item page (summary, reason, event context); the source link lives there. */}
+      <Link
+          href={`/items/${item.id}`}
           style={{ animationDelay: `${index * 30}ms` }}
           className="block p-5 sm:p-6 rounded-3xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition duration-200 group"
         >
@@ -94,7 +90,6 @@ function CuratedCard({ item, index = 0 }: { item: Hotspot; index?: number }) {
         {/* Title — large, semibold, reading-first */}
         <h3 className="text-[17px] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors leading-snug mb-2.5">
           {item.title}
-          <ExternalLink className="inline-block w-3.5 h-3.5 ml-1 mb-0.5 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
         </h3>
 
         {/* AI Summary — quote-style block, identical to HotspotCard */}
@@ -171,7 +166,7 @@ function CuratedCard({ item, index = 0 }: { item: Hotspot; index?: number }) {
             {relativeTime(item.publishedAt || item.createdAt)}
           </time>
         </div>
-      </a>
+      </Link>
     </article>
   );
 }

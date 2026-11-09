@@ -196,3 +196,26 @@ export async function fetchStoryKeysSSR(): Promise<Array<{ clusterKey: string; l
   const data = await getJson<{ data: Array<{ clusterKey: string; lastUpdatedAt: string }> }>('/api/hotspots/stories');
   return Array.isArray(data?.data) ? data.data : [];
 }
+
+/** Shape of `GET /api/hotspots/item/:id`. */
+export interface ItemDetailResponse {
+  item: Hotspot;
+  story: {
+    clusterKey: string;
+    sourceCount: number;
+    others: Array<{ id: string; title: string; url: string; source: string; publishedAt: string | null; createdAt: string }>;
+  } | null;
+  digestDate: string | null;
+  related: Array<{ id: string; title: string; source: string; qualityScore: number | null }>;
+}
+
+/** Item page data. `null` when missing or the backend is down. */
+export async function fetchItemSSR(id: string): Promise<ItemDetailResponse | null> {
+  return getJson<ItemDetailResponse>(`/api/hotspots/item/${encodeURIComponent(id)}`);
+}
+
+/** Curated item pages for the sitemap. */
+export async function fetchItemIdsSSR(): Promise<Array<{ id: string; lastUpdatedAt: string }>> {
+  const data = await getJson<{ data: Array<{ id: string; lastUpdatedAt: string }> }>('/api/hotspots/items');
+  return Array.isArray(data?.data) ? data.data : [];
+}

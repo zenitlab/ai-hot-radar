@@ -1,12 +1,13 @@
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { m, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle, Flame, Zap, TrendingUp,
   Eye, Activity, Clock, Target, MessageCircle, Repeat2, Quote, User,
   ShieldAlert, ChevronDown, ChevronUp, ThermometerSun, FileText,
-  Sparkles,
+  Sparkles, ExternalLink,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { getSourceIcon, getSourceLabel } from '../../lib/sourceMeta';
@@ -137,14 +138,12 @@ export function HotspotCard({
           </div>
 
           {/* Title */}
-          <a
-            href={hotspot.url}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={`/items/${hotspot.id}`}
             className="block font-semibold text-[15px] text-[var(--text-primary)] mb-2 line-clamp-2 hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors cursor-pointer leading-snug"
           >
             {hotspot.title}
-          </a>
+          </Link>
 
           {/* AI Summary — quote-style block with leading bar makes it
               clearly distinct from the title and original content */}
@@ -264,6 +263,15 @@ export function HotspotCard({
               <Activity className="w-3 h-3" />
               抓取 {relativeTime(hotspot.createdAt)}
             </time>
+            <a
+              href={hotspot.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 hover:text-[var(--accent-blue)]"
+            >
+              <ExternalLink className="w-3 h-3" aria-hidden="true" />
+              原文
+            </a>
           </div>
 
           {/* AI relevance reason — only present for keyword-matched cards.

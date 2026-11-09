@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-import { fetchRecentDigestsSSR, fetchStoryKeysSSR } from '@/lib/server-api';
+import { fetchItemIdsSSR, fetchRecentDigestsSSR, fetchStoryKeysSSR } from '@/lib/server-api';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aihotradar.com';
 
@@ -51,5 +51,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticEntries, ...digestEntries, ...storyEntries];
+  // Curated item pages with a summary (others are noindex and left out).
+  const items = await fetchItemIdsSSR();
+  const itemEntries: MetadataRoute.Sitemap = items.map(({ id, lastUpdatedAt }) => ({
+    url: `${siteUrl}/items/${id}`,
+    lastModified: new Date(lastUpdatedAt),
+    changeFrequency: 'weekly',
+    priority: 0.5,
+  }));
+
+  return [...staticEntries, ...digestEntries, ...storyEntries, ...itemEntries];
 }

@@ -220,3 +220,39 @@ export function generateStorySchema(story: {
     },
   ];
 }
+
+/**
+ * 条目页 NewsArticle：本站对一条外部资讯的摘要与推荐理由。
+ * isBasedOn 指向原文；作者署 Organization（摘要由系统生成）。
+ */
+export function generateItemSchema(item: {
+  path: string;
+  headline: string;
+  description: string;
+  datePublished: string;
+  dateModified: string;
+  sourceUrl: string;
+  sourceName: string;
+  section?: string;
+}): JsonLd {
+  const pageUrl = `${SITE_URL}${item.path}`;
+  const org = { '@type': 'Organization', name: 'AI Hot Radar', url: SITE_URL };
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    '@id': `${pageUrl}#article`,
+    mainEntityOfPage: pageUrl,
+    url: pageUrl,
+    headline: item.headline.slice(0, 110),
+    description: item.description.slice(0, 300),
+    inLanguage: 'zh-CN',
+    datePublished: item.datePublished,
+    dateModified: item.dateModified,
+    articleSection: item.section,
+    author: org,
+    publisher: { ...org, logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-image.png` } },
+    isAccessibleForFree: true,
+    isBasedOn: { '@type': 'NewsArticle', url: item.sourceUrl, publisher: { '@type': 'Organization', name: item.sourceName } },
+    isPartOf: { '@type': 'WebSite', name: 'AI Hot Radar', url: SITE_URL },
+  };
+}

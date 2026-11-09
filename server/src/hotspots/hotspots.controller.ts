@@ -21,6 +21,18 @@ export class HotspotsController {
     return this.hotspotsService.listStories();
   }
 
+  @Get('items')
+  listIndexableItems() {
+    return this.hotspotsService.listIndexableItems();
+  }
+
+  @Get('item/:id')
+  async getItemDetail(@Param('id') id: string) {
+    const detail = await this.hotspotsService.getItemDetail(id);
+    if (!detail) throw new NotFoundException('Item not found');
+    return detail;
+  }
+
   @Get('story/:clusterKey')
   async getStory(@Param('clusterKey') clusterKey: string) {
     const story = await this.hotspotsService.getStory(clusterKey);

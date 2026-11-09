@@ -296,6 +296,18 @@ export class HotspotsService {
     return { data };
   }
 
+  /** Indexable item pages for the sitemap: curated items with a summary, last 30 days. */
+  async listIndexableItems(limit = 2000) {
+    const since = new Date(Date.now() - 30 * 24 * 3600_000);
+    const rows = await this.prisma.hotspot.findMany({
+      where: { isCurated: true, summary: { not: null }, createdAt: { gte: since } },
+      select: { id: true, publishedAt: true, createdAt: true },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+    return { data: rows.map((r) => ({ id: r.id, lastUpdatedAt: (r.publishedAt ?? r.createdAt).toISOString() })) };
+  }
+
   async getStats() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -322,6 +334,56 @@ export class HotspotsService {
     const hotspot = await this.prisma.hotspot.findUnique({ where: { id }, include: { keyword: true } });
     if (!hotspot) throw new NotFoundException('Hotspot not found');
     return parseMedia(hotspot);
+  }
+
+  /**
+   * Item page data: the item plus context that makes the page worth more than
+   * a link-out — its event (other sources on the same story), the digest that
+   * included it, and a few related curated items in the same category.
+   */
+  async getItemDetail(id: string) {
+    if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+    const item = await this.prisma.hotspot.findUnique({ where: { id }, include: { keyword: true } });
+    if (!item) return null;
+
+    const siblings = item.clusterKey
+      ? await this.prisma.hotspot.findMany({
+          where: { clusterKey: item.clusterKey, id: { not: item.id } },
+          select: { id: true, title: true, url: true, source: true, publishedAt: true, createdAt: true },
+          orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+          take: 10,
+        })
+      : [];
+
+    // Digests store URLs; find the one (if any) whose content references this item.
+    const day = (item.publishedAt ?? item.createdAt);
+    const nearby = await this.prisma.dailyDigest.findMany({
+      where: { createdAt: { gte: new Date(day.getTime() - 24 * 3600_000), lte: new Date(day.getTime() + 3 * 24 * 3600_000) } },
+      select: { date: true, data: true },
+    });
+    const digestDate = nearby.find((d) => d.data.includes(item.url))?.date ?? null;
+
+    const related = item.category
+      ? await this.prisma.hotspot.findMany({
+          where: {
+            isCurated: true, isClusterMain: true, category: item.category, id: { not: item.id },
+            ...(item.clusterKey ? { NOT: { clusterKey: item.clusterKey } } : {}),
+            createdAt: { gte: new Date(day.getTime() - 7 * 24 * 3600_000) },
+          },
+          select: { id: true, title: true, source: true, qualityScore: true },
+          orderBy: { qualityScore: 'desc' },
+          take: 5,
+        })
+      : [];
+
+    return {
+      item: parseMedia(item),
+      story: item.clusterKey
+        ? { clusterKey: item.clusterKey, sourceCount: new Set([item.source, ...siblings.map((s) => s.source)]).size, others: siblings }
+        : null,
+      digestDate,
+      related,
+    };
   }
 
   async search(body: { query: string; sources?: string[] }) {
