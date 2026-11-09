@@ -173,3 +173,26 @@ export async function fetchTrendingSSR(limit = 5): Promise<TrendingEvent[]> {
   const data = await getJson<{ data: TrendingEvent[] }>(`/api/hotspots/trending?limit=${limit}`);
   return Array.isArray(data?.data) ? data.data : [];
 }
+
+/** Shape of `GET /api/hotspots/story/:clusterKey` — every report on one event. */
+export interface StoryResponse {
+  clusterKey: string;
+  main: Hotspot;
+  items: Hotspot[];
+  sourceCount: number;
+  reportCount: number;
+  officialCount: number;
+  firstReportedAt: string;
+  lastUpdatedAt: string;
+}
+
+/** Event page data. `null` when the event doesn't exist or the backend is down. */
+export async function fetchStorySSR(clusterKey: string): Promise<StoryResponse | null> {
+  return getJson<StoryResponse>(`/api/hotspots/story/${encodeURIComponent(clusterKey)}`);
+}
+
+/** Recent multi-source events for the sitemap. */
+export async function fetchStoryKeysSSR(): Promise<Array<{ clusterKey: string; lastUpdatedAt: string }>> {
+  const data = await getJson<{ data: Array<{ clusterKey: string; lastUpdatedAt: string }> }>('/api/hotspots/stories');
+  return Array.isArray(data?.data) ? data.data : [];
+}

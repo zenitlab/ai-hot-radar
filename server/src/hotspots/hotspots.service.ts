@@ -240,6 +240,62 @@ export class HotspotsService {
     };
   }
 
+  /**
+   * Event page data: every report in one cluster, oldest first, plus the main
+   * item and source counts. `clusterKey` is opaque (a short hash), safe in URLs.
+   * Returns null when the cluster doesn't exist.
+   */
+  async getStory(clusterKey: string) {
+    if (!/^[a-f0-9]{8,32}$/i.test(clusterKey) && !/^[\w-]{3,64}$/.test(clusterKey)) return null;
+    const items = await this.prisma.hotspot.findMany({
+      where: { clusterKey },
+      orderBy: [{ publishedAt: 'asc' }, { createdAt: 'asc' }],
+      take: 200,
+    });
+    if (items.length === 0) return null;
+
+    const main = items.find(h => h.isClusterMain) ?? items[items.length - 1];
+    const officialTiers = new Set(['T1', 'T1.5']);
+    const time = (h: { publishedAt: Date | null; createdAt: Date }) => h.publishedAt ?? h.createdAt;
+    return {
+      clusterKey,
+      main: parseMedia(main),
+      items: items.map(parseMedia),
+      sourceCount: new Set(items.map(h => h.source)).size,
+      reportCount: items.length,
+      officialCount: items.filter(h => officialTiers.has(h.sourceTier ?? '')).length,
+      firstReportedAt: time(items[0]),
+      lastUpdatedAt: time(items[items.length - 1]),
+    };
+  }
+
+  /**
+   * Event pages worth indexing: clusters with 2+ distinct sources in the last
+   * 30 days. Single-source clusters stay noindex (thin page), so they're left
+   * out of the sitemap too. Capped to keep the sitemap small.
+   */
+  async listStories(limit = 500) {
+    const since = new Date(Date.now() - 30 * 24 * 3600_000);
+    const rows = await this.prisma.hotspot.findMany({
+      where: { clusterKey: { not: null }, qualityScore: { gte: 60 }, createdAt: { gte: since } },
+      select: { clusterKey: true, source: true, publishedAt: true, createdAt: true },
+    });
+    const byKey = new Map<string, { sources: Set<string>; last: number }>();
+    for (const r of rows) {
+      const k = r.clusterKey!;
+      const e = byKey.get(k) ?? { sources: new Set<string>(), last: 0 };
+      e.sources.add(r.source);
+      e.last = Math.max(e.last, (r.publishedAt ?? r.createdAt).getTime());
+      byKey.set(k, e);
+    }
+    const data = [...byKey.entries()]
+      .filter(([, e]) => e.sources.size >= 2)
+      .sort((a, b) => b[1].last - a[1].last)
+      .slice(0, limit)
+      .map(([clusterKey, e]) => ({ clusterKey, lastUpdatedAt: new Date(e.last).toISOString() }));
+    return { data };
+  }
+
   async getStats() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

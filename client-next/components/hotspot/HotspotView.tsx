@@ -362,7 +362,7 @@ export function HotspotView({
           <span>
             搜索：
             <span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">
-              "{appliedSearch}"
+              “{appliedSearch}”
             </span>
           </span>
           <button

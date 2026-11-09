@@ -6,7 +6,7 @@ const svc = new ScoringService({} as never);
 const dims = (over: Partial<FiveDimScore>): FiveDimScore => ({
   contentType: 'industry_event',
   relevToAi: 0, novelty: 0, audience: 0, quality: 0, actionable: 0,
-  importance: 'low', summary: '', tags: [],
+  importance: 'low', summary: '', recommendReason: '', tags: [],
   ...over,
 });
 

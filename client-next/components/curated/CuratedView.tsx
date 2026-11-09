@@ -112,6 +112,13 @@ function CuratedCard({ item, index = 0 }: { item: Hotspot; index?: number }) {
           </div>
         )}
 
+        {item.recommendReason && (
+          <p className="mb-3 text-[13px] leading-[1.7] text-[var(--text-secondary)]">
+            <span className="font-semibold text-[var(--text-primary)]">推荐理由：</span>
+            {item.recommendReason}
+          </p>
+        )}
+
         {/* Engagement metrics — only when there are any */}
         {(item.likeCount || item.retweetCount || item.commentCount || item.viewCount) && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--text-muted)] mb-2.5">
@@ -349,7 +356,7 @@ export function CuratedView({
 
       {appliedSearch && (
         <div className="mb-3 text-xs text-[var(--text-muted)]">
-          搜索: <span className="text-[var(--accent-blue)] dark:text-blue-400">"{appliedSearch}"</span>
+          搜索: <span className="text-[var(--accent-blue)] dark:text-blue-400">“{appliedSearch}”</span>
           <button type="button" onClick={handleClearSearch} className="ml-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
             清除
           </button>

@@ -39,6 +39,8 @@ export interface Hotspot {
   keywordMentioned?: boolean;
   importance: Importance;
   summary?: string;
+  /** 推荐理由：读者能据此了解或做什么 */
+  recommendReason?: string | null;
   // New scoring fields
   category?: HotspotCategory;
   region?: HotspotRegion;

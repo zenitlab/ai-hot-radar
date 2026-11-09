@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-import { fetchRecentDigestsSSR } from '@/lib/server-api';
+import { fetchRecentDigestsSSR, fetchStoryKeysSSR } from '@/lib/server-api';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aihotradar.com';
 
@@ -42,5 +42,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticEntries, ...digestEntries];
+  // Multi-source event pages (single-source ones are noindex and left out).
+  const stories = await fetchStoryKeysSSR();
+  const storyEntries: MetadataRoute.Sitemap = stories.map(({ clusterKey, lastUpdatedAt }) => ({
+    url: `${siteUrl}/story/${clusterKey}`,
+    lastModified: new Date(lastUpdatedAt),
+    changeFrequency: 'daily',
+    priority: 0.6,
+  }));
+
+  return [...staticEntries, ...digestEntries, ...storyEntries];
 }

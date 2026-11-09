@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body, Query, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Query, HttpCode, NotFoundException } from '@nestjs/common';
 import { HotspotsService, HotspotFilterQuery } from './hotspots.service';
 
 @Controller('api/hotspots')
@@ -14,6 +14,18 @@ export class HotspotsController {
   @Get('trending')
   getTrending(@Query('limit') limit?: string) {
     return this.hotspotsService.getTrending(limit);
+  }
+
+  @Get('stories')
+  listStories() {
+    return this.hotspotsService.listStories();
+  }
+
+  @Get('story/:clusterKey')
+  async getStory(@Param('clusterKey') clusterKey: string) {
+    const story = await this.hotspotsService.getStory(clusterKey);
+    if (!story) throw new NotFoundException('Story not found');
+    return story;
   }
 
   @Get('stats')

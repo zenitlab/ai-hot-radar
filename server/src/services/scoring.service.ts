@@ -42,6 +42,8 @@ export interface FiveDimScore {
   actionable: number; // 0-10, can a reader use / act on it
   importance: 'low' | 'medium' | 'high' | 'urgent';
   summary: string;
+  /** One sentence on what a reader can learn or do with this item. */
+  recommendReason: string;
   tags: string[];
   aiFailed?: boolean; // true = scoring call failed, scores are placeholders
 }
@@ -153,6 +155,7 @@ region说明：
   "actionable": 0-10,
   "importance": "low|medium|high|urgent",
   "summary": "一句话中文摘要（30字以内，论文请概括核心贡献）",
+  "recommendReason": "推荐理由（50字以内）：说明读者能从这条内容了解什么或据此做什么，要具体，基于原文事实，不要空泛夸赞",
   "tags": ["标签1","标签2"]
 }
 
@@ -197,6 +200,7 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
         ? json.importance
         : 'low';
       let summary = String(json.summary || '').slice(0, 100);
+      const recommendReason = String(json.recommendReason || '').trim().slice(0, 120);
 
       // For urgent items, double-check the summary is grounded in the content.
       // Costs ~1 extra cheap AI call per urgent item (rare — a few per day at most),
@@ -223,13 +227,14 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
         actionable: json.actionable === undefined ? 5 : dim(json.actionable),
         importance,
         summary,
+        recommendReason,
         tags: Array.isArray(json.tags) ? json.tags.slice(0, 3).map(String) : [],
       };
     } catch {
       return {
         contentType: this.typeFromCategory(preFilter.category),
         relevToAi: 5, novelty: 5, audience: 5, quality: 5, actionable: 5,
-        importance: 'low', summary: '', tags: [], aiFailed: true,
+        importance: 'low', summary: '', recommendReason: '', tags: [], aiFailed: true,
       };
     }
   }
@@ -298,7 +303,7 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
       return {
         contentType: 'industry_event',
         relevToAi: 0, novelty: 0, audience: 0, quality: 0, actionable: 0,
-        importance: 'low', summary: '', tags: [],
+        importance: 'low', summary: '', recommendReason: '', tags: [],
         qualityScore: 0, isCurated: false,
         clusterKey,
         category: preFilter.category,

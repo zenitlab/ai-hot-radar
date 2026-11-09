@@ -160,6 +160,13 @@ export function HotspotCard({
             </div>
           )}
 
+          {hotspot.recommendReason && (
+            <p className="mb-3 text-[13px] leading-relaxed text-[var(--text-secondary)]">
+              <span className="font-semibold text-[var(--text-primary)]">推荐理由：</span>
+              {hotspot.recommendReason}
+            </p>
+          )}
+
           {/* Media (X/Twitter photos & videos) */}
           {hotspot.media && hotspot.media.length > 0 && (
             <HotspotMedia media={hotspot.media} />

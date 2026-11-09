@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Flame, TrendingUp, Sparkles } from "lucide-react";
 import { hotspotsApi, type TrendingEvent } from "../../services/api";
+import Link from "next/link";
 import { getSourceLabel } from "../../lib/sourceMeta";
 
 /**
@@ -46,14 +47,12 @@ export function TrendingStrip({
           <li key={e.id} className="flex items-start gap-3">
             <span className="w-5 shrink-0 text-right text-sm font-semibold tabular-nums text-[var(--text-muted)]">{i + 1}</span>
             <div className="min-w-0 flex-1">
-              <a
-                href={e.url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href={`/story/${e.clusterKey}`}
                 className="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent-blue)] line-clamp-2"
               >
                 {e.title}
-              </a>
+              </Link>
               <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[var(--text-muted)]">
                 <span>{e.sourceCount} 家来源</span>
                 <span aria-hidden="true">·</span>

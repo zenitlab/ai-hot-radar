@@ -8,7 +8,7 @@ import { BackToTop } from "../common/BackToTop";
  */
 interface ChangelogEntry {
   date: string; // YYYY-MM-DD
-  version?: string;
+  version: string; // required: part of the list key, since several releases can share a date
   tag?: "feature" | "fix" | "tweak";
   items: string[];
 }
@@ -19,6 +19,8 @@ const CHANGELOG: ChangelogEntry[] = [
     version: "v0.10.0",
     tag: "feature",
     items: [
+      "💡 每条内容新增「推荐理由」：一句话说明读者能从中了解什么、可以据此做什么，与评分在同一次 AI 调用中生成",
+      "🗂️ 新增事件详情页：同一事件的所有报道按时间线排列，官方一手来源单独列出，从「多源热议」点击进入",
       "🔥 新增「多源热议」：48 小时内被 2 家以上独立来源报道的事件，按热度指数排序（每家来源按 24 小时半衰期衰减后相加），并标注「新」「上升」",
       "🎯 评分更准：先判断内容类型（模型发布、产品、工具、论文、行业事件、观点、教程），不同类型用不同的维度权重；例行小更新、营销软文、只有预告的内容会被压分；评分不再因署名是大厂而加分",
       "📰 日报编排更干净：一件事只出现一次，最近 7 天报过的事不再重复（除非已有 4 家以上来源跟进），同一来源最多 2 条",
@@ -696,9 +698,9 @@ export function ChangelogView() {
         <div className="absolute left-2 top-2 bottom-2 w-px bg-[var(--card-border)]" />
 
         <ul className="space-y-6">
-          {/* Several releases can share a date, so the date alone is not a unique key. */}
-          {CHANGELOG.map((entry, i) => (
-            <li key={`${entry.date}-${entry.version ?? i}`} className="relative pl-8">
+          {/* Several releases can share a date; date + version is unique. */}
+          {CHANGELOG.map((entry) => (
+            <li key={`${entry.date}-${entry.version}`} className="relative pl-8">
               {/* dot */}
               <span className="absolute left-[3px] top-2 w-2.5 h-2.5 rounded-full bg-[var(--accent-blue)] dark:bg-blue-500 ring-4 ring-[var(--bg-base)]" />
 

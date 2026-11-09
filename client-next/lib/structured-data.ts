@@ -142,19 +142,81 @@ export function generateHotspotListSchema(
 }
 
 /**
- * FAQ Schema（关于页/文档用）
+ * 面包屑 BreadcrumbList：告诉搜索引擎页面在站内的层级
  */
-export function generateFAQSchema(faqs: Array<{ question: string; answer: string }>) {
+export function generateBreadcrumbSchema(crumbs: Array<{ name: string; path: string }>): JsonLd {
   return {
     '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqs.map(faq => ({
-      '@type': 'Question',
-      name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.answer,
-      },
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((c, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: c.name,
+      item: `${SITE_URL}${c.path}`,
     })),
   };
+}
+
+/**
+ * 事件页 Schema：CollectionPage + 报道时间线 ItemList，并附一个 NewsArticle
+ * 描述本站原创的事件摘要（isBasedOn 指向各家原文）。
+ *
+ * 不用 schema.org 的 Event：它表示线下/线上活动，新闻事件用它属于误用。
+ * 作者署 Organization，不署个人，因为摘要由系统生成。
+ */
+export function generateStorySchema(story: {
+  path: string;
+  headline: string;
+  description: string;
+  datePublished: string;
+  dateModified: string;
+  reports: Array<{ title: string; url: string; source: string; publishedAt: string }>;
+}): JsonLd[] {
+  const pageUrl = `${SITE_URL}${story.path}`;
+  const org = { '@type': 'Organization', name: 'AI Hot Radar', url: SITE_URL };
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'NewsArticle',
+      '@id': `${pageUrl}#article`,
+      mainEntityOfPage: pageUrl,
+      headline: story.headline.slice(0, 110),
+      description: story.description.slice(0, 300),
+      inLanguage: 'zh-CN',
+      datePublished: story.datePublished,
+      dateModified: story.dateModified,
+      author: org,
+      publisher: { ...org, logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-image.png` } },
+      isAccessibleForFree: true,
+      isBasedOn: story.reports.map((r) => r.url),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      '@id': pageUrl,
+      url: pageUrl,
+      name: story.headline,
+      description: story.description.slice(0, 300),
+      inLanguage: 'zh-CN',
+      dateModified: story.dateModified,
+      isPartOf: { '@type': 'WebSite', name: 'AI Hot Radar', url: SITE_URL },
+      mainEntity: {
+        '@type': 'ItemList',
+        name: '报道时间线',
+        itemListOrder: 'https://schema.org/ItemListOrderAscending',
+        numberOfItems: story.reports.length,
+        itemListElement: story.reports.map((r, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          item: {
+            '@type': 'NewsArticle',
+            headline: r.title.slice(0, 110),
+            url: r.url,
+            datePublished: r.publishedAt,
+            publisher: { '@type': 'Organization', name: r.source },
+          },
+        })),
+      },
+    },
+  ];
 }

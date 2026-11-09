@@ -23,6 +23,8 @@ export interface Hotspot {
   keywordMentioned: boolean | null;
   importance: 'low' | 'medium' | 'high' | 'urgent';
   summary: string | null;
+  recommendReason?: string | null;
+  clusterKey?: string | null;
   viewCount: number | null;
   likeCount: number | null;
   retweetCount: number | null;

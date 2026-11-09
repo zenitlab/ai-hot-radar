@@ -54,6 +54,7 @@ model Hotspot {
   keywordMentioned Boolean?  // 内容中是否直接提及了关键词
   importance      String    @default("low")
   summary         String?
+  recommendReason String?   // 推荐理由：读者能据此了解或做什么（与评分同一次调用产出）
   viewCount       Int?
   likeCount       Int?
   retweetCount    Int?
