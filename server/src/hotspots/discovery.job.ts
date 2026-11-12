@@ -2,10 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { IndexNowService } from '../services/indexnow.service';
+import { BaiduPushService } from '../services/baidu-push.service';
 import { HotspotsService } from './hotspots.service';
 
 /**
- * Pushes newly indexable pages to IndexNow: multi-source event pages (the same
+ * Pushes newly indexable pages to IndexNow (Bing etc.) and Baidu: multi-source event pages (the same
  * set the sitemap lists) and the last week of daily digests. Fingerprint is
  * each page's last-updated time, so a page is re-sent only when it changes.
  */
@@ -17,6 +18,7 @@ export class DiscoveryJob {
     private readonly prisma: PrismaService,
     private readonly hotspots: HotspotsService,
     private readonly indexNow: IndexNowService,
+    private readonly baidu: BaiduPushService,
   ) {}
 
   @Cron('0 15,45 * * * *')
@@ -32,7 +34,7 @@ export class DiscoveryJob {
         ...stories.map((s) => ({ url: this.indexNow.url(`/story/${s.clusterKey}`), fingerprint: s.lastUpdatedAt })),
         ...digests.map((d) => ({ url: this.indexNow.url(`/digest/${d.date}`), fingerprint: d.createdAt.toISOString() })),
       ];
-      await this.indexNow.submitChanged(entries);
+      await Promise.all([this.indexNow.submitChanged(entries), this.baidu.submitChanged(entries)]);
     } catch (err) {
       this.logger.warn(`Discovery push failed: ${err instanceof Error ? err.message : err}`);
     }

@@ -82,6 +82,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: siteUrl,
   },
+  // 百度搜索资源平台站点验证。验证通过后也不要删除，否则会失去验证状态。
+  verification: {
+    other: { "baidu-site-verification": "codeva-scasn4IZS3" },
+  },
 };
 
 /**

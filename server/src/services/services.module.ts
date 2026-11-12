@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { IndexNowService } from './indexnow.service';
+import { BaiduPushService } from './baidu-push.service';
 import { AiService } from './ai.service';
 import { TwitterService } from './twitter.service';
 import { SearchService } from './search.service';
@@ -10,7 +11,7 @@ import { ScoringService } from './scoring.service';
 import { RedditService } from './reddit.service';
 
 @Module({
-  providers: [IndexNowService, AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService, RedditService],
-  exports: [IndexNowService, AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService, RedditService],
+  providers: [IndexNowService, BaiduPushService, AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService, RedditService],
+  exports: [IndexNowService, BaiduPushService, AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService, RedditService],
 })
 export class ServicesModule {}
