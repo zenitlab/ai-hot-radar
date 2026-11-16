@@ -12,12 +12,12 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aihotradar.com';
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // `/` only redirects to /curated, and /keywords is disallowed in robots.ts;
+  // listing either sends crawlers a URL they can't index.
   const routes = [
-    '',
     '/curated',
     '/hotspot',
     '/digest',
-    '/keywords',
     '/agent',
     '/about',
     '/changelog',
@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency:
       route === '/digest' ? 'daily' : route === '/curated' || route === '/hotspot' ? 'hourly' : 'weekly',
-    priority: route === '' || route === '/curated' ? 1 : route === '/digest' ? 0.9 : 0.8,
+    priority: route === '/curated' ? 1 : route === '/digest' ? 0.9 : 0.8,
   }));
 
   // Each published digest is its own citable URL, so list them individually.
