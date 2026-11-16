@@ -127,6 +127,7 @@ export class HotspotsService {
       where.OR = [
         { title:   { contains: search.trim() } },
         { summary: { contains: search.trim() } },
+        { titleZh: { contains: search.trim() } },
         { content: { contains: search.trim() } },
       ];
     }
@@ -255,6 +256,8 @@ export class HotspotsService {
     if (items.length === 0) return null;
 
     const main = items.find(h => h.isClusterMain) ?? items[items.length - 1];
+    // Event overview, when one has been written (see story-digest.job.ts).
+    const overview = await this.prisma.storyDigest.findUnique({ where: { clusterKey } });
     const officialTiers = new Set(['T1', 'T1.5']);
     const time = (h: { publishedAt: Date | null; createdAt: Date }) => h.publishedAt ?? h.createdAt;
     return {
@@ -266,6 +269,9 @@ export class HotspotsService {
       officialCount: items.filter(h => officialTiers.has(h.sourceTier ?? '')).length,
       firstReportedAt: time(items[0]),
       lastUpdatedAt: time(items[items.length - 1]),
+      digest: overview?.digest
+        ? { title: overview.title, text: overview.digest, updatedAt: overview.updatedAt }
+        : null,
     };
   }
 
@@ -292,7 +298,7 @@ export class HotspotsService {
       .filter(([, e]) => e.sources.size >= 2)
       .sort((a, b) => b[1].last - a[1].last)
       .slice(0, limit)
-      .map(([clusterKey, e]) => ({ clusterKey, lastUpdatedAt: new Date(e.last).toISOString() }));
+      .map(([clusterKey, e]) => ({ clusterKey, lastUpdatedAt: new Date(e.last).toISOString(), sourceCount: e.sources.size }));
     return { data };
   }
 
@@ -349,7 +355,7 @@ export class HotspotsService {
     const siblings = item.clusterKey
       ? await this.prisma.hotspot.findMany({
           where: { clusterKey: item.clusterKey, id: { not: item.id } },
-          select: { id: true, title: true, url: true, source: true, publishedAt: true, createdAt: true },
+          select: { id: true, title: true, titleZh: true, url: true, source: true, publishedAt: true, createdAt: true },
           orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
           take: 10,
         })
@@ -370,7 +376,7 @@ export class HotspotsService {
             ...(item.clusterKey ? { NOT: { clusterKey: item.clusterKey } } : {}),
             createdAt: { gte: new Date(day.getTime() - 7 * 24 * 3600_000) },
           },
-          select: { id: true, title: true, source: true, qualityScore: true },
+          select: { id: true, title: true, titleZh: true, source: true, qualityScore: true },
           orderBy: { qualityScore: 'desc' },
           take: 5,
         })

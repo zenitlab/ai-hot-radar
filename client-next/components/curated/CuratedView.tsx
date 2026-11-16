@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { curatedApi, hotspotsApi, keywordsApi } from '../../services/api';
 import { relativeTime } from '../../utils/relativeTime';
-import { cn } from '../../lib/utils';
+import { cn, displayTitle } from '../../lib/utils';
 import { getSourceIcon, getSourceLabel } from '../../lib/sourceMeta';
 import { HotspotTabs } from '../hotspot/HotspotTabs';
 import { BackToTop } from '../common/BackToTop';
@@ -89,7 +89,7 @@ function CuratedCard({ item, index = 0 }: { item: Hotspot; index?: number }) {
 
         {/* Title — large, semibold, reading-first */}
         <h3 className="text-[17px] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors leading-snug mb-2.5">
-          {item.title}
+          {displayTitle(item)}
         </h3>
 
         {/* AI Summary — quote-style block, identical to HotspotCard */}

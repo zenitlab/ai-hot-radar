@@ -7,6 +7,7 @@ import { fetchItemSSR, type ItemDetailResponse } from '@/lib/server-api';
 import { getSourceIcon, getSourceLabel } from '@/lib/sourceMeta';
 import { CATEGORY_LABEL } from '@/lib/categories';
 import { generateBreadcrumbSchema, generateItemSchema, safeJsonLd } from '@/lib/structured-data';
+import { displayTitle } from '@/lib/utils';
 
 /**
  * Item page: our summary and recommendation for one external article, its
@@ -50,15 +51,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!d) return { title: '内容不存在', robots: { index: false, follow: true } };
 
   const { item } = d;
-  const description = (item.summary || item.title).slice(0, 160);
+  const title = displayTitle(item);
+  const description = (item.summary || title).slice(0, 160);
   const published = item.publishedAt || item.createdAt;
   return {
-    title: item.title,
+    title,
     description,
     alternates: { canonical: `/items/${id}` },
     robots: isIndexable(d) ? undefined : { index: false, follow: true },
-    openGraph: { title: item.title, description, type: 'article', publishedTime: published },
-    twitter: { title: item.title, description },
+    openGraph: { title, description, type: 'article', publishedTime: published },
+    twitter: { title, description },
   };
 }
 
@@ -68,6 +70,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
   if (!d) notFound();
 
   const { item, story, digestDate, related } = d;
+  const title = displayTitle(item);
   const published = item.publishedAt || item.createdAt;
   const sourceLabel = getSourceLabel(item.source);
   const section = item.category ? CATEGORY_LABEL[item.category] : undefined;
@@ -75,8 +78,8 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
   const schemas = [
     generateItemSchema({
       path: `/items/${id}`,
-      headline: item.title,
-      description: item.summary || item.title,
+      headline: title,
+      description: item.summary || title,
       datePublished: published,
       dateModified: item.createdAt,
       sourceUrl: item.url,
@@ -85,7 +88,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
     }),
     generateBreadcrumbSchema([
       { name: '精选', path: '/curated' },
-      { name: item.title.slice(0, 40), path: `/items/${id}` },
+      { name: title.slice(0, 40), path: `/items/${id}` },
     ]),
   ];
 
@@ -121,7 +124,11 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
               </span>
             )}
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold leading-snug text-[var(--text-primary)] break-words">{item.title}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold leading-snug text-[var(--text-primary)] break-words">{title}</h1>
+          {/* Original headline stays visible when ours is a translation, so readers can match it to the source. */}
+          {title !== item.title && (
+            <p className="mt-1.5 text-[13px] leading-snug text-[var(--text-muted)] break-words">原标题：{item.title}</p>
+          )}
           <p className="mt-2 text-xs text-[var(--text-muted)]">
             发布于 <time dateTime={published}>{fmtDateTime(published)}</time>
             {item.authorName && <> · {item.authorName}</>}
@@ -170,7 +177,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
                 <li key={o.id} className="text-sm">
                   <Link href={`/items/${o.id}`} className="text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words">
                     <span className="text-[var(--text-muted)]">{getSourceLabel(o.source)}：</span>
-                    {o.title}
+                    {displayTitle(o)}
                   </Link>
                 </li>
               ))}
@@ -200,7 +207,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
               {related.map((r) => (
                 <li key={r.id} className="text-sm">
                   <Link href={`/items/${r.id}`} className="text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words">
-                    {r.title}
+                    {displayTitle(r)}
                   </Link>
                   <span className="ml-1.5 text-xs text-[var(--text-muted)]">{getSourceLabel(r.source)}</span>
                 </li>

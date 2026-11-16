@@ -9,7 +9,7 @@ import {
   ShieldAlert, ChevronDown, ChevronUp, ThermometerSun, FileText,
   Sparkles, ExternalLink,
 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn, displayTitle } from '../../lib/utils';
 import { getSourceIcon, getSourceLabel } from '../../lib/sourceMeta';
 import { relativeTime, formatDateTime } from '../../utils/relativeTime';
 import { HotspotMedia } from './HotspotMedia';
@@ -142,7 +142,7 @@ export function HotspotCard({
             href={`/items/${hotspot.id}`}
             className="block font-semibold text-[15px] text-[var(--text-primary)] mb-2 line-clamp-2 hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors cursor-pointer leading-snug"
           >
-            {hotspot.title}
+            {displayTitle(hotspot)}
           </Link>
 
           {/* AI Summary — quote-style block with leading bar makes it
@@ -155,7 +155,7 @@ export function HotspotCard({
                   AI 摘要
                 </span>
               </div>
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{hotspot.summary}</p>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-4">{hotspot.summary}</p>
             </div>
           )}
 

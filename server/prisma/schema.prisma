@@ -54,6 +54,7 @@ model Hotspot {
   keywordMentioned Boolean?  // 内容中是否直接提及了关键词
   importance      String    @default("low")
   summary         String?
+  titleZh         String?   // 中文标题：点出主体；模型未给出或未通过原文核对时为空，前端回退到 title
   recommendReason String?   // 推荐理由：读者能据此了解或做什么（与评分同一次调用产出）
   viewCount       Int?
   likeCount       Int?
@@ -85,6 +86,18 @@ model Hotspot {
   media          String?   // JSON array of {type:'photo'|'video', url, previewUrl?}
 
   @@unique([url, source])
+}
+
+/// 事件概览：多源事件页的一段综述，由模型根据该事件的全部报道写成。
+/// digest 为空表示这一轮没写成（模型输出不合格），sourceCount 增长后才会重试。
+model StoryDigest {
+  clusterKey  String   @id
+  title       String?
+  digest      String?
+  sourceCount Int      // 写作时的独立来源数，用来判断是否需要重写
+  reportCount Int
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
 }
 
 model Notification {

@@ -23,7 +23,7 @@ export class AgentService {
   async search(q: string, limit = 20) {
     const keywords = q.split(/\s+/).filter((w) => w.length > 0).slice(0, 5);
     const conditions = keywords.map((kw) => ({
-      OR: [{ title: { contains: kw } }, { summary: { contains: kw } }],
+      OR: [{ title: { contains: kw } }, { titleZh: { contains: kw } }, { summary: { contains: kw } }],
     }));
     const items = await this.prisma.hotspot.findMany({
       where: { AND: conditions },
@@ -44,7 +44,7 @@ export class AgentService {
 
   /** Build RSS 2.0 XML for a list of hotspots */
   buildRssXml(title: string, description: string, items: Array<{
-    title: string; url: string; summary?: string | null;
+    title: string; titleZh?: string | null; url: string; summary?: string | null;
     publishedAt?: Date | null; source: string;
   }>): string {
     const escape = (s: string) =>
@@ -52,9 +52,9 @@ export class AgentService {
 
     const itemsXml = items.map((item) => `
     <item>
-      <title>${escape(item.title)}</title>
+      <title>${escape(item.titleZh || item.title)}</title>
       <link>${escape(item.url)}</link>
-      <description>${escape(item.summary || item.title)}</description>
+      <description>${escape(item.summary || item.titleZh || item.title)}</description>
       <pubDate>${(item.publishedAt || new Date()).toUTCString()}</pubDate>
       <source>${escape(item.source)}</source>
     </item>`).join('');

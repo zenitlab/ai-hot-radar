@@ -7,6 +7,7 @@ import { fetchStorySSR, type StoryResponse } from '@/lib/server-api';
 import { getSourceIcon, getSourceLabel } from '@/lib/sourceMeta';
 import { generateBreadcrumbSchema, generateStorySchema, safeJsonLd } from '@/lib/structured-data';
 import type { Hotspot } from '@/types';
+import { displayTitle } from '@/lib/utils';
 
 /**
  * Event page: every report on one story (one cluster), as a timeline.
@@ -39,11 +40,23 @@ const fmtDateTime = (iso: string) =>
 const fmtDay = (iso: string) =>
   new Date(iso).toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai', month: 'long', day: 'numeric' });
 
-/** Answer-first description: the main item's summary, else a factual fallback. */
+/** Event headline: the overview's own title when it has one, else the main report's. */
+const storyTitle = (story: StoryResponse) => story.digest?.title || displayTitle(story.main);
+
+/** Overview paragraphs, or [] when none has been written for this event yet. */
+const overviewParagraphs = (story: StoryResponse) =>
+  story.digest?.text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean) ?? [];
+
+/**
+ * Answer-first description: the overview's opening paragraph (written to state
+ * the outcome first), else the main item's summary, else a factual fallback.
+ */
 function describe(story: StoryResponse): string {
+  const lead = overviewParagraphs(story)[0];
+  if (lead) return lead;
   const s = story.main.summary?.trim();
   if (s) return s;
-  return `${story.sourceCount} 家来源共 ${story.reportCount} 篇报道：${story.main.title}`;
+  return `${story.sourceCount} 家来源共 ${story.reportCount} 篇报道：${displayTitle(story.main)}`;
 }
 
 async function load(key: string): Promise<StoryResponse | null> {
@@ -56,7 +69,7 @@ export async function generateMetadata({ params }: { params: Promise<{ key: stri
   const story = await load(key);
   if (!story) return { title: '事件不存在', robots: { index: false, follow: true } };
 
-  const title = story.main.title;
+  const title = storyTitle(story);
   const description = `${describe(story)}（${story.sourceCount} 家来源 · ${story.reportCount} 篇报道）`.slice(0, 160);
   const indexable = story.sourceCount >= 2;
   return {
@@ -81,7 +94,9 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
   if (!story) notFound();
 
   const { main, items } = story;
+  const title = storyTitle(story);
   const description = describe(story);
+  const overview = overviewParagraphs(story);
   const official = items.filter((h) => OFFICIAL_TIERS.has(h.sourceTier ?? ''));
   const latest = items[items.length - 1];
 
@@ -95,12 +110,12 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
   const schemas = [
     ...generateStorySchema({
       path: `/story/${key}`,
-      headline: main.title,
+      headline: title,
       description,
       datePublished: story.firstReportedAt,
       dateModified: story.lastUpdatedAt,
       reports: items.map((h) => ({
-        title: h.title,
+        title: displayTitle(h),
         url: h.url,
         source: getSourceLabel(h.source),
         publishedAt: reportTime(h),
@@ -108,7 +123,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
     }),
     generateBreadcrumbSchema([
       { name: '热点雷达', path: '/hotspot' },
-      { name: main.title.slice(0, 40), path: `/story/${key}` },
+      { name: title.slice(0, 40), path: `/story/${key}` },
     ]),
   ];
 
@@ -128,7 +143,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
 
         <header className="mb-6">
           <h1 className="text-xl sm:text-2xl font-bold leading-snug text-[var(--text-primary)] break-words">
-            {main.title}
+            {title}
           </h1>
           <dl className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--text-muted)]">
             <div className="flex gap-1">
@@ -156,8 +171,18 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
 
         {/* Answer-first: what happened, in one block, before the timeline. */}
         <section aria-labelledby="overview" className="mb-6 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4 sm:p-5">
-          <h2 id="overview" className="mb-2 text-sm font-semibold text-[var(--text-primary)]">先了解这件事</h2>
-          <p className="text-[15px] leading-[1.8] text-[var(--text-secondary)]">{description}</p>
+          <h2 id="overview" className="mb-2 text-sm font-semibold text-[var(--text-primary)]">
+            {overview.length > 0 ? '事件概览' : '先了解这件事'}
+          </h2>
+          {overview.length > 0 ? (
+            <div className="space-y-2.5">
+              {overview.map((p) => (
+                <p key={p} className="text-[15px] leading-[1.8] text-[var(--text-secondary)]">{p}</p>
+              ))}
+            </div>
+          ) : (
+            <p className="text-[15px] leading-[1.8] text-[var(--text-secondary)]">{description}</p>
+          )}
           {main.recommendReason && (
             <p className="mt-3 text-[13px] leading-relaxed text-[var(--text-secondary)]">
               <span className="font-semibold text-[var(--text-primary)]">推荐理由：</span>
@@ -165,7 +190,10 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
             </p>
           )}
           <p className="mt-3 text-[11px] text-[var(--text-muted)]">
-            摘要由 AI 根据报道生成，摘自 {getSourceLabel(main.source)} ·{' '}
+            {overview.length > 0
+              ? `概览由 AI 综合 ${story.reportCount} 篇报道生成，以原文为准 · 主要来源 ${getSourceLabel(main.source)}`
+              : `摘要由 AI 根据报道生成，摘自 ${getSourceLabel(main.source)}`}
+            {' · '}
             <a href={main.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--text-primary)]">
               阅读原文
             </a>
@@ -174,7 +202,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
             <p className="mt-3 border-t border-[var(--card-border)] pt-3 text-[13px] text-[var(--text-secondary)]">
               <span className="font-semibold text-[var(--text-primary)]">最新进展：</span>
               <a href={latest.url} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent-blue)]">
-                {latest.title}
+                {displayTitle(latest)}
               </a>
             </p>
           )}
@@ -192,7 +220,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
                 <li key={h.id} className="text-sm">
                   <a href={h.url} target="_blank" rel="noopener noreferrer" className="text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words">
                     <span className="text-[var(--text-muted)]">{getSourceLabel(h.source)}：</span>
-                    {h.title}
+                    {displayTitle(h)}
                   </a>
                 </li>
               ))}
@@ -231,7 +259,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
                       rel="noopener noreferrer"
                       className="mt-0.5 inline-flex items-start gap-1 text-[15px] font-medium leading-snug text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words"
                     >
-                      {h.title}
+                      {displayTitle(h)}
                       <ExternalLink className="mt-1 w-3 h-3 shrink-0 text-[var(--text-muted)]" aria-hidden="true" />
                     </a>
                     {h.summary && (

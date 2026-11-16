@@ -317,7 +317,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
       // Score all items in parallel — single AI call per item, two-stage (preFilter + 5-dim).
       const scorings = await Promise.all(
         slice.map((item, idx) => this.scoringService.score(
-          item.title, item.content, tiers[idx], hints[idx], item.publishedAt,
+          item.title, item.content, tiers[idx], hints[idx], item.publishedAt, item.author?.name || item.source,
         )),
       );
       this.rememberRejections(slice.map(item => `${item.url}|${item.source}`), scorings);
@@ -371,6 +371,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
               clusterKey: keys[idx], isClusterMain,
               importance: scoring.importance, summary: scoring.summary || null,
               recommendReason: scoring.recommendReason || null,
+              titleZh: scoring.titleZh || null,
               isReal: true, relevance: Math.round(scoring.qualityScore),
               publishedAt: item.publishedAt || null,
               viewCount: item.viewCount || null, likeCount: item.likeCount || null,
@@ -494,7 +495,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
       // Two-stage scoring per item (preFilter + 5-dim, T1 skips preFilter).
       const scorings = await Promise.all(
         slice.map(it => this.scoringService.score(
-          it.tweet.title, it.tweet.content, it.account.tier, it.account.defaultCategory, it.tweet.publishedAt,
+          it.tweet.title, it.tweet.content, it.account.tier, it.account.defaultCategory, it.tweet.publishedAt, it.account.name,
         )),
       );
       this.rememberRejections(slice.map((it, idx) => `${it.tweet.url}|${sliceSources[idx]}`), scorings);
@@ -541,6 +542,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
               clusterKey: keys[idx], isClusterMain,
               importance: scoring.importance, summary: scoring.summary || null,
               recommendReason: scoring.recommendReason || null,
+              titleZh: scoring.titleZh || null,
               isReal: true, relevance: Math.round(scoring.qualityScore),
               publishedAt: it.tweet.publishedAt || null,
               viewCount: it.tweet.viewCount || null, likeCount: it.tweet.likeCount || null,
@@ -740,6 +742,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         OR: [
           { title:   { contains: text } },
           { summary: { contains: text } },
+          { titleZh: { contains: text } },
           { content: { contains: text } },
         ],
       },
@@ -777,7 +780,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     const memoKey = `${item.url}|${item.source}|${tier}`;
     let scoringP = this.roundScoring.get(memoKey);
     if (!scoringP) {
-      scoringP = this.scoringService.score(item.title, item.content, tier, undefined, item.publishedAt);
+      scoringP = this.scoringService.score(item.title, item.content, tier, undefined, item.publishedAt, item.author?.name || item.source);
       this.roundScoring.set(memoKey, scoringP);
     }
     const scoring = await scoringP;
@@ -824,6 +827,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
         keywordMentioned: analysis.keywordMentioned ?? null,
         importance: analysis.importance, summary: analysis.summary,
         recommendReason: scoring.recommendReason || null,
+        titleZh: scoring.titleZh || null,
         viewCount: item.viewCount || null, likeCount: item.likeCount || null,
         retweetCount: item.retweetCount || null, replyCount: item.replyCount || null,
         commentCount: item.commentCount || null, quoteCount: item.quoteCount || null,
@@ -964,7 +968,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
       // Score all items in parallel — single AI call per item, two-stage (preFilter + 5-dim).
       const scorings = await Promise.all(
         batch.map(item => this.scoringService.score(
-          item.title, item.content, item.feedConfig.tier, item.feedConfig.defaultCategory, item.publishedAt,
+          item.title, item.content, item.feedConfig.tier, item.feedConfig.defaultCategory, item.publishedAt, item.feedConfig.name,
         )),
       );
       this.rememberRejections(batch.map(item => `${item.url}|rss_${item.feedConfig.category}`), scorings);
@@ -1023,6 +1027,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
               importance: scoring.importance,
               summary: scoring.summary || null,
               recommendReason: scoring.recommendReason || null,
+              titleZh: scoring.titleZh || null,
               isReal: true,
               relevance: Math.round(scoring.qualityScore),
               publishedAt: item.publishedAt || null,
@@ -1137,6 +1142,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           p.subredditConfig.tier,
           p.subredditConfig.defaultCategory,
           p.publishedAt,
+          `Reddit r/${p.subredditConfig.subreddit}`,
         )),
       );
       this.rememberRejections(batch.map((p, idx) => `${p.url}|${batchSources[idx]}`), scorings);
@@ -1195,6 +1201,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
               importance: scoring.importance,
               summary: scoring.summary || null,
               recommendReason: scoring.recommendReason || null,
+              titleZh: scoring.titleZh || null,
               isReal: true,
               relevance: Math.round(scoring.qualityScore),
               publishedAt: post.publishedAt,

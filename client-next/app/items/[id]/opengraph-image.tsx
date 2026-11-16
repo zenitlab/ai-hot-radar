@@ -2,6 +2,7 @@ import { fetchItemSSR } from '@/lib/server-api';
 import { getSourceLabel } from '@/lib/sourceMeta';
 import { CATEGORY_LABEL } from '@/lib/categories';
 import { renderOgCard, OG_SIZE } from '@/lib/og';
+import { displayTitle } from '@/lib/utils';
 
 export const alt = 'AI Hot Radar 内容详情';
 export const size = OG_SIZE;
@@ -21,7 +22,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   ].filter(Boolean);
   return renderOgCard({
     kicker: item.isCurated ? 'AI Hot Radar · 精选' : 'AI Hot Radar',
-    title: item.title,
+    title: displayTitle(item),
     meta: parts.join(' · '),
   });
 }

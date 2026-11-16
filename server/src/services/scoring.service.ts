@@ -6,6 +6,24 @@ import {
   CURATED_THRESHOLD,
   SEARCH_SOURCE_TIER,
 } from '../rss-feeds/feeds.config';
+import {
+  ANSWER_FIRST_SUMMARY_RULES,
+  ANTI_HALLUCINATION_RULES,
+  SELF_CONTAINED_TITLE_RULES,
+  UNTRUSTED_NOTE,
+  acceptTitleZh,
+  THIN_SOURCE_CHARS,
+  cleanSummary,
+  groundSummary,
+  stripUnsupportedYears,
+} from '../utils/writing-rules';
+
+/**
+ * How much of the body the scoring call reads. The summary is now two or three
+ * sentences that must stay inside what the source says, which 600 characters
+ * (often just the lede) didn't give it enough to do.
+ */
+const SCORING_CONTENT_CHARS = 1200;
 
 export interface PreFilterResult {
   isAiRelated: boolean;
@@ -42,6 +60,8 @@ export interface FiveDimScore {
   actionable: number; // 0-10, can a reader use / act on it
   importance: 'low' | 'medium' | 'high' | 'urgent';
   summary: string;
+  /** Chinese headline that names its subject; '' when the model gave none or it failed the source check. */
+  titleZh: string;
   /** One sentence on what a reader can learn or do with this item. */
   recommendReason: string;
   tags: string[];
@@ -88,6 +108,7 @@ export class ScoringService {
           content: `你是AI资讯分类助手。判断给定内容是否与AI行业相关，并分类。
 输出严格JSON格式，不要有其他文字：
 {"isAiRelated":true/false,"category":"model|product|industry|research|community|tips","region":"domestic|international"}
+${UNTRUSTED_NOTE}
 
 category说明：
 - model: AI模型发布/更新/研究
@@ -123,6 +144,7 @@ region说明：
     tier: SourceTier,
     preFilter: PreFilterResult,
     publishedAt?: Date,
+    sourceName?: string,
   ): Promise<FiveDimScore> {
     // Tell the model how recent the item is so it doesn't mark a 6-month-old GPT-5
     // article as urgent when surfaced today by Bing.
@@ -138,13 +160,19 @@ region说明：
         ageHint = `\n发布时间: ${dateStr}（距今 ${ageDays} 天）`;
       }
     }
-    const snippet = `标题: ${title}\n内容: ${content.slice(0, 600)}\n来源等级: ${tier}\n内容分类: ${preFilter.category}${ageHint}`;
+    const sourceLine = sourceName ? `\n来源: ${sourceName}` : '';
+    const bodyChars = content.trim().length;
+    const thinHint = bodyChars < THIN_SOURCE_CHARS
+      ? `\n注意：正文很短（${bodyChars} 字）。summary 只写 1 句，只复述标题和正文里已有的事实，不写影响、意义和反响。`
+      : '';
+    const snippet = `标题: ${title}${sourceLine}\n内容: ${content.slice(0, SCORING_CONTENT_CHARS)}\n来源等级: ${tier}\n内容分类: ${preFilter.category}${ageHint}${thinHint}`;
 
     try {
       const response = await this.aiService.callRaw([
         {
           role: 'system',
-          content: `你是AI资讯质量评估专家。对给定内容进行5个维度评分（每项0-10整数）。
+          content: `你是AI资讯质量评估专家，同时是中文编辑。对给定内容进行5个维度评分（每项0-10整数），并写出中文标题、摘要和推荐理由。
+${UNTRUSTED_NOTE}
 输出严格JSON，不要有其他文字：
 {
   "contentType": "model_release|product_launch|tool_or_tip|research_paper|industry_event|opinion|tutorial",
@@ -154,7 +182,8 @@ region说明：
   "quality": 0-10,
   "actionable": 0-10,
   "importance": "low|medium|high|urgent",
-  "summary": "一句话中文摘要（30字以内，论文请概括核心贡献）",
+  "titleZh": "中文标题，按【中文标题规则】写",
+  "summary": "中文摘要，按【摘要规则】写（论文请概括核心贡献）",
   "recommendReason": "推荐理由（50字以内）：说明读者能从这条内容了解什么或据此做什么，要具体，基于原文事实，不要空泛夸赞",
   "tags": ["标签1","标签2"]
 }
@@ -190,7 +219,14 @@ importance标准：
 - medium: 有参考价值的资讯、一般论文
 - low: 日常教程/一般讨论/边缘信息
 
-tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多模态/推理）`,
+tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多模态/推理）
+
+${SELF_CONTAINED_TITLE_RULES}
+
+${ANSWER_FIRST_SUMMARY_RULES}
+
+${ANTI_HALLUCINATION_RULES}
+titleZh、summary、recommendReason 三项都必须遵守防幻觉规则。`,
         },
         { role: 'user', content: snippet },
       ], 1500, 'scoreFiveDim');
@@ -199,7 +235,14 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
       const importance = ['low', 'medium', 'high', 'urgent'].includes(json.importance)
         ? json.importance
         : 'low';
-      let summary = String(json.summary || '').slice(0, 100);
+      // Everything the model may legitimately name: the full item, not just the slice it saw.
+      const sourceText = `${title}\n${sourceName ?? ''}\n${content}`;
+      let summary = groundSummary(
+        stripUnsupportedYears(cleanSummary(String(json.summary || '')), sourceText),
+        sourceText,
+        bodyChars,
+      );
+      const titleZh = acceptTitleZh(json.titleZh, sourceText);
       const recommendReason = String(json.recommendReason || '').trim().slice(0, 120);
 
       // For urgent items, double-check the summary is grounded in the content.
@@ -227,6 +270,7 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
         actionable: json.actionable === undefined ? 5 : dim(json.actionable),
         importance,
         summary,
+        titleZh,
         recommendReason,
         tags: Array.isArray(json.tags) ? json.tags.slice(0, 3).map(String) : [],
       };
@@ -234,7 +278,7 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
       return {
         contentType: this.typeFromCategory(preFilter.category),
         relevToAi: 5, novelty: 5, audience: 5, quality: 5, actionable: 5,
-        importance: 'low', summary: '', recommendReason: '', tags: [], aiFailed: true,
+        importance: 'low', summary: '', titleZh: '', recommendReason: '', tags: [], aiFailed: true,
       };
     }
   }
@@ -272,6 +316,7 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
     tier: SourceTier,
     defaultCategory?: string,
     publishedAt?: Date,
+    sourceName?: string,
   ): Promise<ScoringResult> {
     const clusterKey = this.computeClusterKey(title);
 
@@ -282,7 +327,7 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
         category: defaultCategory || 'industry',
         region: 'international',
       };
-      const dims = await this.scoreFiveDim(title, content, tier, preFilter, publishedAt);
+      const dims = await this.scoreFiveDim(title, content, tier, preFilter, publishedAt, sourceName);
       const qualityScore = this.computeQualityScore(dims, tier);
       return {
         ...dims,
@@ -303,7 +348,7 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
       return {
         contentType: 'industry_event',
         relevToAi: 0, novelty: 0, audience: 0, quality: 0, actionable: 0,
-        importance: 'low', summary: '', recommendReason: '', tags: [],
+        importance: 'low', summary: '', titleZh: '', recommendReason: '', tags: [],
         qualityScore: 0, isCurated: false,
         clusterKey,
         category: preFilter.category,
@@ -311,7 +356,7 @@ tags: 1-3个简短中文标签（论文请标注研究方向如：Agent/RAG/多�
       };
     }
 
-    const dims = await this.scoreFiveDim(title, content, tier, preFilter, publishedAt);
+    const dims = await this.scoreFiveDim(title, content, tier, preFilter, publishedAt, sourceName);
     const qualityScore = this.computeQualityScore(dims, tier);
     return {
       ...dims,

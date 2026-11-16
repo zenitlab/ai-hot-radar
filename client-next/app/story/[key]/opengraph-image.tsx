@@ -1,5 +1,6 @@
 import { fetchStorySSR } from '@/lib/server-api';
 import { renderOgCard, OG_SIZE } from '@/lib/og';
+import { displayTitle } from '@/lib/utils';
 
 export const alt = 'AI Hot Radar 事件详情';
 export const size = OG_SIZE;
@@ -16,7 +17,7 @@ export default async function Image({ params }: { params: Promise<{ key: string 
   }
   return renderOgCard({
     kicker: 'AI Hot Radar · 多源热议',
-    title: story.main.title,
+    title: story.digest?.title || displayTitle(story.main),
     meta: `${story.sourceCount} 家来源 · ${story.reportCount} 篇报道 · ${fmtDay(story.lastUpdatedAt)}更新`,
   });
 }

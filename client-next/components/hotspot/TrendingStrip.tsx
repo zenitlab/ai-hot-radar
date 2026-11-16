@@ -4,6 +4,7 @@ import { Flame, TrendingUp, Sparkles } from "lucide-react";
 import { hotspotsApi, type TrendingEvent } from "../../services/api";
 import Link from "next/link";
 import { getSourceLabel } from "../../lib/sourceMeta";
+import { displayTitle } from "../../lib/utils";
 
 /**
  * "多源热议" strip: events reported by 2+ independent sources in the last 48h,
@@ -51,7 +52,7 @@ export function TrendingStrip({
                 href={`/story/${e.clusterKey}`}
                 className="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent-blue)] line-clamp-2"
               >
-                {e.title}
+                {displayTitle(e)}
               </Link>
               <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[var(--text-muted)]">
                 <span>{e.sourceCount} 家来源</span>

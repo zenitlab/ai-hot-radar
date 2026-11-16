@@ -223,7 +223,7 @@ export class EntitiesService {
       },
       orderBy: { createdAt: 'desc' },
       take: limit,
-      select: { id: true, title: true, url: true, source: true, createdAt: true, summary: true },
+      select: { id: true, title: true, titleZh: true, url: true, source: true, createdAt: true, summary: true },
     });
   }
 

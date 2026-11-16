@@ -39,6 +39,8 @@ export interface Hotspot {
   keywordMentioned?: boolean;
   importance: Importance;
   summary?: string;
+  /** 中文标题：点出主体；没有时回退到 title（见 lib/utils 的 displayTitle） */
+  titleZh?: string | null;
   /** 推荐理由：读者能据此了解或做什么 */
   recommendReason?: string | null;
   // New scoring fields

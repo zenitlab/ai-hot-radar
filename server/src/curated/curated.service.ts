@@ -59,6 +59,7 @@ export class CuratedService {
           OR: [
             { title:   { contains: search.trim() } },
             { summary: { contains: search.trim() } },
+            { titleZh: { contains: search.trim() } },
             { content: { contains: search.trim() } },
           ],
         },

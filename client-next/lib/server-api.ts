@@ -184,6 +184,8 @@ export interface StoryResponse {
   officialCount: number;
   firstReportedAt: string;
   lastUpdatedAt: string;
+  /** Event overview written from all reports; null until one exists. Paragraphs are separated by a blank line. */
+  digest: { title: string | null; text: string; updatedAt: string } | null;
 }
 
 /** Event page data. `null` when the event doesn't exist or the backend is down. */
@@ -203,10 +205,10 @@ export interface ItemDetailResponse {
   story: {
     clusterKey: string;
     sourceCount: number;
-    others: Array<{ id: string; title: string; url: string; source: string; publishedAt: string | null; createdAt: string }>;
+    others: Array<{ id: string; title: string; titleZh?: string | null; url: string; source: string; publishedAt: string | null; createdAt: string }>;
   } | null;
   digestDate: string | null;
-  related: Array<{ id: string; title: string; source: string; qualityScore: number | null }>;
+  related: Array<{ id: string; title: string; titleZh?: string | null; source: string; qualityScore: number | null }>;
 }
 
 /** Item page data. `null` when missing or the backend is down. */

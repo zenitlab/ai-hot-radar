@@ -1,6 +1,7 @@
 import { CuratedView } from '@/components/curated/CuratedView';
 import { fetchCuratedSSR } from '@/lib/server-api';
 import { generateHotspotListSchema, safeJsonLd } from '@/lib/structured-data';
+import { displayTitle } from '@/lib/utils';
 
 /**
  * Rendered per request rather than prerendered at build time.
@@ -20,7 +21,7 @@ export default async function CuratedPage() {
   // article, so individual entries can be attributed to their own source.
   const listSchema = generateHotspotListSchema(
     items.map((item) => ({
-      title: item.title,
+      title: displayTitle(item),
       url: item.url,
       // publishedAt is optional on Hotspot; createdAt is always present.
       publishedAt: item.publishedAt || item.createdAt,

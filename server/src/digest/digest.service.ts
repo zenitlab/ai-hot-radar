@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type OpenAI from 'openai';
 import { createLlmClient } from '../utils/llm-client';
 import { composeDigestItems, REPEAT_WINDOW_DAYS } from '../utils/digest-compose';
+import { ANTI_HALLUCINATION_RULES, UNTRUSTED_NOTE } from '../utils/writing-rules';
 
 export interface DigestHighlight {
   title: string;
@@ -239,7 +240,7 @@ export class DigestService {
         .slice(0, 60)
         .map((h, i) => {
           const parts = [
-            `${i + 1}. 【${h.title}】`,
+            `${i + 1}. 【${h.titleZh || h.title}】`,
             h.summary ? `摘要：${h.summary.slice(0, 100)}` : '',
             `来源：${h.source}`,
             h.category ? `分类：${h.category}` : '',
@@ -253,7 +254,10 @@ export class DigestService {
       const systemPrompt = `你是 AI 行业资深分析师，擅长写给开发者看的 AI 日报，风格类似 TLDR AI / Ben's Bites。
 你的核心价值是：筛选 + 结构化 + 解读，不是简单复制新闻标题。
 特别注意：每条重点新闻必须写清楚"为什么重要"和"影响哪些人/方向"，这是日报的差异化价值所在。
-语言要求：所有输出文字（summary、title、whyImportant、affects 标签、detail 等）一律使用简体中文；原始资讯是英文时必须翻译/改写成中文，不要直接照抄英文标题。`;
+语言要求：所有输出文字（summary、title、whyImportant、affects 标签、detail 等）一律使用简体中文；原始资讯是英文时必须翻译/改写成中文，不要直接照抄英文标题。
+${UNTRUSTED_NOTE}
+
+${ANTI_HALLUCINATION_RULES}`;
 
       const userPrompt = `今天（${date}）收集到 ${items.length} 条 AI 资讯，请生成结构化日报。
 
@@ -265,7 +269,7 @@ ${numbered}
   "summary": "一句话总结今日 AI 世界最大动态（20字以内，有观点）",
   "highlights": [
     {
-      "title": "事件标题（可以改写得更有吸引力）",
+      "title": "事件标题（点出主体：公司、产品或模型名；不用\"重磅\"\"炸裂\"等夸张词）",
       "summary": "一句话摘要（40字以内）",
       "whyImportant": "为什么重要——对AI行业/开发者的实际影响（60字以内，必须有洞察，不能泛泛而谈）",
       "affects": ["受影响方向1", "受影响方向2"],
@@ -353,11 +357,11 @@ ${numbered}
       items
         .filter((h) => (!cat || h.category === cat) && (!region || h.region === region))
         .slice(0, 8)
-        .map((h) => ({ title: h.title, summary: h.summary ?? '', source: h.source, url: h.url }));
+        .map((h) => ({ title: h.titleZh || h.title, summary: h.summary ?? '', source: h.source, url: h.url }));
 
     // Build a fallback summary that actually conveys what happened today by
     // pulling the top 1–2 hotspot titles instead of just reporting a count.
-    const top = items.slice(0, 2).map((h) => h.title?.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const top = items.slice(0, 2).map((h) => (h.titleZh || h.title)?.replace(/\s+/g, ' ').trim()).filter(Boolean);
     const summary =
       top.length === 0
         ? `共收录 ${items.length} 条 AI 资讯`
@@ -368,7 +372,7 @@ ${numbered}
     return {
       summary,
       highlights: items.slice(0, 5).map((h) => ({
-        title: h.title,
+        title: h.titleZh || h.title,
         summary: h.summary ?? '',
         whyImportant: '',
         affects: [],
@@ -380,7 +384,7 @@ ${numbered}
       modelIntel: items
         .filter((h) => h.category === 'model')
         .slice(0, 6)
-        .map((h) => ({ model: h.title.slice(0, 20), change: '更新', detail: h.summary?.slice(0, 40) ?? '', impact: '' })),
+        .map((h) => ({ model: (h.titleZh || h.title).slice(0, 20), change: '更新', detail: h.summary?.slice(0, 40) ?? '', impact: '' })),
       products: pick('product'),
       community: pick('community'),
       papers: pick('research').map((p) => ({ ...p, impact: '' })),
