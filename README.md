@@ -230,6 +230,24 @@ location / {
 sudo rm -rf /www/server/nginx/proxy_cache_dir/*   # 清空缓存目录，按需回源重建
 ```
 
+### 搜索引擎推送（IndexNow / 百度）
+
+后端每小时 15、45 分把日报和多源事件页推给搜索引擎，只推有变化的页面。在服务器 `.env.production` 配置：
+
+```bash
+INDEXNOW_ENABLED=true             # 推给 Bing / ChatGPT 搜索 / Copilot
+SITE_URL=https://aihotradar.com   # 与百度后台登记的站点一致，不带 www
+BAIDU_PUSH_TOKEN=                 # 搜索资源平台 → 普通收录 → API提交，接口地址里 token= 后面那串；不填则不推百度
+```
+
+- 百度新站每天只有约 10 条配额，日报优先推送，`over quota` 后当天停推，第二天自动继续。
+- 百度站点验证的 meta 标签和 `client-next/public/baidu_verify_*.html` 不能删，详见根目录 `CLAUDE.md`。
+- 站点在 Cloudflare 后面：不要开启 AI Crawl Control 的「Bot Preference Sync / 托管 robots.txt」，否则会在 robots.txt 前插入 `Baiduspider Disallow: /`。
+
+```bash
+docker compose logs --since 1h backend | grep -E "Baidu push|IndexNow"
+```
+
 ### 排查小抄
 
 ```bash

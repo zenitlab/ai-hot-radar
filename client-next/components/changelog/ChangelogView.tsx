@@ -15,6 +15,15 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-11-16",
+    version: "v0.10.1",
+    tag: "tweak",
+    items: [
+      "🔍 接入百度搜索资源平台：新发布的日报和事件页会主动推送给百度，日报优先，按百度每日配额推送",
+      "🗺️ 站点地图更干净：去掉会跳转的首页地址和不允许抓取的关键词页，搜索引擎只会收到能正常收录的页面",
+    ],
+  },
+  {
     date: "2026-11-09",
     version: "v0.10.0",
     tag: "feature",
