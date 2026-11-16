@@ -15,6 +15,13 @@ import axios from 'axios';
 const ENDPOINT = 'http://data.zz.baidu.com/urls';
 /** Baidu accepts up to 2000 URLs per request. */
 const MAX_PER_REQUEST = 2000;
+/**
+ * Batch size while today's quota is still unknown. New sites get 10/day, and
+ * Baidu rejects the whole request with `over quota` when a batch is larger
+ * than what's left, so probe small and let the reported `remain` size later
+ * batches.
+ */
+const FIRST_BATCH = 10;
 
 @Injectable()
 export class BaiduPushService {
@@ -48,11 +55,13 @@ export class BaiduPushService {
       return 0;
     }
 
-    const cap = Math.min(MAX_PER_REQUEST, this.remain ?? MAX_PER_REQUEST);
+    const cap = Math.min(MAX_PER_REQUEST, this.remain ?? FIRST_BATCH);
     const batch = changed.slice(0, cap);
     try {
+      // `site` must go out unencoded, exactly as shown in the 搜索资源平台 sample
+      // URL: Baidu answers `site init fail` to `https%3A%2F%2F...`.
       const res = await axios.post(
-        `${ENDPOINT}?site=${encodeURIComponent(this.siteUrl)}&token=${encodeURIComponent(this.token)}`,
+        `${ENDPOINT}?site=${this.siteUrl}&token=${encodeURIComponent(this.token)}`,
         batch.map((e) => e.url).join('\n'),
         { timeout: 15_000, headers: { 'Content-Type': 'text/plain' }, validateStatus: () => true },
       );
@@ -64,6 +73,7 @@ export class BaiduPushService {
         this.logger.log(`Baidu push: ${data.success} accepted, ${rejected.size} rejected, ${data.remain ?? '?'} left today`);
         return data.success;
       }
+      if (data.message === 'over quota') this.remain = 0;
       this.logger.warn(`Baidu push: HTTP ${res.status} ${data.message ?? JSON.stringify(res.data).slice(0, 200)}`);
     } catch (err) {
       this.logger.warn(`Baidu push: request failed: ${err instanceof Error ? err.message : err}`);

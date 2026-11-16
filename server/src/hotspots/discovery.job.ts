@@ -29,10 +29,13 @@ export class DiscoveryJob {
       const digests = await this.prisma.dailyDigest.findMany({
         where: { createdAt: { gte: since } },
         select: { date: true, createdAt: true },
+        orderBy: { date: 'desc' },
       });
+      // Digests first: Baidu gives new sites only 10 URLs a day, and the
+      // newest digest is the page most worth spending them on.
       const entries = [
-        ...stories.map((s) => ({ url: this.indexNow.url(`/story/${s.clusterKey}`), fingerprint: s.lastUpdatedAt })),
         ...digests.map((d) => ({ url: this.indexNow.url(`/digest/${d.date}`), fingerprint: d.createdAt.toISOString() })),
+        ...stories.map((s) => ({ url: this.indexNow.url(`/story/${s.clusterKey}`), fingerprint: s.lastUpdatedAt })),
       ];
       await Promise.all([this.indexNow.submitChanged(entries), this.baidu.submitChanged(entries)]);
     } catch (err) {

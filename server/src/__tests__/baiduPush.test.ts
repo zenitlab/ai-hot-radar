@@ -31,7 +31,7 @@ describe('BaiduPushService', () => {
     const b = { url: 'https://example.com/b', fingerprint: '1' };
 
     expect(await svc.submitChanged([a, b])).toBe(2);
-    expect(post.mock.calls[0][0]).toContain('site=https%3A%2F%2Fexample.com&token=tok');
+    expect(post.mock.calls[0][0]).toContain('?site=https://example.com&token=tok');
     expect(post.mock.calls[0][1]).toBe(`${a.url}\n${b.url}`);
 
     expect(await svc.submitChanged([a, b])).toBe(0);
@@ -56,6 +56,22 @@ describe('BaiduPushService', () => {
     const svc = new BaiduPushService();
     await svc.submitChanged([{ url: 'https://example.com/a', fingerprint: '1' }]);
     expect(await svc.submitChanged([{ url: 'https://example.com/b', fingerprint: '1' }])).toBe(0);
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+
+  it('probes with a small batch until the quota is known', async () => {
+    const post = vi.spyOn(axios, 'post').mockResolvedValue(ok({ success: 10, remain: 0 }));
+    const svc = new BaiduPushService();
+    const many = Array.from({ length: 30 }, (_, i) => ({ url: `https://example.com/${i}`, fingerprint: '1' }));
+    await svc.submitChanged(many);
+    expect((post.mock.calls[0][1] as string).split('\n')).toHaveLength(10);
+  });
+
+  it('stops for the day on over quota', async () => {
+    const post = vi.spyOn(axios, 'post').mockResolvedValue({ status: 400, data: { error: 400, message: 'over quota' } } as never);
+    const svc = new BaiduPushService();
+    await svc.submitChanged([{ url: 'https://example.com/a', fingerprint: '1' }]);
+    await svc.submitChanged([{ url: 'https://example.com/a', fingerprint: '1' }]);
     expect(post).toHaveBeenCalledTimes(1);
   });
 
