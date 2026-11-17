@@ -1,5 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { AiService } from './ai.service';
+import { ArticleFetchService } from './article-fetch.service';
 import { computeClusterKey } from '../utils/title-cluster';
 import {
   SourceTier,
@@ -80,7 +81,10 @@ export interface ScoringResult extends FiveDimScore {
 export class ScoringService {
   private readonly logger = new Logger(ScoringService.name);
 
-  constructor(private readonly aiService: AiService) {}
+  constructor(
+    private readonly aiService: AiService,
+    @Optional() private readonly articleFetch?: ArticleFetchService,
+  ) {}
 
   /** Determine source tier from source string */
   getSourceTier(source: string, isVerifiedTwitter = false): SourceTier {
@@ -317,8 +321,16 @@ titleZh、summary、recommendReason 三项都必须遵守防幻觉规则。`,
     defaultCategory?: string,
     publishedAt?: Date,
     sourceName?: string,
+    url?: string,
   ): Promise<ScoringResult> {
     const clusterKey = this.computeClusterKey(title);
+    // Headline-only items (most news feeds, HN, search results) get their article
+    // fetched before the full scoring call; the pre-filter still runs on the feed
+    // text so non-AI items cost no fetch. Feed text is kept if the fetch fails.
+    const withArticle = async () => {
+      const article = await this.articleFetch?.enrich(url, content);
+      return article && article.length > content.trim().length ? `${content.trim()}\n${article}`.trim() : content;
+    };
 
     // T1 sources are always AI-related; skip pre-filter, go straight to scoring
     if (tier === 'T1') {
@@ -327,7 +339,7 @@ titleZh、summary、recommendReason 三项都必须遵守防幻觉规则。`,
         category: defaultCategory || 'industry',
         region: 'international',
       };
-      const dims = await this.scoreFiveDim(title, content, tier, preFilter, publishedAt, sourceName);
+      const dims = await this.scoreFiveDim(title, await withArticle(), tier, preFilter, publishedAt, sourceName);
       const qualityScore = this.computeQualityScore(dims, tier);
       return {
         ...dims,
@@ -356,7 +368,7 @@ titleZh、summary、recommendReason 三项都必须遵守防幻觉规则。`,
       };
     }
 
-    const dims = await this.scoreFiveDim(title, content, tier, preFilter, publishedAt, sourceName);
+    const dims = await this.scoreFiveDim(title, await withArticle(), tier, preFilter, publishedAt, sourceName);
     const qualityScore = this.computeQualityScore(dims, tier);
     return {
       ...dims,

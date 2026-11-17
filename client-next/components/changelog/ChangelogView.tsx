@@ -15,6 +15,16 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-11-17",
+    version: "v0.12.0",
+    tag: "feature",
+    items: [
+      "📖 补抓原文：信息源只给了标题或一两句简介时（TechCrunch、OpenAI、Hacker News、掘金、Bing 搜索结果等，约占六成），先读取原文页面再评分和写摘要，摘要能写出具体事实，评分也不再只凭标题",
+      "📡 新增 9 个信息源：Google Research、AWS Machine Learning、Mistral AI、Berkeley AI Research、The Verge AI、Ars Technica AI、Simon Willison、Import AI、Latent Space",
+      "🤝 读取原文时遵守对方网站的 robots.txt，原文只用于评分和写摘要，不在站内转载",
+    ],
+  },
+  {
     date: "2026-11-16",
     version: "v0.11.0",
     tag: "feature",

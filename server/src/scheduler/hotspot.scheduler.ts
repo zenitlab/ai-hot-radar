@@ -317,7 +317,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
       // Score all items in parallel — single AI call per item, two-stage (preFilter + 5-dim).
       const scorings = await Promise.all(
         slice.map((item, idx) => this.scoringService.score(
-          item.title, item.content, tiers[idx], hints[idx], item.publishedAt, item.author?.name || item.source,
+          item.title, item.content, tiers[idx], hints[idx], item.publishedAt, item.author?.name || item.source, item.url,
         )),
       );
       this.rememberRejections(slice.map(item => `${item.url}|${item.source}`), scorings);
@@ -495,7 +495,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
       // Two-stage scoring per item (preFilter + 5-dim, T1 skips preFilter).
       const scorings = await Promise.all(
         slice.map(it => this.scoringService.score(
-          it.tweet.title, it.tweet.content, it.account.tier, it.account.defaultCategory, it.tweet.publishedAt, it.account.name,
+          it.tweet.title, it.tweet.content, it.account.tier, it.account.defaultCategory, it.tweet.publishedAt, it.account.name, it.tweet.url,
         )),
       );
       this.rememberRejections(slice.map((it, idx) => `${it.tweet.url}|${sliceSources[idx]}`), scorings);
@@ -780,7 +780,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     const memoKey = `${item.url}|${item.source}|${tier}`;
     let scoringP = this.roundScoring.get(memoKey);
     if (!scoringP) {
-      scoringP = this.scoringService.score(item.title, item.content, tier, undefined, item.publishedAt, item.author?.name || item.source);
+      scoringP = this.scoringService.score(item.title, item.content, tier, undefined, item.publishedAt, item.author?.name || item.source, item.url);
       this.roundScoring.set(memoKey, scoringP);
     }
     const scoring = await scoringP;
@@ -968,7 +968,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
       // Score all items in parallel — single AI call per item, two-stage (preFilter + 5-dim).
       const scorings = await Promise.all(
         batch.map(item => this.scoringService.score(
-          item.title, item.content, item.feedConfig.tier, item.feedConfig.defaultCategory, item.publishedAt, item.feedConfig.name,
+          item.title, item.content, item.feedConfig.tier, item.feedConfig.defaultCategory, item.publishedAt, item.feedConfig.name, item.url,
         )),
       );
       this.rememberRejections(batch.map(item => `${item.url}|rss_${item.feedConfig.category}`), scorings);
@@ -1143,6 +1143,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
           p.subredditConfig.defaultCategory,
           p.publishedAt,
           `Reddit r/${p.subredditConfig.subreddit}`,
+          p.url,
         )),
       );
       this.rememberRejections(batch.map((p, idx) => `${p.url}|${batchSources[idx]}`), scorings);

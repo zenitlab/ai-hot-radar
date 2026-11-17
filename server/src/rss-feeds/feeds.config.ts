@@ -414,6 +414,39 @@ export const RSS_FEEDS: RssFeedConfig[] = [
     region: 'international',
     defaultCategory: 'industry',
   },
+  // Added 2026-11 from AIHOT's sample source list (all checked reachable).
+  {
+    name: 'Google Research',
+    url: 'https://research.google/blog/rss/',
+    category: 'google_research',
+    tier: 'T1',
+    region: 'international',
+    defaultCategory: 'research',
+  },
+  {
+    name: 'AWS Machine Learning Blog',
+    url: 'https://aws.amazon.com/blogs/machine-learning/feed/',
+    category: 'aws_ml',
+    tier: 'T1',
+    region: 'international',
+    defaultCategory: 'product',
+  },
+  {
+    name: 'Mistral AI',
+    url: 'https://mistral.ai/news/rss',
+    category: 'mistral',
+    tier: 'T1',
+    region: 'international',
+    defaultCategory: 'model',
+  },
+  {
+    name: 'Berkeley AI Research',
+    url: 'https://bair.berkeley.edu/blog/feed.xml',
+    category: 'bair',
+    tier: 'T1',
+    region: 'international',
+    defaultCategory: 'research',
+  },
   // NOTE: Cursor / Replit / Windsurf — 官方都不提供公开 RSS（实测均 404/重定向），
   // 这几家产品发布只能通过 KEYWORD_GROUPS 里的 Bing/HN 搜索 + Twitter 抓取。
 
@@ -552,6 +585,21 @@ export const RSS_FEEDS: RssFeedConfig[] = [
     region: 'international',
     defaultCategory: 'industry',
   },
+  // AI sections only: their main feeds are mostly non-AI tech news.
+  {
+    name: 'The Verge AI',
+    url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',
+    category: 'theverge',
+    tier: 'T1.5',
+    region: 'international',
+  },
+  {
+    name: 'Ars Technica AI',
+    url: 'https://arstechnica.com/ai/feed/',
+    category: 'arstechnica',
+    tier: 'T1.5',
+    region: 'international',
+  },
   {
     name: 'Microsoft AI Blog',
     url: 'https://blogs.microsoft.com/ai/feed/',
@@ -586,6 +634,28 @@ export const RSS_FEEDS: RssFeedConfig[] = [
   },
 
   // ===== T2: Community =====
+  // Individual newsletters: high signal but many short link posts, so the T2 bar applies.
+  {
+    name: 'Simon Willison',
+    url: 'https://simonwillison.net/atom/everything/',
+    category: 'simonwillison',
+    tier: 'T2',
+    region: 'international',
+  },
+  {
+    name: 'Import AI',
+    url: 'https://importai.substack.com/feed',
+    category: 'importai',
+    tier: 'T2',
+    region: 'international',
+  },
+  {
+    name: 'Latent Space',
+    url: 'https://www.latent.space/feed',
+    category: 'latentspace',
+    tier: 'T2',
+    region: 'international',
+  },
   {
     name: 'Hacker News Best',
     url: 'https://hnrss.org/best',

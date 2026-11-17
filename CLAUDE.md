@@ -24,3 +24,7 @@ Every prompt that produces text readers see (Chinese title, summary, recommend r
 - Guards: `acceptTitleZh`, `cleanSummary`, `stripUnsupportedYears`, `groundSummary`, `unsupportedTerms`. They exist because live runs with the production model (agnes-3.0-flash) ignored the prompt rules on thin sources: it padded summaries with invented reactions and wrote sentences about the reporting itself. Don't remove a guard because the prompt already says the same thing.
 - `Hotspot.titleZh` is nullable (rejected or pre-existing rows). The frontend must show titles through `displayTitle()` in `client-next/lib/utils.ts`, never `item.title` directly.
 - Event overviews (`StoryDigest`, written by `server/src/hotspots/story-digest.job.ts`) cost one AI call each and are capped by `STORY_DIGEST_PER_RUN`. The free LLM tier allows roughly 1000 calls a day, so anything that adds a call per item needs the user's agreement first.
+
+## Article fetching (server/src/services/article-fetch.service.ts)
+
+Thin feed items (< 300 chars) get their article fetched before scoring. Feed URLs are attacker-controlled, so keep both guards when touching it: `safeLookup` refuses private/metadata addresses on every connection, and `isSafeRedirect` covers redirects to IP literals (Node skips DNS for those). `198.18.0.0/15` is deliberately allowed because local Clash TUN answers DNS from it. Fetched text is for the model only: don't store it in `Hotspot.content` or show it on the site.

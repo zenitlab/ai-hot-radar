@@ -42,7 +42,8 @@ export class BaiduPushService {
   async submitChanged(entries: Array<{ url: string; fingerprint: string }>): Promise<number> {
     if (!this.enabled) return 0;
 
-    const today = new Date().toISOString().slice(0, 10);
+    // Baidu's quota resets at midnight Beijing time, not UTC.
+    const today = new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
     if (today !== this.remainDay) {
       this.remain = null; // quota resets daily
       this.remainDay = today;

@@ -57,6 +57,15 @@ const RSS_LABELS: Record<string, string> = {
   arxiv_cl: 'arXiv cs.CL',
   arxiv_cv: 'arXiv cs.CV',
   wheresyoured: "Where's Your Ed At",
+  google_research: 'Google Research',
+  aws_ml: 'AWS Machine Learning',
+  mistral: 'Mistral AI',
+  bair: 'Berkeley AI Research',
+  theverge: 'The Verge',
+  arstechnica: 'Ars Technica',
+  simonwillison: 'Simon Willison',
+  importai: 'Import AI',
+  latentspace: 'Latent Space',
 };
 
 /** subreddit slug → display label */

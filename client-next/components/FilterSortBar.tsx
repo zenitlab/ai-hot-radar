@@ -42,6 +42,10 @@ const SOURCE_OPTIONS = [
   { value: 'rss_hugging_face', label: 'Hugging Face' },
   { value: 'rss_microsoft_ai', label: 'Microsoft AI' },
   { value: 'rss_mit_tech', label: 'MIT Tech Review' },
+  { value: 'rss_google_research', label: 'Google Research' },
+  { value: 'rss_aws_ml', label: 'AWS Machine Learning' },
+  { value: 'rss_mistral', label: 'Mistral AI' },
+  { value: 'rss_bair', label: 'Berkeley AI Research' },
   // Research / arXiv
   { value: 'rss_arxiv_ai', label: 'arXiv cs.AI' },
   { value: 'rss_arxiv_lg', label: 'arXiv cs.LG' },
@@ -54,6 +58,11 @@ const SOURCE_OPTIONS = [
   { value: 'rss_synced', label: 'Synced' },
   { value: 'rss_github', label: 'GitHub Blog' },
   { value: 'rss_wheresyoured', label: "Where's Your Ed At" },
+  { value: 'rss_theverge', label: 'The Verge' },
+  { value: 'rss_arstechnica', label: 'Ars Technica' },
+  { value: 'rss_simonwillison', label: 'Simon Willison' },
+  { value: 'rss_importai', label: 'Import AI' },
+  { value: 'rss_latentspace', label: 'Latent Space' },
   // Chinese sources
   { value: 'rss_ithome', label: 'IT之家' },
   { value: 'rss_36kr', label: '36氪' },

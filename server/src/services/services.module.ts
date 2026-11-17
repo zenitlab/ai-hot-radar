@@ -9,9 +9,10 @@ import { EmailService } from './email.service';
 import { RssService } from './rss.service';
 import { ScoringService } from './scoring.service';
 import { RedditService } from './reddit.service';
+import { ArticleFetchService } from './article-fetch.service';
 
 @Module({
-  providers: [IndexNowService, BaiduPushService, AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService, RedditService],
-  exports: [IndexNowService, BaiduPushService, AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService, RedditService],
+  providers: [IndexNowService, BaiduPushService, AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService, RedditService, ArticleFetchService],
+  exports: [IndexNowService, BaiduPushService, AiService, TwitterService, SearchService, ChinaSearchService, EmailService, RssService, ScoringService, RedditService, ArticleFetchService],
 })
 export class ServicesModule {}
