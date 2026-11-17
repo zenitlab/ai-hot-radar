@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 
+import { TopicIcon } from '@/components/topics/TopicIcon';
 import { fetchTopicsSSR } from '@/lib/server-api';
 import { ogImages, twitterImages } from '@/lib/og-meta';
 import { generateBreadcrumbSchema, safeJsonLd } from '@/lib/structured-data';
@@ -59,18 +60,21 @@ export default async function TopicsPage() {
                   <li key={t.slug}>
                     <Link
                       href={`/topics/${t.slug}`}
-                      className="group flex h-full flex-col rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-3.5 hover:border-[var(--card-border-hover)] transition-colors"
+                      className="group flex h-full items-start gap-3 rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-3.5 hover:border-[var(--card-border-hover)] transition-colors"
                     >
-                      <span className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)]">{t.name}</span>
-                        <span className="inline-flex shrink-0 items-center text-xs text-[var(--text-muted)]">
-                          近 {data?.windowDays ?? 30} 天 {t.count} 条
-                          <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+                      <TopicIcon slug={t.slug} />
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="flex items-center justify-between gap-2">
+                          <span className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)]">{t.name}</span>
+                          <span className="inline-flex shrink-0 items-center text-xs text-[var(--text-muted)]">
+                            近 {data?.windowDays ?? 30} 天 {t.count} 条
+                            <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+                          </span>
                         </span>
+                        {t.latest && (
+                          <span className="mt-1 text-[13px] leading-snug text-[var(--text-secondary)] line-clamp-2">{t.latest.title}</span>
+                        )}
                       </span>
-                      {t.latest && (
-                        <span className="mt-1.5 text-[13px] leading-snug text-[var(--text-secondary)] line-clamp-2">{t.latest.title}</span>
-                      )}
                     </Link>
                   </li>
                 ))}

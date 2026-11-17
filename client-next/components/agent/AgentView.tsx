@@ -2,7 +2,7 @@
 import { useState, useSyncExternalStore } from 'react';
 import {
   Plug, Copy, Check, ExternalLink, Sparkles, Rss, Code2,
-  CalendarDays, Newspaper, LayoutList, Search, Zap, Terminal, BookOpen,
+  CalendarDays, Newspaper, Search, Zap, Terminal, BookOpen, Flame, GitBranch, LayoutGrid, ShieldCheck,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -13,64 +13,87 @@ const getRssFeeds = (baseUrl: string) => [
   {
     label: '精选资讯 RSS',
     url: `${baseUrl}/api/agent/rss/curated.xml`,
-    desc: '经 AI 五维评分筛选的高质量内容，每条都值得读',
+    desc: '经 AI 五维评分筛选的最新 50 条精选，同一事件只留一条',
   },
   {
     label: '全部资讯 RSS',
     url: `${baseUrl}/api/agent/rss/all.xml`,
-    desc: '不做筛选，所有抓取到的 AI 资讯，适合需要全量信息的场景',
+    desc: '不做筛选，最新抓取到的 100 条 AI 资讯，适合需要全量信息的场景',
   },
   {
     label: 'AI 日报 RSS',
     url: `${baseUrl}/api/agent/rss/digest.xml`,
-    desc: '每日早上 8:00 自动生成的 AI 行业日报，覆盖模型 / 产品 / 行业 / 论文',
+    desc: '每天早上 8 点生成的 AI 日报：当日总结、重点事件、六大板块与快讯，保留最近 7 期',
   },
 ];
 
 const API_DOCS = [
-  { method: 'GET', path: '/api/agent/curated', desc: '获取精选资讯 JSON 列表', params: 'limit, offset, days' },
-  { method: 'GET', path: '/api/agent/digest',  desc: '获取指定日期的 AI 日报',  params: 'date (YYYY-MM-DD)' },
-  { method: 'GET', path: '/api/agent/search',  desc: '按关键词搜索资讯',         params: 'q, limit' },
-  { method: 'GET', path: '/api/agent/stats',   desc: '系统统计数据',             params: '—' },
-  { method: 'GET', path: '/api/hotspots/trending', desc: '热点榜：多家来源同时报道的事件', params: 'limit (≤50)' },
-  { method: 'GET', path: '/api/hotspots/story/{clusterKey}', desc: '事件详情：全部报道与已确认/尚未确认要点', params: '—' },
-  { method: 'GET', path: '/api/topics/{slug}', desc: '主题动态（slug 见 /api/topics）', params: 'page' },
-  { method: 'GET', path: '/skill.md',          desc: '可安装的 Skill（Markdown）', params: '—' },
+  { method: 'GET', path: '/api/agent/digest',  desc: '指定日期的 AI 日报：总结、重点事件、六大板块与快讯', params: 'date (YYYY-MM-DD，默认今天)' },
+  { method: 'GET', path: '/api/hotspots/trending', desc: '热点榜：过去 48 小时多家来源同时报道的事件，按热度排序，含涨跌与事件概览', params: 'limit (≤50)' },
+  { method: 'GET', path: '/api/hotspots/story/{clusterKey}', desc: '事件详情：全部报道时间线，以及「已确认 / 尚未确认 / 为什么重要」要点', params: '—' },
+  { method: 'GET', path: '/api/topics', desc: '全部主题及 slug：公司与模型、技术方向、内容类型', params: '—' },
+  { method: 'GET', path: '/api/topics/{slug}', desc: '某个主题近 30 天的焦点事件与精选列表', params: 'page' },
+  { method: 'GET', path: '/api/agent/curated', desc: '精选资讯，按质量分降序；问「最近」时带上 days', params: 'limit (≤100), offset, days (1–30)' },
+  { method: 'GET', path: '/api/agent/search',  desc: '在标题和摘要里按关键词搜索', params: 'q, limit' },
+  { method: 'GET', path: '/api/agent/stats',   desc: '资讯总量、当日新增、信源数量', params: '—' },
+  { method: 'GET', path: '/skill.md',          desc: '可安装的 Skill（SKILL.md，Markdown）', params: '—' },
 ];
 
 const SKILL_CAPABILITIES = [
   {
     icon: CalendarDays,
     title: 'AI 日报',
-    desc: '获取今日或指定日期的 AI 行业日报，按模型 / 产品 / 行业 / 论文等板块返回',
+    desc: '今天或指定日期的 AI 日报：当日总结、重点事件和各板块要点，每条带原文链接',
     example: '给我一份今天的 AI 日报',
     accent: 'text-blue-400',
     bg: 'bg-blue-500/10',
   },
   {
+    icon: Flame,
+    title: '热点榜',
+    desc: '过去 48 小时多家来源同时报道的事件，按热度排序，看得出哪件事正在发酵',
+    example: '现在 AI 圈最热的是什么',
+    accent: 'text-red-400',
+    bg: 'bg-red-500/10',
+  },
+  {
+    icon: GitBranch,
+    title: '事件来龙去脉',
+    desc: '一件事的全部报道和事件概览，区分已确认的事实和尚未确认的传闻',
+    example: 'OpenAI 新模型的消息，现在确认了哪些',
+    accent: 'text-violet-400',
+    bg: 'bg-violet-500/10',
+  },
+  {
+    icon: LayoutGrid,
+    title: '主题动态',
+    desc: '按公司（OpenAI、Anthropic、DeepSeek 等）或方向（Agent、AI 编程等）看近 30 天的动态',
+    example: 'Anthropic 最近有什么动态',
+    accent: 'text-amber-400',
+    bg: 'bg-amber-500/10',
+  },
+  {
     icon: Newspaper,
     title: '精选资讯',
-    desc: '获取经质量评分精选的 AI 资讯，按重要度排序',
-    example: '看看最新的精选 AI 资讯',
+    desc: '经质量评分筛出的精选，可以只看最近几天',
+    example: '最近 3 天有哪些值得看的 AI 新闻',
     accent: 'text-emerald-400',
     bg: 'bg-emerald-500/10',
   },
   {
-    icon: LayoutList,
-    title: '热点与主题',
-    desc: '多家来源同时报道的热点事件，以及按公司或方向（OpenAI、Anthropic、Agent 等）汇总的近期动态',
-    example: 'Anthropic 最近有什么动态',
-    accent: 'text-purple-400',
-    bg: 'bg-purple-500/10',
-  },
-  {
     icon: Search,
     title: '关键词搜索',
-    desc: '在所有资讯中搜索包含特定关键词的内容',
+    desc: '在全部资讯的标题和摘要里搜索关键词',
     example: '搜一下最近关于 MCP 的新闻',
-    accent: 'text-amber-400',
-    bg: 'bg-amber-500/10',
+    accent: 'text-sky-400',
+    bg: 'bg-sky-500/10',
   },
+];
+
+const INSTALL_STEPS = [
+  'AI 助手读取 skill.md，把它保存为自己的 skill',
+  '它发一次请求确认接口可用，告诉你已接入',
+  '之后直接用中文提问，它会自己选接口、附上原文链接回答',
 ];
 
 const TABS: { id: AgentTab; label: string; icon: React.ElementType; desc: string }[] = [
@@ -144,10 +167,10 @@ export function AgentView() {
           <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Agent 接入</h1>
         </div>
         <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-          把 AI Hot Radar 的「精选资讯」「AI 日报」「关键词搜索」能力，以 <span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">Skill</span>、
+          把 AI Hot Radar 的 AI 日报、热点榜、事件详情、主题动态、精选和搜索，以 <span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">Skill</span>、
           <span className="text-[var(--accent-emerald)] dark:text-emerald-400 font-medium"> RSS</span>、
           <span className="text-[var(--accent-amber)] dark:text-purple-400 font-medium"> API</span> 三种方式开放给外部消费 —
-          无论是 Claude Code、Cursor、Feedly，还是企业 IM 机器人，都能一键接入。
+          全部免费、无需注册。Claude Code 等 AI 助手、RSS 阅读器、飞书或企业微信机器人都能直接用。
         </p>
       </div>
 
@@ -172,7 +195,7 @@ export function AgentView() {
                 <Icon className="w-4 h-4" />
                 <span className="font-semibold text-sm">{tab.label}</span>
               </div>
-              <span className={cn('text-[10px]', active ? 'text-white/80' : 'text-[var(--text-muted)]')}>
+              <span className={cn('text-[10px]', active ? 'opacity-80' : 'text-[var(--text-muted)]')}>
                 {tab.desc}
               </span>
             </button>
@@ -191,8 +214,8 @@ export function AgentView() {
               <h2 className="font-semibold text-[var(--text-primary)]">什么是 Skill？</h2>
             </div>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4">
-              Skill 是给 AI 助手（如 Claude Code、Cursor）用的「能力包」。安装一次后，
-              你的 AI 助手就拥有「查 AI 日报、查精选、按关键词搜索」等能力，自然语言提问即可调用。
+              Skill 是给 AI 助手（如 Claude Code）用的说明书。安装一次后，你的 AI 助手就知道怎么查
+              AI 日报、热点榜、事件详情和各公司动态，直接用中文提问即可，不用记接口。
             </p>
             <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--card-border)] p-3">
               <div className="flex items-center justify-between gap-2 mb-1.5">
@@ -205,6 +228,26 @@ export function AgentView() {
                 请阅读 {baseUrl}/skill.md 并按其中的说明安装为 skill
               </code>
             </div>
+            <ol className="mt-4 space-y-1.5 text-sm text-[var(--text-secondary)]">
+              {INSTALL_STEPS.map((step, i) => (
+                <li key={step} className="flex gap-2">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent-blue)]/10 text-[11px] font-semibold text-[var(--accent-blue)] dark:text-blue-400">
+                    {i + 1}
+                  </span>
+                  {step}
+                </li>
+              ))}
+            </ol>
+            <details className="mt-4 text-sm">
+              <summary className="cursor-pointer text-[var(--text-muted)] hover:text-[var(--text-primary)]">手动安装（Claude Code）</summary>
+              <div className="mt-2 flex items-start justify-between gap-2 rounded-xl border border-[var(--card-border)] bg-[var(--bg-elevated)] p-3">
+                <code className="text-xs text-[var(--text-secondary)] font-mono break-all">
+                  mkdir -p ~/.claude/skills/aihotradar && curl -fsSL {baseUrl}/skill.md -o ~/.claude/skills/aihotradar/SKILL.md
+                </code>
+                <CopyButton text={`mkdir -p ~/.claude/skills/aihotradar && curl -fsSL ${baseUrl}/skill.md -o ~/.claude/skills/aihotradar/SKILL.md`} />
+              </div>
+              <p className="mt-2 text-xs text-[var(--text-muted)]">其他 AI 助手把 skill.md 存到它自己的 skill 或指令目录即可。想更新时重新下载覆盖。</p>
+            </details>
           </div>
 
           <div>
@@ -250,7 +293,7 @@ export function AgentView() {
             </div>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
               提供 3 个 RSS Feed，复制链接到你常用的 RSS 阅读器（Feedly、Inoreader、NetNewsWire 等）即可订阅。
-              所有 Feed 实时反映本系统的最新内容。
+              资讯每 30 分钟更新，日报每天早上 8 点更新。
             </p>
           </div>
 
@@ -299,7 +342,7 @@ export function AgentView() {
               <h2 className="font-semibold text-[var(--text-primary)]">REST API</h2>
             </div>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              全部接口免认证、JSON 格式返回，可直接对接飞书机器人 / 企业微信 / n8n / 自动化工作流。
+              全部接口免认证、JSON 格式返回，可直接对接飞书机器人 / 企业微信 / n8n / 自动化工作流。日期按北京时间。
             </p>
             <div className="flex flex-wrap items-center gap-3 text-xs">
               <span className="inline-flex items-center gap-1.5 text-[var(--text-muted)]">
@@ -310,6 +353,9 @@ export function AgentView() {
               </span>
               <span className="inline-flex items-center gap-1.5 text-[var(--text-muted)]">
                 <Terminal className="w-3 h-3 text-emerald-400" /> 直接 curl 调用
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-[var(--text-muted)]">
+                <ShieldCheck className="w-3 h-3 text-violet-400" /> 每秒不超过 1 次，相同请求 10 分钟内请复用
               </span>
             </div>
           </div>
@@ -349,8 +395,10 @@ export function AgentView() {
               示例
             </p>
             <code className="block text-xs text-[var(--text-secondary)] font-mono whitespace-pre-wrap break-all">
-{`curl ${baseUrl}/api/agent/curated?limit=5
-curl ${baseUrl}/api/agent/digest?date=2026-05-21
+{`curl ${baseUrl}/api/agent/digest
+curl "${baseUrl}/api/hotspots/trending?limit=10"
+curl ${baseUrl}/api/topics/anthropic
+curl "${baseUrl}/api/agent/curated?days=1&limit=10"
 curl "${baseUrl}/api/agent/search?q=Claude&limit=10"`}
             </code>
           </div>

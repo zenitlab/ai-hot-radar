@@ -3,7 +3,9 @@ import {
   Github,
   Heart,
   Sparkles,
-  Radio,
+  Flame,
+  LayoutGrid,
+  CalendarDays,
   Bookmark,
   Plug,
   ExternalLink,
@@ -14,7 +16,7 @@ import { BackToTop } from "../common/BackToTop";
 import { OrganizationSchema, WebSiteSchema } from "../seo/StructuredData";
 
 /**
- * 关于页 — 项目介绍 + 核心能力 + 数据源 + 联系方式。
+ * 关于页 — 项目介绍 + 核心能力 + 数据源 + 内容怎么写 + 联系方式 + 版权说明。
  *
  * 微信二维码：把图片放到 client-next/public/wechat-qr.png（建议 ~400×400px）
  * 即可自动展示。如果不存在，会显示占位提示。
@@ -22,56 +24,93 @@ import { OrganizationSchema, WebSiteSchema } from "../seo/StructuredData";
 
 const FEATURES = [
   {
-    icon: Radio,
-    title: "热点雷达",
-    desc: "20+ 信息源持续抓取，AI 双阶段评分识别真伪与重要度，同事件多源去重；「多源热议」按跨来源热度排出多家同时报道的事件。",
+    icon: Sparkles,
+    title: "精选",
+    desc: "每条资讯经 AI 五维评分，官方一手、专业媒体、社区三级信源门槛不同；同一事件只留最好的一篇。",
+    href: "/curated",
     accent:
       "text-[var(--accent-blue)] bg-[var(--accent-blue)]/10 dark:text-blue-400 dark:bg-blue-500/10",
   },
   {
-    icon: Sparkles,
-    title: "精选 + AI 日报",
-    desc: "按内容类型加权的五维评分 + tier 加成筛出的高质量资讯流；每天早上 8:00 自动生成日报，一事一条、一周内不重复。",
+    icon: Flame,
+    title: "热点榜与事件页",
+    desc: "过去 48 小时多家来源同时报道的事件按热度排行；每个事件一页，汇总全部报道，分出已确认、尚未确认和为什么重要。",
+    href: "/hot",
+    accent: "text-red-600 bg-red-500/10 dark:text-red-400",
+  },
+  {
+    icon: LayoutGrid,
+    title: "主题",
+    desc: "按公司（OpenAI、Anthropic、DeepSeek……）、技术方向（Agent、AI 编程、多模态……）和内容类型看近 30 天动态。",
+    href: "/topics",
+    accent: "text-violet-600 bg-violet-500/10 dark:text-violet-400",
+  },
+  {
+    icon: CalendarDays,
+    title: "AI 日报",
+    desc: "每天早上 8 点自动生成：当日总结、重点事件、六大板块和快讯。按重要性排序，一件事只写一次，一周内不重复。",
+    href: "/digest",
     accent: "text-amber-600 bg-amber-500/10 dark:text-amber-400",
   },
   {
     icon: Bookmark,
     title: "我的关注",
-    desc: "订阅自定义关键词，AI 自动扩展同义词、判断真伪，重要热点 WebSocket 实时推送。",
+    desc: "订阅自定义关键词，AI 自动扩展同义词、判断真伪，命中的重要资讯实时推送。",
+    href: "/keywords",
     accent: "text-emerald-600 bg-emerald-500/10 dark:text-emerald-400",
   },
   {
     icon: Plug,
     title: "Agent 接入",
-    desc: "Skill / RSS / REST API 三种方式，让 Claude Code、Cursor、Feedly、企业 IM 都能消费。",
+    desc: "可安装的 Skill、RSS 和免认证 JSON 接口，Claude Code 等 AI 助手、RSS 阅读器、企业 IM 机器人都能直接用。",
+    href: "/agent",
     accent: "text-purple-600 bg-purple-500/10 dark:text-purple-400",
   },
 ];
 
+/** Mirrors server/src/rss-feeds/feeds.config.ts (active feeds) plus the keyword-search sources. */
 const SOURCES = [
   {
-    group: "国际官方",
+    group: "官方与实验室",
     items: [
-      "OpenAI",
-      "Anthropic",
-      "Google AI",
-      "DeepMind",
-      "NVIDIA",
-      "Meta AI",
-      "Hugging Face",
-      "Microsoft AI",
+      "OpenAI", "Anthropic", "Claude.dev", "Google AI", "Google DeepMind", "Google Research", "Meta AI",
+      "Microsoft Research", "Microsoft AI", "NVIDIA", "Apple ML Research", "Mistral AI", "Hugging Face",
+      "AWS ML", "Amazon Science", "Ai2", "Sakana AI", "BAIR", "PyTorch", "LangChain", "Together AI",
+      "OpenRouter", "Databricks", "Modal", "Meta Engineering", "GitHub",
     ],
   },
   {
-    group: "学术 / 论文",
-    items: ["arXiv (cs.AI / CL / LG / CV)", "HuggingFace Daily Papers"],
+    group: "论文与研究",
+    items: ["arXiv（cs.AI / CL / LG / CV）", "HuggingFace Daily Papers", "Epoch AI", "MIT News"],
   },
-  { group: "社交 / KOL", items: ["X / Twitter（17 个 AI KOL）", "Bilibili"] },
   {
-    group: "中文媒体",
-    items: ["IT之家", "36氪", "财联社", "雪球", "InfoQ", "中国新闻网"],
+    group: "国际媒体",
+    items: [
+      "MIT Technology Review", "The Verge", "TechCrunch", "Ars Technica", "VentureBeat", "The Decoder",
+      "MarkTechPost", "Synced", "SemiAnalysis", "Platformer", "Newcomer", "ChinaTalk", "Recode China AI",
+      "O'Reilly Radar",
+    ],
   },
-  { group: "搜索引擎", items: ["Bing", "HackerNews"] },
+  {
+    group: "独立作者",
+    items: [
+      "Simon Willison", "Import AI", "Latent Space", "Interconnects", "Ahead of AI", "Dwarkesh Patel",
+      "Gary Marcus", "a16z", "Where's Your Ed At",
+    ],
+  },
+  {
+    group: "中文",
+    items: ["IT之家", "36氪", "财联社", "InfoQ", "掘金", "V2EX", "雪球", "中国新闻网"],
+  },
+  { group: "社区与搜索", items: ["Hacker News", "Bing 新闻", "Bilibili"] },
+];
+
+/** How titles, summaries and overviews are written; see server/src/utils/writing-rules.ts. */
+const METHOD = [
+  "标题、摘要、推荐理由和事件概览由 AI 根据原文写成，选题标准和写作规则由人工制定。",
+  "原文只有一句话时，系统会先抓取原文正文再评分和写摘要；写出来的内容会被程序逐条检查，提到原文里没有的名字、年份或说法的，直接丢弃。",
+  "事件页把只有单一来源的说法和传闻单独放进「尚未确认」，并写明是谁说的；官方或当事方自己发布的内容标为「一手来源」。",
+  "每条内容都标明来源并链接原文，判断以原文为准。",
 ];
 
 export function AboutView() {
@@ -84,16 +123,16 @@ export function AboutView() {
         </h1>
         <p className="text-[15px] text-[var(--text-secondary)] leading-[1.8]">
           这是我自己用的 AI 资讯聚合工具。每天的 AI
-          新闻、模型发布、产品更新太多， 一个个看公众号、刷 X、订 RSS
+          新闻、模型发布、产品更新太多，一个个看公众号、刷 X、订 RSS
           太累。我希望系统帮我做三件事：
           <strong className="text-[var(--text-primary)]"> 抓全</strong>、
           <strong className="text-[var(--text-primary)]"> 筛精</strong>、
           <strong className="text-[var(--text-primary)]"> 总结</strong>。
         </p>
         <p className="text-[15px] text-[var(--text-secondary)] leading-[1.8] mt-3">
-          于是有了 AI Hot Radar—— 它每 30 分钟从 20+ 信息源抓取最新资讯，通过两阶段 AI
-          评分（短 prompt 预筛 + 完整 5 维评分）
-          筛掉噪音，最后沉淀到「精选」「热点雷达」「AI 日报」三个视图里。
+          于是有了 AI Hot Radar：它每 30 分钟从 70 多个信息源抓取最新资讯，用两阶段 AI
+          评分（快速预筛 + 完整五维评分）筛掉噪音，把多家来源报道的同一件事合成一个事件，
+          最后整理成「精选」「热点榜」「主题」「AI 日报」几个视图。
           如果它对你也有用，欢迎用起来。
         </p>
       </header>
@@ -107,9 +146,10 @@ export function AboutView() {
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
-              <div
+              <Link
                 key={f.title}
-                className="p-4 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)]"
+                href={f.href}
+                className="group p-4 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] transition-colors"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <span
@@ -117,14 +157,14 @@ export function AboutView() {
                   >
                     <Icon className="w-4 h-4" />
                   </span>
-                  <h3 className="font-semibold text-[var(--text-primary)]">
+                  <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)]">
                     {f.title}
                   </h3>
                 </div>
                 <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
                   {f.desc}
                 </p>
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -157,16 +197,21 @@ export function AboutView() {
             </div>
           ))}
         </div>
-        <p className="text-xs text-[var(--text-muted)] mt-3">
-          完整的信源列表与评分规则可以在
-          <Link
-            href="/agent"
-            className="text-[var(--accent-blue)] dark:text-blue-400 hover:underline mx-1"
-          >
-            Agent 接入
-          </Link>
-          页查看。
+        <p className="text-xs text-[var(--text-muted)] mt-3 leading-relaxed">
+          共 68 个 RSS 信源，外加 Bing、Hacker News、Bilibili 的关键词搜索。信源分官方一手、专业媒体、社区与个人三级，级别越低，进入精选的分数门槛越高。
         </p>
+      </section>
+
+      {/* ── Method ──────────────────────────────────────────── */}
+      <section aria-labelledby="method" className="mb-10">
+        <h2 id="method" className="text-lg font-bold text-[var(--text-primary)] tracking-tight mb-4">
+          内容怎么写
+        </h2>
+        <ul className="space-y-2.5 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5 text-[14px] leading-relaxed text-[var(--text-secondary)] list-disc pl-9 marker:text-[var(--text-muted)]">
+          {METHOD.map((m) => (
+            <li key={m}>{m}</li>
+          ))}
+        </ul>
       </section>
 
       {/* ── Stack ───────────────────────────────────────────── */}
@@ -180,7 +225,7 @@ export function AboutView() {
               前端
             </div>
             <div className="text-[var(--text-secondary)]">
-              Next.js 15 (App Router) · React 19 · TailwindCSS · lucide-react
+              Next.js 16 (App Router) · React 19 · TailwindCSS · lucide-react
             </div>
           </div>
           <div>
@@ -204,7 +249,7 @@ export function AboutView() {
               数据采集
             </div>
             <div className="text-[var(--text-secondary)]">
-              RSS · twitterapi.io · Bing/HN 抓取 · Bilibili
+              RSS · Bing / Hacker News / Bilibili 关键词搜索 · 正文补抓（遵守 robots.txt）
             </div>
           </div>
         </div>

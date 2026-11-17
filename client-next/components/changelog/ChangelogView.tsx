@@ -15,6 +15,16 @@ interface ChangelogEntry {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-11-18",
+    version: "v0.16.1",
+    tag: "tweak",
+    items: [
+      "🏷️ 主题页每张卡片加上图标：公司与模型用各家的标志（OpenAI、Anthropic、Google、DeepSeek、阿里、字节、Kimi、智谱等），技术方向和内容类型配上对应图标；主题详情页标题旁也显示",
+      "🤖 Agent 接入页更新：能力介绍补上热点榜、事件详情和主题动态，新增安装步骤和手动安装命令，接口列表与示例同步更新",
+      "📄 关于页更新：核心能力改为精选、热点榜与事件页、主题、AI 日报、我的关注、Agent 接入，数据来源换成现在的 68 个 RSS 信源完整清单，新增「内容怎么写」说明",
+    ],
+  },
+  {
     date: "2026-11-17",
     version: "v0.16.0",
     tag: "feature",

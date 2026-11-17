@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Flame } from 'lucide-react';
 
+import { TopicIcon } from '@/components/topics/TopicIcon';
 import { CATEGORY_LABEL } from '@/lib/categories';
 import { fetchTopicSSR, type TopicItem, type TopicResponse } from '@/lib/server-api';
 import { ogImages, twitterImages } from '@/lib/og-meta';
@@ -171,7 +172,10 @@ export default async function TopicPage(props: Props) {
         </nav>
 
         <header className="mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold leading-snug text-[var(--text-primary)]">{topic.name}</h1>
+          <div className="flex items-center gap-3">
+            <TopicIcon slug={topic.slug} size="lg" />
+            <h1 className="text-xl sm:text-2xl font-bold leading-snug text-[var(--text-primary)]">{topic.name}</h1>
+          </div>
           <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{topic.description}</p>
           <p className="mt-2 text-xs text-[var(--text-muted)]">
             近 {d.windowDays} 天 <span className="font-semibold text-[var(--text-secondary)]">{d.count}</span> 条精选
