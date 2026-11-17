@@ -16,6 +16,15 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11-17",
+    version: "v0.15.0",
+    tag: "feature",
+    items: [
+      "📡 新增 30 个信息源：NVIDIA Technical Blog、PyTorch、Together AI、LangChain、OpenRouter、Microsoft Research、Apple ML Research、Ai2、Sakana AI、OpenAI Alignment 与系统卡、Claude.dev 等官方博客；Databricks、Modal、Meta Engineering、MIT News、SemiAnalysis、Epoch AI、ChinaTalk、Recode China AI、O'Reilly Radar、Platformer、Newcomer 等分析与工程博客；Interconnects、Ahead of AI、Dwarkesh Patel、Gary Marcus、a16z、MarkTechPost",
+      "🔄 Google DeepMind 改为直接订阅官方博客 RSS",
+    ],
+  },
+  {
+    date: "2026-11-17",
     version: "v0.14.0",
     tag: "feature",
     items: [

@@ -32,7 +32,7 @@ AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统白天每
 - **后端**：NestJS 11 + Express + Prisma + SQLite + Socket.io
 - **前端**：Next.js 15 + React 19 + TailwindCSS + lucide-react
 - **AI**：兼容 OpenAI 协议的任意模型（阿里云百炼 / 硅基流动 / DeepSeek / OpenAI 均可），也支持腾讯云开发 CloudBase
-- **数据源**：RSS、Bing/HackerNews 搜索、twitterapi.io、Bilibili 抓取
+- **数据源**：68 个 RSS（官方博客、媒体、个人通讯、arXiv、中文资讯）、Bing/HackerNews 搜索、twitterapi.io、Bilibili 抓取。RSS 列表在 `server/src/rss-feeds/feeds.config.ts`，级别决定入选门槛：T1 官方一手（只放纯 AI 的源，不过预筛）、T1.5 优质媒体与工程博客、T2 个人与社区
 
 ## 二、核心功能
 
