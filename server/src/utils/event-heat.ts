@@ -13,6 +13,8 @@ export const WINDOW_HOURS = 48;
 export const MIN_PARTICIPANTS = 2;
 /** Trend compares heat now vs this many hours ago. */
 export const TREND_LOOKBACK_HOURS = 6;
+/** Growth over the lookback that counts as a surge. */
+export const SURGE_PCT = 50;
 
 export type HeatItem = {
   id: string;
@@ -29,6 +31,10 @@ export type EventHeat = {
   participants: string[];
   /** 'new' = no heat 6h ago, 'rising' = heat grew, otherwise null. */
   trend: 'new' | 'rising' | null;
+  /** Heat change vs TREND_LOOKBACK_HOURS ago, in percent; null for new events. */
+  changePct: number | null;
+  /** Heat grew by SURGE_PCT or more: discussion is picking up fast ("爆"). */
+  surge: boolean;
   itemIds: string[];
   firstSeenAt: Date;
 };
@@ -84,9 +90,13 @@ export function computeEventHeat(items: HeatItem[], now: number = Date.now()): E
     const heat = heatAt(last, now);
     const prevHeat = heatAt(lastPrev, prevAt);
     const trend = lastPrev.size === 0 ? 'new' : heat > prevHeat ? 'rising' : null;
+    // Heat decays, so a story nobody adds to shows a steady decline here.
+    const changePct = prevHeat > 0 ? Math.round(((heat - prevHeat) / prevHeat) * 100) : null;
     events.push({
       clusterKey,
       heat: Math.round(heat * 100) / 100,
+      changePct,
+      surge: changePct !== null && changePct >= SURGE_PCT,
       participants: [...last.keys()],
       trend,
       itemIds: list.map(i => i.id),

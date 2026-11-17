@@ -225,17 +225,30 @@ export class HotspotsService {
       include: { keyword: { select: { id: true, text: true, category: true } } },
     });
     const byId = new Map(mains.map(h => [h.id, h]));
+    const overviews = await this.prisma.storyDigest.findMany({
+      where: { clusterKey: { in: events.map(e => e.clusterKey) }, digest: { not: null } },
+      select: { clusterKey: true, title: true, digest: true },
+    });
+    const overviewByKey = new Map(overviews.map(o => [o.clusterKey, o]));
 
     return {
+      updatedAt: new Date().toISOString(),
       data: events.flatMap((e, i) => {
         const main = byId.get(mainIds[i]);
         if (!main) return [];
+        const overview = overviewByKey.get(e.clusterKey);
         return [{
           ...parseMedia(main),
           heat: e.heat,
           trend: e.trend,
+          changePct: e.changePct,
+          surge: e.surge,
+          firstSeenAt: e.firstSeenAt.toISOString(),
           sources: e.participants,
           sourceCount: e.participants.length,
+          // Distinct outlets, as opposed to participants (HN/X authors count separately).
+          outletCount: new Set(e.participants.map(p => p.split(':')[0])).size,
+          overview: overview ? { title: overview.title, text: overview.digest } : null,
         }];
       }),
     };

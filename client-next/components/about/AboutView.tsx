@@ -286,6 +286,27 @@ export function AboutView() {
         </div>
       </section>
 
+      {/* ── Copyright ───────────────────────────────────────── */}
+      <section aria-labelledby="copyright" className="mb-10">
+        <h2 id="copyright" className="text-lg font-bold text-[var(--text-primary)] tracking-tight mb-4">
+          版权与内容说明
+        </h2>
+        <div className="p-5 sm:p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] space-y-2.5 text-[14px] leading-relaxed text-[var(--text-secondary)]">
+          <p>
+            AI Hot Radar 是 AI 资讯的聚合摘要和阅读索引。每条内容都标明来源并链接原文，原文版权归各来源所有；站内只展示标题、AI
+            生成的摘要和推荐理由，不转载全文。
+          </p>
+          <p>
+            摘要、推荐理由和事件概览由 AI 根据原文生成，可能存在偏差，请以原文为准。
+          </p>
+          <p>
+            如果你是内容来源方，希望更正、下架或调整展示方式，请发邮件到{' '}
+            <a href="mailto:gundam_zzc@126.com" className="text-[var(--accent-blue)] hover:underline">gundam_zzc@126.com</a>
+            ，我会尽快处理。
+          </p>
+        </div>
+      </section>
+
       {/* ── Footer ──────────────────────────────────────────── */}
       <footer className="text-center text-xs text-[var(--text-muted)] py-6 flex items-center justify-center gap-1.5">
         Made with <Heart className="w-3 h-3 text-red-500 dark:text-red-400" />{" "}

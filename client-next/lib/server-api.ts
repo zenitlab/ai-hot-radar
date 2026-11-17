@@ -170,8 +170,62 @@ export async function fetchRecentDigestsSSR(): Promise<DigestSummary[]> {
  * stories several sources are covering. Empty on any failure.
  */
 export async function fetchTrendingSSR(limit = 5): Promise<TrendingEvent[]> {
-  const data = await getJson<{ data: TrendingEvent[] }>(`/api/hotspots/trending?limit=${limit}`);
-  return Array.isArray(data?.data) ? data.data : [];
+  return (await fetchTrendingBoardSSR(limit)).events;
+}
+
+/** The 热点榜 page: events plus when the ranking was computed. */
+export async function fetchTrendingBoardSSR(limit = 10): Promise<{ events: TrendingEvent[]; updatedAt: string | null }> {
+  const data = await getJson<{ data: TrendingEvent[]; updatedAt?: string }>(`/api/hotspots/trending?limit=${limit}`);
+  return { events: Array.isArray(data?.data) ? data.data : [], updatedAt: data?.updatedAt ?? null };
+}
+
+export type TopicGroup = 'company' | 'direction' | 'type';
+
+/** One card on /topics. */
+export interface TopicCard {
+  slug: string;
+  name: string;
+  group: TopicGroup;
+  description: string;
+  count: number;
+  latest: { id: string; title: string } | null;
+}
+
+/** Shape of `GET /api/topics`. */
+export interface TopicsResponse {
+  windowDays: number;
+  groups: Array<{ group: TopicGroup; name: string; description: string; topics: TopicCard[] }>;
+}
+
+export type TopicItem = Pick<
+  Hotspot,
+  'id' | 'title' | 'titleZh' | 'summary' | 'recommendReason' | 'tags' | 'category' | 'source' | 'sourceTier' | 'authorName' | 'qualityScore' | 'url' | 'publishedAt' | 'createdAt'
+> & { clusterKey: string | null; otherSources: string[]; otherSourceCount: number };
+
+/** Shape of `GET /api/topics/:slug`. */
+export interface TopicResponse {
+  topic: { slug: string; name: string; group: TopicGroup; description: string };
+  windowDays: number;
+  count: number;
+  focus: Array<{ id: string; title: string; sourceCount: number; clusterKey: string | null }>;
+  items: TopicItem[];
+  pagination: { page: number; totalPages: number; pageSize: number };
+  related: Array<{ slug: string; name: string }>;
+}
+
+export async function fetchTopicsSSR(): Promise<TopicsResponse | null> {
+  return getJson<TopicsResponse>('/api/topics');
+}
+
+/** Topic page data; `null` when the topic doesn't exist or the backend is down. */
+export async function fetchTopicSSR(slug: string, page = 1): Promise<TopicResponse | null> {
+  return getJson<TopicResponse>(`/api/topics/${encodeURIComponent(slug)}?page=${page}`);
+}
+
+/** Topics with enough items to index, for the sitemap. */
+export async function fetchTopicSlugsSSR(): Promise<Array<{ slug: string; lastUpdatedAt: string }>> {
+  const data = await getJson<Array<{ slug: string; lastUpdatedAt: string }>>('/api/topics/indexable');
+  return Array.isArray(data) ? data : [];
 }
 
 /** Shape of `GET /api/hotspots/story/:clusterKey` — every report on one event. */

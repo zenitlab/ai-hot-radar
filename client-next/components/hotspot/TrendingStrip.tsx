@@ -42,6 +42,7 @@ export function TrendingStrip({
         <Flame className="w-4 h-4 text-orange-500" aria-hidden="true" />
         多源热议
         <span className="font-normal text-xs text-[var(--text-muted)]">· 48 小时内多家来源同时报道</span>
+        <Link href="/hot" className="ml-auto font-normal text-xs text-[var(--accent-blue)] hover:underline">完整榜单</Link>
       </h2>
       <ol className="space-y-2.5">
         {events.map((e, i) => (

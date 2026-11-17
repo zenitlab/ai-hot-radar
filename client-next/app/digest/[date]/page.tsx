@@ -43,7 +43,8 @@ export async function generateMetadata({
 
   // Per-day title and description give each date a distinct snippet in search
   // and AI results, instead of every day sharing the generic /digest metadata.
-  const title = `${date} AI 日报`;
+  const [y, m, d] = date.split('-').map(Number);
+  const title = `AI 日报（${y}年${m}月${d}日）：今日 AI 新闻与人工智能最新消息`;
   const description = summary
     ? summary.slice(0, 160)
     : `${date} 的 AI 资讯日报，涵盖国内外动态、模型情报、产品发布、社区讨论与论文研究。`;
@@ -51,8 +52,8 @@ export async function generateMetadata({
   return {
     title,
     description,
-    openGraph: { ...ogImages, title: `${title} | AI Hot Radar`, description, type: 'article' },
-    twitter: { ...twitterImages, title: `${title} | AI Hot Radar`, description },
+    openGraph: { ...ogImages, title, description, type: 'article' },
+    twitter: { ...twitterImages, title, description },
     alternates: { canonical: `/digest/${date}` },
   };
 }

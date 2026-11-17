@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-import { fetchItemIdsSSR, fetchRecentDigestsSSR, fetchStoryKeysSSR } from '@/lib/server-api';
+import { fetchItemIdsSSR, fetchRecentDigestsSSR, fetchStoryKeysSSR, fetchTopicSlugsSSR } from '@/lib/server-api';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aihotradar.com';
 
@@ -16,7 +16,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // listing either sends crawlers a URL they can't index.
   const routes = [
     '/curated',
+    '/hot',
     '/hotspot',
+    '/topics',
     '/digest',
     '/agent',
     '/about',
@@ -27,7 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${siteUrl}${route}`,
     lastModified: new Date(),
     changeFrequency:
-      route === '/digest' ? 'daily' : route === '/curated' || route === '/hotspot' ? 'hourly' : 'weekly',
+      route === '/digest' || route === '/topics' ? 'daily' : route === '/curated' || route === '/hot' || route === '/hotspot' ? 'hourly' : 'weekly',
     priority: route === '/curated' ? 1 : route === '/digest' ? 0.9 : 0.8,
   }));
 
@@ -60,5 +62,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
-  return [...staticEntries, ...digestEntries, ...storyEntries, ...itemEntries];
+  // Topic pages with enough items (thin ones are noindex and left out).
+  const topics = await fetchTopicSlugsSSR();
+  const topicEntries: MetadataRoute.Sitemap = topics.map(({ slug, lastUpdatedAt }) => ({
+    url: `${siteUrl}/topics/${slug}`,
+    lastModified: new Date(lastUpdatedAt),
+    changeFrequency: 'daily',
+    priority: 0.7,
+  }));
+
+  return [...staticEntries, ...digestEntries, ...topicEntries, ...storyEntries, ...itemEntries];
 }

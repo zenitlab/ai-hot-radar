@@ -60,4 +60,23 @@ describe('computeEventHeat', () => {
     ], NOW);
     expect(rising[0].trend).toBe('rising');
   });
+
+  it('reports the heat change in percent and flags a surge', () => {
+    const fresh = computeEventHeat([item('a', 'rss_x', 1), item('a', 'rss_y', 2)], NOW);
+    expect(fresh[0].changePct).toBeNull();
+    expect(fresh[0].surge).toBe(false);
+
+    // Two sources 10h ago, three more in the last hour: heat more than doubles.
+    const surging = computeEventHeat([
+      item('a', 'rss_x', 10), item('a', 'rss_y', 10),
+      item('a', 'rss_z', 1), item('a', 'rss_w', 1), item('a', 'rss_v', 1),
+    ], NOW);
+    expect(surging[0].changePct).toBeGreaterThanOrEqual(50);
+    expect(surging[0].surge).toBe(true);
+
+    // Nothing new since: heat only decays.
+    const fading = computeEventHeat([item('a', 'rss_x', 20), item('a', 'rss_y', 20)], NOW);
+    expect(fading[0].changePct).toBe(-16);
+    expect(fading[0].surge).toBe(false);
+  });
 });

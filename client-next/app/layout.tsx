@@ -24,7 +24,7 @@ const metadataBase = new URL(safeSiteUrl);
 export const metadata: Metadata = {
   metadataBase,
   title: {
-    default: "AI Hot Radar · AI 热点雷达",
+    default: "AI Hot Radar：AI 新闻资讯与今日 AI 热点",
     template: "%s | AI Hot Radar",
   },
   description: "实时聚合 20+ AI 信息源，AI 双阶段评分识别真伪，自动生成每日日报。追踪 OpenAI、Anthropic、Google AI 等官方动态，arXiv 最新论文，Twitter KOL 观点。",

@@ -108,8 +108,18 @@ export const keywordsApi = {
 export type TrendingEvent = Hotspot & {
   heat: number;
   trend: 'new' | 'rising' | null;
+  /** Heat change vs 6 hours ago, in percent; null for new events. */
+  changePct?: number | null;
+  /** Discussion grew fast (≥ +50% in 6 hours). */
+  surge?: boolean;
+  firstSeenAt?: string;
+  /** Participants: outlets, plus individual HN / X authors. */
   sources: string[];
   sourceCount: number;
+  /** Distinct outlets. */
+  outletCount?: number;
+  /** Event overview, when one has been written. */
+  overview?: { title: string | null; text: string } | null;
 };
 
 // Hotspots API

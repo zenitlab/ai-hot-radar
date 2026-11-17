@@ -10,6 +10,8 @@ import {
   Plug,
   History,
   Info,
+  Flame,
+  Shapes,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 
@@ -32,8 +34,10 @@ const NAV_GROUPS: NavGroup[] = [
     label: "内容",
     items: [
       { path: "/curated", label: "精选", icon: <Star className="w-4 h-4" />, accent: "text-amber-400" },
+      { path: "/hot", label: "热点榜", icon: <Flame className="w-4 h-4" />, accent: "text-red-400" },
       { path: "/hotspot", label: "热点雷达", icon: <Radio className="w-4 h-4" />, accent: "text-blue-400" },
       { path: "/digest", label: "AI 日报", icon: <CalendarDays className="w-4 h-4" />, accent: "text-emerald-400" },
+      { path: "/topics", label: "主题", icon: <Shapes className="w-4 h-4" />, accent: "text-orange-400" },
       { path: "/keywords", label: "我的关注", icon: <Bookmark className="w-4 h-4" />, accent: "text-purple-400" },
     ],
   },

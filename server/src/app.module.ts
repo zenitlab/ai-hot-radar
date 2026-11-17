@@ -14,6 +14,7 @@ import { DigestModule } from './digest/digest.module';
 import { ChatModule } from './chat/chat.module';
 import { AgentModule } from './agent/agent.module';
 import { EntitiesModule } from './entities/entities.module';
+import { TopicsModule } from './topics/topics.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { EntitiesModule } from './entities/entities.module';
     ChatModule,
     AgentModule,
     EntitiesModule,
+    TopicsModule,
   ],
   controllers: [AppController],
 })
