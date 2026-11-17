@@ -94,6 +94,7 @@ model StoryDigest {
   clusterKey  String   @id
   title       String?
   digest      String?
+  points      String?  // JSON {confirmed, unconfirmed, why}：已确认 / 尚未确认 / 为什么重要
   sourceCount Int      // 写作时的独立来源数，用来判断是否需要重写
   reportCount Int
   updatedAt   DateTime @updatedAt

@@ -16,6 +16,18 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11-17",
+    version: "v0.16.0",
+    tag: "feature",
+    items: [
+      "✅ 事件概览分出「已确认 / 尚未确认 / 为什么重要」三组：官方说的或多家一致的写进已确认，只有单一来源的说法和传闻放进尚未确认，并写明是谁说的；没有新增模型调用，新事件和来源增加后重写的事件会用上新格式",
+      "🧷 事件页时间线标出「首报」，标题几乎一样的近似转述折叠到最早那篇下面；「官方一手」改名为「一手来源」",
+      "🤖 新的 Agent Skill：把「请阅读 https://aihotradar.com/skill.md 并按其中的说明安装为 skill」发给 Claude Code 等 AI 助手即可安装，能查日报、热点榜、事件详情、主题动态、精选和搜索；旧的 /aihot-skill 链接自动跳转过来",
+      "🗓️ 精选接口支持 days 参数（只看近 N 天）；更新 llms.txt 和 ai.txt",
+      "🐛 修复日报 RSS 里的链接指向 localhost 的问题",
+    ],
+  },
+  {
+    date: "2026-11-17",
     version: "v0.15.0",
     tag: "feature",
     items: [

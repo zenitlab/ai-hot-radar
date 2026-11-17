@@ -5,6 +5,8 @@ import { TwitterService } from '../services/twitter.service';
 import { SearchService } from '../services/search.service';
 import { AiService } from '../services/ai.service';
 import { sortHotspots } from '../utils/sortHotspots';
+import { findNearDuplicates } from '../utils/title-cluster';
+import { readStoryPoints } from '../utils/story-digest';
 
 /**
  * Parse the JSON-stringified `media` column back into an object array so the
@@ -273,17 +275,21 @@ export class HotspotsService {
     const overview = await this.prisma.storyDigest.findUnique({ where: { clusterKey } });
     const officialTiers = new Set(['T1', 'T1.5']);
     const time = (h: { publishedAt: Date | null; createdAt: Date }) => h.publishedAt ?? h.createdAt;
+    // Near-copies of an earlier headline are folded under it on the page; first-party reports always stay visible.
+    const dupOf = findNearDuplicates(
+      items.map(h => ({ id: h.id, title: h.titleZh || h.title, keep: officialTiers.has(h.sourceTier ?? '') })),
+    );
     return {
       clusterKey,
       main: parseMedia(main),
-      items: items.map(parseMedia),
+      items: items.map(h => ({ ...parseMedia(h), duplicateOf: dupOf.get(h.id) ?? null })),
       sourceCount: new Set(items.map(h => h.source)).size,
       reportCount: items.length,
       officialCount: items.filter(h => officialTiers.has(h.sourceTier ?? '')).length,
       firstReportedAt: time(items[0]),
       lastUpdatedAt: time(items[items.length - 1]),
       digest: overview?.digest
-        ? { title: overview.title, text: overview.digest, updatedAt: overview.updatedAt }
+        ? { title: overview.title, text: overview.digest, points: readStoryPoints(overview.points), updatedAt: overview.updatedAt }
         : null,
     };
   }

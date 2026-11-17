@@ -60,7 +60,7 @@ export class StoryDigestJob {
 
     let raw: string;
     try {
-      raw = this.ai.cleanModelResponse(await this.ai.callRaw(buildStoryDigestMessages(items), 1500, 'storyDigest'));
+      raw = this.ai.cleanModelResponse(await this.ai.callRaw(buildStoryDigestMessages(items), 2000, 'storyDigest'));
     } catch (err) {
       // Provider error (rate limit, timeout): leave no row so the next run retries.
       this.logger.warn(`Story digest ${clusterKey}: call failed: ${err instanceof Error ? err.message : err}`);
@@ -71,7 +71,12 @@ export class StoryDigestJob {
     // isn't sent again every half hour; it gets another try when a new source joins.
     const text = parseStoryDigest(raw, items);
     if (!text) this.logger.warn(`Story digest ${clusterKey}: model output rejected`);
-    const data = { title: text?.title || null, digest: text?.digest ?? null, ...counts };
+    const data = {
+      title: text?.title || null,
+      digest: text?.digest ?? null,
+      points: text?.points ? JSON.stringify(text.points) : null,
+      ...counts,
+    };
     await this.prisma.storyDigest.upsert({ where: { clusterKey }, create: { clusterKey, ...data }, update: data });
     return Boolean(text);
   }

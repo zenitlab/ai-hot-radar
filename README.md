@@ -42,7 +42,7 @@ AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统白天每
 - 两阶段评分：便宜模型预筛 → 完整评分，节省 AI 调用成本
 - 同事件多源去重，按权威性挑主条（OpenAI Blog 优先于 V2EX 转发）
 - 「多源热议」：48 小时内被 2 家以上独立来源报道的事件，按跨源热度排序（每家来源按 24 小时半衰期衰减后相加），标注「新」「上升」
-- 事件详情页 `/story/<key>`：同一事件的全部报道按时间线排列，官方一手来源单独列出；多源事件带一段「事件概览」，由 AI 综合全部报道写成（每个事件 1 次调用，来源增加后才重写）
+- 事件详情页 `/story/<key>`：同一事件的全部报道按时间线排列，一手来源单独列出，最早的报道标「首报」，标题几乎一样的近似转述折叠到最早那篇下面；多源事件带一段「事件概览」，由 AI 综合全部报道写成，并分出「已确认 / 尚未确认 / 为什么重要」三组要点（每个事件 1 次调用，来源增加后才重写；每条要点单独过防编造检查，尚未确认的必须写明是谁说的）
 - 热点榜 `/hot`：过去 48 小时热度前 10 的事件，带 6 小时涨跌（`changePct`）和「爆」（6 小时内热度涨 50% 以上）「新」（首报 6 小时内）「发酵中」标记，前 3 名展开事件概览
 - 主题页 `/topics`、`/topics/<slug>`：主题定义在 `server/src/topics/topics.config.ts`（公司按标题匹配，技术方向按标题或标签匹配，内容类型按分类），列出近 30 天精选，不调用 AI。slug 是公开网址，可以新增，不要改名
 - 内容详情页 `/items/<id>`：中文标题、AI 导读、推荐理由、同一事件的其他报道
@@ -72,9 +72,9 @@ AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统白天每
 
 把整个系统封装为三种接入方式，让 AI 应用 / RSS 阅读器 / 第三方服务都能消费：
 
-- **Skill**：在 Claude Code、Cursor 等支持 Skills 的工具中 `/install-skill`，AI 助手自动获得「查日报、查精选、按关键词搜索」能力
+- **Skill**：对 Claude Code 等 AI 助手说「请阅读 https://aihotradar.com/skill.md 并按其中的说明安装为 skill」，它会把 `/skill.md`（标准 SKILL.md 格式，见 `client-next/app/skill.md/route.ts`）存为自己的 skill，之后能查日报、热点榜、事件详情、主题动态、精选和搜索。旧链接 `/aihot-skill` 308 跳转到 `/skill.md`
 - **RSS**：精选 / 全量 / 日报三个 RSS Feed，可被 Feedly、Inoreader 等订阅
-- **REST API**：5 个无认证 JSON 接口，可直接接入飞书机器人、企业微信、自动化工作流
+- **REST API**：无认证 JSON 接口（日报、热点榜、事件详情、主题、精选 `?days=`、搜索、统计），可直接接入飞书机器人、企业微信、自动化工作流；完整列表见 `client-next/public/llms.txt`
 
 ## 三、快速开始
 
@@ -181,8 +181,11 @@ curl http://localhost:3001/api/agent/digest
 # 按关键词搜索
 curl "http://localhost:3001/api/agent/search?q=Claude&limit=5"
 
-# Skill 描述
-curl http://localhost:3001/aihot-skill
+# 近 1 天精选
+curl "http://localhost:3001/api/agent/curated?days=1&limit=5"
+
+# Skill（前端提供）
+curl http://localhost:3000/skill.md
 ```
 
 更多用法见前端「Agent 接入」页。

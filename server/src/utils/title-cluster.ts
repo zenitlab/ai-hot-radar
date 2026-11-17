@@ -102,3 +102,33 @@ export const TITLE_SIM_THRESHOLD = 0.6;
 /** Overlap bar is stricter than AIHOT's 0.25 because we have no LLM relation check behind it. */
 export const TITLE_OVERLAP_THRESHOLD = 0.75;
 export const MIN_TOKENS_FOR_FUZZY = 4;
+
+/**
+ * Within one event, reports whose headline is all but a copy of an earlier
+ * report's (a wire story reposted, an aggregator re-titling a press release).
+ * Stricter than clustering: these are folded under the earlier report on the
+ * event page ("另有 N 条近似转述"), so a wrong fold would hide a real report.
+ * Borrowed from agihunt.info's "近重复转述". `items` must be oldest first;
+ * returns duplicate id → id of the earliest report it copies. Items marked
+ * `keep` (first-party reports) are never folded, even under an earlier repost.
+ */
+export const NEAR_DUPLICATE_THRESHOLD = 0.8;
+
+export function findNearDuplicates(items: Array<{ id: string; title: string; keep?: boolean }>): Map<string, string> {
+  const kept: Array<{ id: string; tokens: string[]; text: string }> = [];
+  const dupOf = new Map<string, string>();
+  for (const it of items) {
+    const text = it.title.replace(/\s+/gu, ' ').trim().toLowerCase();
+    const tokens = tokenizeTitle(it.title);
+    const orig = !it.keep && kept.find(
+      (k) =>
+        k.text === text ||
+        (tokens.length >= MIN_TOKENS_FOR_FUZZY &&
+          k.tokens.length >= MIN_TOKENS_FOR_FUZZY &&
+          jaccardSimilarity(k.tokens, tokens) >= NEAR_DUPLICATE_THRESHOLD),
+    );
+    if (orig) dupOf.set(it.id, orig.id);
+    else kept.push({ id: it.id, tokens, text });
+  }
+  return dupOf;
+}

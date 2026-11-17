@@ -28,11 +28,14 @@ const getRssFeeds = (baseUrl: string) => [
 ];
 
 const API_DOCS = [
-  { method: 'GET', path: '/api/agent/curated', desc: '获取精选资讯 JSON 列表', params: 'limit, offset' },
+  { method: 'GET', path: '/api/agent/curated', desc: '获取精选资讯 JSON 列表', params: 'limit, offset, days' },
   { method: 'GET', path: '/api/agent/digest',  desc: '获取指定日期的 AI 日报',  params: 'date (YYYY-MM-DD)' },
   { method: 'GET', path: '/api/agent/search',  desc: '按关键词搜索资讯',         params: 'q, limit' },
   { method: 'GET', path: '/api/agent/stats',   desc: '系统统计数据',             params: '—' },
-  { method: 'GET', path: '/aihot-skill',       desc: 'Skill 描述 JSON',          params: '—' },
+  { method: 'GET', path: '/api/hotspots/trending', desc: '热点榜：多家来源同时报道的事件', params: 'limit (≤50)' },
+  { method: 'GET', path: '/api/hotspots/story/{clusterKey}', desc: '事件详情：全部报道与已确认/尚未确认要点', params: '—' },
+  { method: 'GET', path: '/api/topics/{slug}', desc: '主题动态（slug 见 /api/topics）', params: 'page' },
+  { method: 'GET', path: '/skill.md',          desc: '可安装的 Skill（Markdown）', params: '—' },
 ];
 
 const SKILL_CAPABILITIES = [
@@ -54,9 +57,9 @@ const SKILL_CAPABILITIES = [
   },
   {
     icon: LayoutList,
-    title: '分类查询',
-    desc: '按内容分类（模型 / 产品 / 行业 / 论文）或时间范围筛选资讯',
-    example: '最近 3 天有哪些新模型发布',
+    title: '热点与主题',
+    desc: '多家来源同时报道的热点事件，以及按公司或方向（OpenAI、Anthropic、Agent 等）汇总的近期动态',
+    example: 'Anthropic 最近有什么动态',
     accent: 'text-purple-400',
     bg: 'bg-purple-500/10',
   },
@@ -64,7 +67,7 @@ const SKILL_CAPABILITIES = [
     icon: Search,
     title: '关键词搜索',
     desc: '在所有资讯中搜索包含特定关键词的内容',
-    example: 'Claude 最近有什么新动态',
+    example: '搜一下最近关于 MCP 的新闻',
     accent: 'text-amber-400',
     bg: 'bg-amber-500/10',
   },
@@ -196,10 +199,10 @@ export function AgentView() {
                 <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                   在 AI 助手中粘贴这一行
                 </span>
-                <CopyButton text={`帮我安装这个 skill：${baseUrl}/aihot-skill`} />
+                <CopyButton text={`请阅读 ${baseUrl}/skill.md 并按其中的说明安装为 skill`} />
               </div>
               <code className="block text-sm text-[var(--accent-blue)] dark:text-blue-400 break-all">
-                帮我安装这个 skill：{baseUrl}/aihot-skill
+                请阅读 {baseUrl}/skill.md 并按其中的说明安装为 skill
               </code>
             </div>
           </div>

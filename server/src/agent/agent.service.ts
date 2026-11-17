@@ -10,9 +10,11 @@ function parseMedia<T extends { media?: string | null }>(h: T): T & { media?: an
 export class AgentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getCurated(limit = 20, offset = 0) {
+  /** `days` (1–30) limits to items found in that many recent days; omitted means all time. */
+  async getCurated(limit = 20, offset = 0, days?: number) {
+    const since = days ? new Date(Date.now() - Math.min(30, Math.max(1, days)) * 24 * 3600_000) : undefined;
     const items = await this.prisma.hotspot.findMany({
-      where: { isCurated: true, isClusterMain: true },
+      where: { isCurated: true, isClusterMain: true, ...(since ? { createdAt: { gte: since } } : {}) },
       orderBy: [{ qualityScore: 'desc' }, { createdAt: 'desc' }],
       take: limit,
       skip: offset,

@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronLeft, ExternalLink, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, CircleCheck, CircleHelp, ExternalLink, Lightbulb, ShieldCheck } from 'lucide-react';
 
-import { fetchStorySSR, type StoryResponse } from '@/lib/server-api';
+import { fetchStorySSR, type StoryPoints, type StoryResponse } from '@/lib/server-api';
 import { getSourceIcon, getSourceLabel } from '@/lib/sourceMeta';
 import { generateBreadcrumbSchema, generateStorySchema, safeJsonLd } from '@/lib/structured-data';
 import type { Hotspot } from '@/types';
@@ -59,6 +59,35 @@ function describe(story: StoryResponse): string {
   return `${story.sourceCount} 家来源共 ${story.reportCount} 篇报道：${displayTitle(story.main)}`;
 }
 
+type Report = StoryResponse['items'][number];
+
+/** The overview's fact sheet, in the order a reader needs it. Borrowed from agihunt.info event pages. */
+const POINT_GROUPS: Array<{ key: keyof StoryPoints; label: string; Icon: typeof CircleCheck; iconClass: string }> = [
+  { key: 'confirmed', label: '已确认', Icon: CircleCheck, iconClass: 'text-emerald-600 dark:text-emerald-400' },
+  { key: 'unconfirmed', label: '尚未确认', Icon: CircleHelp, iconClass: 'text-amber-600 dark:text-amber-400' },
+  { key: 'why', label: '为什么重要', Icon: Lightbulb, iconClass: 'text-[var(--accent-blue)]' },
+];
+
+function PointList({ points }: { points: StoryPoints }) {
+  return (
+    <div className="mt-4 space-y-4">
+      {POINT_GROUPS.filter((g) => points[g.key].length > 0).map(({ key, label, Icon, iconClass }) => (
+        <div key={key}>
+          <h3 className="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text-primary)]">
+            <Icon className={`w-4 h-4 ${iconClass}`} aria-hidden="true" />
+            {label}
+          </h3>
+          <ul className="list-disc space-y-1 pl-5 text-[14px] leading-[1.75] text-[var(--text-secondary)] marker:text-[var(--text-muted)]">
+            {points[key].map((p) => (
+              <li key={p}>{p}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 async function load(key: string): Promise<StoryResponse | null> {
   if (!KEY_RE.test(key)) return null;
   return fetchStorySSR(key);
@@ -97,12 +126,23 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
   const title = storyTitle(story);
   const description = describe(story);
   const overview = overviewParagraphs(story);
+  const points = story.digest?.points ?? null;
   const official = items.filter((h) => OFFICIAL_TIERS.has(h.sourceTier ?? ''));
   const latest = items[items.length - 1];
+  const firstId = items[0]?.id;
+
+  // Near-copies of an earlier headline are folded under that report instead of
+  // repeating it in the timeline (agihunt.info's "近重复转述").
+  const copies = new Map<string, Report[]>();
+  for (const h of items) {
+    if (h.duplicateOf) copies.set(h.duplicateOf, [...(copies.get(h.duplicateOf) ?? []), h]);
+  }
+  const shown = items.filter((h) => !h.duplicateOf);
+  const folded = items.length - shown.length;
 
   // Timeline grouped by day, newest day first; within a day, newest first.
-  const byDay = new Map<string, Hotspot[]>();
-  for (const h of [...items].reverse()) {
+  const byDay = new Map<string, Report[]>();
+  for (const h of [...shown].reverse()) {
     const day = fmtDay(reportTime(h));
     byDay.set(day, [...(byDay.get(day) ?? []), h]);
   }
@@ -183,6 +223,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
           ) : (
             <p className="text-[15px] leading-[1.8] text-[var(--text-secondary)]">{description}</p>
           )}
+          {points && <PointList points={points} />}
           {main.recommendReason && (
             <p className="mt-3 text-[13px] leading-relaxed text-[var(--text-secondary)]">
               <span className="font-semibold text-[var(--text-primary)]">推荐理由：</span>
@@ -212,7 +253,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
           <section aria-labelledby="official" className="mb-6">
             <h2 id="official" className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[var(--text-primary)]">
               <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-              官方一手
+              一手来源
               <span className="font-normal text-xs text-[var(--text-muted)]">{official.length} 篇 · 直接了解当事方的说法</span>
             </h2>
             <ul className="space-y-1.5">
@@ -231,7 +272,9 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
         <section aria-labelledby="timeline">
           <h2 id="timeline" className="mb-3 text-sm font-semibold text-[var(--text-primary)]">
             报道时间线
-            <span className="ml-1.5 font-normal text-xs text-[var(--text-muted)]">{story.reportCount} 篇</span>
+            <span className="ml-1.5 font-normal text-xs text-[var(--text-muted)]">
+              {shown.length} 篇{folded > 0 && `，另有 ${folded} 篇近似转述已折叠`}
+            </span>
           </h2>
           {[...byDay.entries()].map(([day, list]) => (
             <div key={day} className="mb-4">
@@ -246,6 +289,9 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
                         {getSourceIcon(h.source, 'w-3 h-3')}
                         {getSourceLabel(h.source)}
                       </span>
+                      {h.id === firstId && (
+                        <span className="rounded bg-violet-500/10 px-1.5 py-0.5 text-violet-700 dark:text-violet-400">首报</span>
+                      )}
                       {OFFICIAL_TIERS.has(h.sourceTier ?? '') && (
                         <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-emerald-700 dark:text-emerald-400">官方</span>
                       )}
@@ -264,6 +310,19 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
                     </a>
                     {h.summary && (
                       <p className="mt-1 text-[13px] leading-relaxed text-[var(--text-secondary)]">{h.summary}</p>
+                    )}
+                    {copies.has(h.id) && (
+                      <p className="mt-1 text-xs text-[var(--text-muted)]">
+                        另有 {copies.get(h.id)!.length} 篇近似转述：
+                        {copies.get(h.id)!.map((c, i) => (
+                          <span key={c.id}>
+                            {i > 0 && ' · '}
+                            <a href={c.url} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--text-primary)] hover:underline">
+                              {getSourceLabel(c.source)}
+                            </a>
+                          </span>
+                        ))}
+                      </p>
                     )}
                   </li>
                 ))}

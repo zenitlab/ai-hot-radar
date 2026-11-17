@@ -1,38 +1,48 @@
 # AI Hot Radar
 
-> 中文 AI 资讯聚合平台。每日抓取国内外 AI 领域动态，经 AI 五维评分（真实性、相关性、重要性、来源权威度、内容质量）筛选后呈现，并生成每日日报。数据源包含官方博客、arXiv、社区讨论与 RSS 信源。
+> 中文 AI 资讯聚合平台。每 30 分钟抓取 60 多个 AI 信源（官方博客、媒体、社区、论文），经 AI 五维评分（真实性、相关性、重要性、来源权威度、内容质量）筛出精选；把多家来源报道的同一件事聚成事件，写出事件概览（已确认 / 尚未确认 / 为什么重要）；每天早上 8 点生成 AI 日报。
 
-内容为中文。日期按北京时间（UTC+8）计算。资讯每小时更新，日报每日生成。
+内容为中文。日期按北京时间（UTC+8）计算。
 
 ## 核心页面
 
 - [精选资讯](https://aihotradar.com/curated): 经 AI 质量评分筛选的高分内容，按时间排序。支持按分类（模型/产品/行业/论文/社区）和地区（国内/国外）筛选
-- [热点雷达](https://aihotradar.com/hotspot): 全量资讯流，含跨源热度聚合与关键词命中标记；顶部「多源热议」列出 48 小时内被 2 家以上独立来源报道的事件
-- [AI 日报](https://aihotradar.com/digest): 重定向至当日日报
-- [每日日报](https://aihotradar.com/digest/2026-07-30): 按日期归档，URL 格式为 `/digest/YYYY-MM-DD`。每期含六大板块：国内动态、国际动态、模型情报、产品发布、社区讨论、论文研究
-- [Agent 接入说明](https://aihotradar.com/agent): 面向开发者的接口文档
-- [关于本站](https://aihotradar.com/about): 数据源清单与评分方法说明
+- [AI 热点榜](https://aihotradar.com/hot): 过去 48 小时被两家以上独立来源报道的事件，按跨来源热度排序，附涨跌与事件概览
+- [热点雷达](https://aihotradar.com/hotspot): 全量资讯流，含跨源热度聚合与关键词命中标记
+- [主题](https://aihotradar.com/topics): 按公司（OpenAI、Anthropic、Google、DeepSeek 等）、技术方向（Agent、多模态、推理等）和内容类型汇总的近 30 天动态，单个主题为 `/topics/{slug}`
+- [AI 日报](https://aihotradar.com/digest): 重定向至当日日报；历史日报为 `/digest/YYYY-MM-DD`，含当日总结、重点事件、六大板块（国内动态、国际动态、模型情报、产品发布、社区讨论、论文研究）与快讯
+- [Agent 接入说明](https://aihotradar.com/agent): Skill、RSS 与 JSON 接口文档
+- [关于本站](https://aihotradar.com/about): 数据源清单、评分方法与版权说明
 
-## Agent 接口
+## 页面类型
 
-为 AI agent 与自动化工具提供的结构化数据接口，返回 JSON，无需认证。优先使用这些接口而非解析 HTML。
+- `/story/{clusterKey}`: 事件页，同一事件的全部报道时间线、一手来源与事件概览
+- `/items/{id}`: 单条资讯
+- `/topics/{slug}`: 主题页
+- `/digest/{YYYY-MM-DD}`: 当日 AI 日报
 
-- [精选内容](https://aihotradar.com/api/agent/curated): 精选资讯数组，按质量分降序。支持 `?limit=` 与 `?offset=`
-- [多源热议](https://aihotradar.com/api/hotspots/trending): 跨源热度排序的事件数组，每项含 `heat`、`trend`（new/rising）、`sources`。支持 `?limit=`（最大 50）
-- [搜索](https://aihotradar.com/api/agent/search): 全文检索标题与摘要，参数 `?q=关键词`
-- [日报](https://aihotradar.com/api/agent/digest): 结构化的日报数据，支持 `?date=YYYY-MM-DD`
+## Agent 接入
+
+公开接口，返回 JSON，无需认证。优先使用这些接口而非解析 HTML。
+
+- [Skill（可安装）](https://aihotradar.com/skill.md): 给 Claude Code 等 AI 助手的 SKILL.md，对它说"请阅读 https://aihotradar.com/skill.md 并按其中的说明安装为 skill"即可
+- [日报](https://aihotradar.com/api/agent/digest): 结构化日报，支持 `?date=YYYY-MM-DD`
+- [热点榜](https://aihotradar.com/api/hotspots/trending): 跨源热度排序的事件，每项含 `heat`、`trend`、`surge`、`sourceCount`、`overview`。支持 `?limit=`（最大 50）
+- [事件详情](https://aihotradar.com/api/hotspots/story/{clusterKey}): 一个事件的全部报道与事件概览（`digest.points` 分已确认 / 尚未确认 / 为什么重要）
+- [主题列表](https://aihotradar.com/api/topics): 全部主题与 slug；单个主题 `/api/topics/{slug}?page=`
+- [精选内容](https://aihotradar.com/api/agent/curated): 精选资讯，按质量分降序。支持 `?limit=`、`?offset=`、`?days=`（近 N 天，1–30）
+- [搜索](https://aihotradar.com/api/agent/search): 检索标题与摘要，参数 `?q=关键词`
 - [站点统计](https://aihotradar.com/api/agent/stats): 资讯总量、当日新增、数据源数量
-- [Agent Skill 描述](https://aihotradar.com/aihot-skill): 本站能力的机器可读描述
 
 ## RSS
 
 - [精选资讯 RSS](https://aihotradar.com/api/agent/rss/curated.xml): 最新 50 条精选内容
 - [全部资讯 RSS](https://aihotradar.com/api/agent/rss/all.xml): 最新 100 条全量资讯
-- [日报 RSS](https://aihotradar.com/api/agent/rss/digest.xml): 每日日报
+- [日报 RSS](https://aihotradar.com/api/agent/rss/digest.xml): 最近 7 期日报
 
 ## 使用条款
 
 - 允许索引与引用，**不允许**用于模型训练（详见 [ai.txt](https://aihotradar.com/ai.txt)）
 - 引用时请注明来源为 AI Hot Radar 并附链接
-- 建议抓取速率不超过 1 请求/秒
+- 建议抓取速率不超过 1 请求/秒，同一请求 10 分钟内请复用结果
 - 本站为资讯聚合平台，原始内容版权归各来源方所有；引用具体资讯时请一并注明其原始出处

@@ -15,8 +15,14 @@ export class AgentController {
   getCurated(
     @Query('limit') limit = '20',
     @Query('offset') offset = '0',
+    @Query('days') days?: string,
   ) {
-    return this.agentService.getCurated(Number(limit), Number(offset));
+    const n = Number(days);
+    return this.agentService.getCurated(
+      Math.min(100, Math.max(1, Number(limit) || 20)),
+      Math.max(0, Number(offset) || 0),
+      Number.isFinite(n) && n > 0 ? n : undefined,
+    );
   }
 
   @Get('api/agent/search')
@@ -72,10 +78,10 @@ export class AgentController {
       orderBy: { date: 'desc' },
       take: 7,
     });
-    const baseUrl = process.env.PUBLIC_URL || 'http://localhost:5173';
+    const baseUrl = process.env.SITE_URL || process.env.PUBLIC_URL || 'https://aihotradar.com';
     const items = digests.map((d) => ({
       title: `AI 日报 ${d.date}`,
-      url: `${baseUrl}/digest?date=${d.date}`,
+      url: `${baseUrl}/digest/${d.date}`,
       summary: `${d.date} 的 AI 行业精选日报`,
       publishedAt: d.createdAt,
       source: 'AI Hot Radar Daily',
@@ -89,6 +95,8 @@ export class AgentController {
   }
 
   // ===== Skill Descriptor =====
+  // Legacy JSON descriptor. The installable skill is the Markdown file served by
+  // the frontend at /skill.md (client-next/app/skill.md/route.ts).
 
   @Get('aihot-skill')
   getSkill() {

@@ -229,17 +229,25 @@ export async function fetchTopicSlugsSSR(): Promise<Array<{ slug: string; lastUp
 }
 
 /** Shape of `GET /api/hotspots/story/:clusterKey` — every report on one event. */
+/** 已确认 / 尚未确认 / 为什么重要, written with the event overview. */
+export interface StoryPoints {
+  confirmed: string[];
+  unconfirmed: string[];
+  why: string[];
+}
+
 export interface StoryResponse {
   clusterKey: string;
   main: Hotspot;
-  items: Hotspot[];
+  /** Oldest first. `duplicateOf` is the id of an earlier report whose headline this one all but copies. */
+  items: Array<Hotspot & { duplicateOf?: string | null }>;
   sourceCount: number;
   reportCount: number;
   officialCount: number;
   firstReportedAt: string;
   lastUpdatedAt: string;
   /** Event overview written from all reports; null until one exists. Paragraphs are separated by a blank line. */
-  digest: { title: string | null; text: string; updatedAt: string } | null;
+  digest: { title: string | null; text: string; points?: StoryPoints | null; updatedAt: string } | null;
 }
 
 /** Event page data. `null` when the event doesn't exist or the backend is down. */

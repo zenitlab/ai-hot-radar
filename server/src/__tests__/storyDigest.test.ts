@@ -4,6 +4,7 @@ import {
   buildStoryDigestMessages,
   parseStoryDigest,
   pickReports,
+  readStoryPoints,
   storiesNeedingDigest,
   type StoryReport,
 } from '../utils/story-digest.js';
@@ -44,7 +45,7 @@ describe('parseStoryDigest', () => {
 
   it('accepts an overview grounded in the reports', () => {
     const out = parseStoryDigest(JSON.stringify({ title: 'Claude Code v2.1.159 发布', digest: good }), items);
-    expect(out).toEqual({ title: 'Claude Code v2.1.159 发布', digest: good });
+    expect(out).toEqual({ title: 'Claude Code v2.1.159 发布', digest: good, points: null });
   });
 
   it('rejects an overview naming something no report mentions', () => {
@@ -53,7 +54,7 @@ describe('parseStoryDigest', () => {
 
   it('keeps the overview but drops a title it cannot trust', () => {
     const out = parseStoryDigest(JSON.stringify({ title: 'Claude Opus 5 发布', digest: good }), items);
-    expect(out).toEqual({ title: '', digest: good });
+    expect(out).toEqual({ title: '', digest: good, points: null });
   });
 
   it('rejects unparseable or too-short output', () => {
@@ -106,5 +107,50 @@ describe('storiesNeedingDigest', () => {
   it('waits out the cooldown before rewriting', () => {
     const existing = [{ clusterKey: 'a', sourceCount: 2, updatedAt: recent }];
     expect(storiesNeedingDigest([{ clusterKey: 'a', sourceCount: 5 }], existing, 5, now)).toEqual([]);
+  });
+
+});
+
+describe('parseStoryDigest points', () => {
+  const items = [report({}), report({ source: 'media', authorName: 'The Verge', content: 'The update cuts startup time by half, Anthropic says.' })];
+  const good = 'Anthropic 发布 Claude Code v2.1.159，主要改进是启动速度。Anthropic 称启动时间缩短一半，其他报道未给出独立测试数据。';
+
+  it('sorts facts into confirmed / unconfirmed / why and drops the ones it cannot trust', () => {
+    const out = parseStoryDigest(
+      JSON.stringify({
+        title: '',
+        digest: good,
+        confirmed: [
+          '- Anthropic 发布 Claude Code v2.1.159，主打启动速度',
+          'Anthropic 同时发布 Claude Opus 5', // names something no report mentions
+          '报道未披露定价细节', // a gap in the reporting, not a fact
+        ],
+        unconfirmed: ['据 The Verge 称启动时间缩短一半', '启动时间缩短一半'], // second has no attribution
+        why: ['开发者日常启动等待更短', '这是 AI 编程的里程碑'], // second is puffery
+      }),
+      items,
+    );
+    expect(out?.points).toEqual({
+      confirmed: ['Anthropic 发布 Claude Code v2.1.159，主打启动速度'],
+      unconfirmed: ['据 The Verge 称启动时间缩短一半'],
+      why: ['开发者日常启动等待更短'],
+    });
+  });
+
+  it('drops all points when nothing is confirmed', () => {
+    const out = parseStoryDigest(JSON.stringify({ title: '', digest: good, confirmed: [], unconfirmed: ['据 The Verge 称启动时间缩短一半'] }), items);
+    expect(out?.points).toBeNull();
+  });
+});
+
+describe('readStoryPoints', () => {
+  it('reads stored points and tolerates old rows and bad JSON', () => {
+    expect(readStoryPoints(JSON.stringify({ confirmed: ['a 发布了 b'], unconfirmed: [1], why: [] }))).toEqual({
+      confirmed: ['a 发布了 b'],
+      unconfirmed: [],
+      why: [],
+    });
+    expect(readStoryPoints(null)).toBeNull();
+    expect(readStoryPoints('{oops')).toBeNull();
   });
 });
