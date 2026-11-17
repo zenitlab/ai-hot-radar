@@ -118,6 +118,17 @@ export interface DigestHighlight {
   affects: string[];
   source: string;
   url: string;
+  /** Present when other sources covered the same event. */
+  event?: { key: string; otherSources: string[] };
+}
+
+/** 快讯: one-line entries after the main digest. */
+export interface DigestBrief {
+  title: string;
+  source: string;
+  url: string;
+  /** Event page key when 2+ sources covered it. */
+  storyKey?: string;
 }
 
 export interface DigestSimpleItem {
@@ -151,6 +162,8 @@ export interface DigestData {
   products: DigestSimpleItem[];
   community: DigestSimpleItem[];
   papers: DigestPaperItem[];
+  /** Absent on digests made before v0.13.0. */
+  briefs?: DigestBrief[];
   generatedAt?: string;
   itemCount?: number;
 }

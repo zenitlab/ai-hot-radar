@@ -3,7 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import type OpenAI from 'openai';
 import { createLlmClient } from '../utils/llm-client';
-import { composeDigestItems, REPEAT_WINDOW_DAYS } from '../utils/digest-compose';
+import { composeDigestItems, pickSupplements, REPEAT_WINDOW_DAYS, SUPPLEMENT_MIN_SOURCES, summariseDay } from '../utils/digest-compose';
 import { ANTI_HALLUCINATION_RULES, UNTRUSTED_NOTE } from '../utils/writing-rules';
 
 export interface DigestHighlight {
@@ -13,6 +13,24 @@ export interface DigestHighlight {
   affects: string[];
   source: string;
   url: string;
+  /** The event this item belongs to, when other sources covered it too (filled by rule, not the model). */
+  event?: DigestEventRef;
+}
+
+export interface DigestEventRef {
+  /** clusterKey; the event page is /story/<key>. */
+  key: string;
+  /** Other sources on the same event, by source id. */
+  otherSources: string[];
+}
+
+/** One-line entry after the main list ("快讯"): ranked by rule, written by no model. */
+export interface DigestBrief {
+  title: string;
+  source: string;
+  url: string;
+  /** Event page key when 2+ sources covered it. */
+  storyKey?: string;
 }
 
 export interface DigestSimpleItem {
@@ -46,6 +64,8 @@ export interface DigestData {
   products: DigestSimpleItem[];
   community: DigestSimpleItem[];
   papers: DigestPaperItem[];
+  /** 快讯: events ranked below the main list. Absent on digests made before v0.13.0. */
+  briefs?: DigestBrief[];
   generatedAt: string;
   itemCount: number;
 }
@@ -116,15 +136,44 @@ export class DigestService {
       });
     }
 
-    items = await this.composeItems(items, date);
+    // Every report that day, curated or not: how widely each event was covered,
+    // and whether the company itself posted. Score 0 means "not AI" (pre-filter).
+    const dayReports = await this.prisma.hotspot.findMany({
+      where: { clusterKey: { not: null }, qualityScore: { gt: 0 }, ...dateWindow },
+      take: 2000,
+    });
+    const dayEvents = summariseDay(dayReports);
+    const supplements = pickSupplements(dayReports, items, dayEvents);
+    if (supplements.length > 0) {
+      this.logger.log(`[Digest] ${supplements.length} event(s) added for first-party report + ${SUPPLEMENT_MIN_SOURCES}+ sources`);
+      items = [...items, ...supplements];
+    }
+
+    const { main, briefs } = await this.composeItems(items, date, dayEvents);
+    items = main;
 
     let data: DigestData;
-    if (items.length === 0) {
+    if (main.length === 0) {
       data = this.emptyDigest(date, 0);
     } else if (!process.env.OPENAI_API_KEY) {
-      data = this.fallbackDigest(items, date);
+      data = this.fallbackDigest(main, date);
     } else {
-      data = await this.generateAiDigest(items, date);
+      data = await this.generateAiDigest(main, date);
+    }
+    if (main.length > 0) {
+      const events = await this.eventRefs([...main, ...briefs]);
+      data.highlights = data.highlights.map((h) => {
+        const key = main.find((m) => m.url === h.url)?.clusterKey;
+        const event = key ? events.get(key) : undefined;
+        return event ? { ...h, event } : h;
+      });
+      data.briefs = briefs.map((b) => ({
+        title: b.titleZh || b.title,
+        source: b.source,
+        url: b.url,
+        ...(b.clusterKey && events.has(b.clusterKey) ? { storyKey: b.clusterKey } : {}),
+      }));
+      data.itemCount = main.length + briefs.length;
     }
 
     await this.prisma.dailyDigest.upsert({
@@ -133,7 +182,34 @@ export class DigestService {
       update: { data: JSON.stringify(data) },
     });
 
-    this.logger.log(`Digest generated for ${date} (${items.length} items)`);
+    this.logger.log(`Digest generated for ${date} (${data.itemCount} items)`);
+  }
+
+  /**
+   * Events among `items` that 2+ sources covered, with the other sources' ids.
+   * Lets a highlight point to its event page and say who else reported it.
+   */
+  private async eventRefs(items: Array<{ clusterKey: string | null; source: string }>): Promise<Map<string, DigestEventRef>> {
+    const keys = [...new Set(items.map((i) => i.clusterKey).filter(Boolean))] as string[];
+    if (keys.length === 0) return new Map();
+    const members = await this.prisma.hotspot.findMany({
+      where: { clusterKey: { in: keys }, qualityScore: { gt: 0 } },
+      select: { clusterKey: true, source: true },
+    });
+    const sources = new Map<string, Set<string>>();
+    for (const m of members) {
+      const set = sources.get(m.clusterKey!) ?? new Set<string>();
+      set.add(m.source);
+      sources.set(m.clusterKey!, set);
+    }
+    const out = new Map<string, DigestEventRef>();
+    for (const item of items) {
+      const key = item.clusterKey;
+      const set = key ? sources.get(key) : undefined;
+      if (!key || !set || set.size < 2) continue;
+      out.set(key, { key, otherSources: [...set].filter((s) => s !== item.source).slice(0, 6) });
+    }
+    return out;
   }
 
   /** Runs every morning at 08:05 Beijing time (5 minutes after the 08:00 scan),
@@ -149,12 +225,16 @@ export class DigestService {
    *  local TZ (Docker images often default to UTC, dev machines vary). */
   @Cron('0 5 8 * * *', { timeZone: 'Asia/Shanghai' })
   /**
-   * Rule-based pre-selection (utils/digest-compose.ts): one item per event, no
-   * repeats of events covered in the last week unless they grew to 4+ sources,
-   * at most 2 per source. Returns main items first, then briefs.
+   * Rule-based pre-selection (utils/digest-compose.ts): one item per event,
+   * ranked by importance; events from the last week only with news; at most 2
+   * per source. Main items go to the model; briefs are listed as they are.
    */
-  private async composeItems(items: any[], date: string): Promise<any[]> {
-    if (items.length === 0) return items;
+  private async composeItems<T extends { url: string; source: string; clusterKey: string | null; qualityScore: number | null; id: string }>(
+    items: T[],
+    date: string,
+    dayEvents: ReturnType<typeof summariseDay>,
+  ): Promise<{ main: T[]; briefs: T[] }> {
+    if (items.length === 0) return { main: [], briefs: [] };
 
     // Recent digests store URLs, not cluster keys: map their URLs back via hotspots.
     const recent = await this.prisma.dailyDigest.findMany({
@@ -165,7 +245,7 @@ export class DigestService {
     for (const d of recent) {
       try {
         const dd = JSON.parse(d.data) as Partial<DigestData>;
-        for (const arr of [dd.highlights, dd.domestic, dd.international, dd.products, dd.community, dd.papers]) {
+        for (const arr of [dd.highlights, dd.domestic, dd.international, dd.products, dd.community, dd.papers, dd.briefs]) {
           for (const x of arr ?? []) if (x?.url) recentUrls.add(x.url);
         }
       } catch { /* skip malformed */ }
@@ -196,9 +276,9 @@ export class DigestService {
       for (const [k, set] of sets) sourceCount.set(k, set.size);
     }
 
-    const { main, briefs } = composeDigestItems(items, recentClusterKeys, sourceCount);
+    const { main, briefs } = composeDigestItems(items, recentClusterKeys, sourceCount, dayEvents);
     this.logger.log(`[Digest] composed ${main.length} main + ${briefs.length} briefs from ${items.length} candidates`);
-    return [...main, ...briefs];
+    return { main, briefs };
   }
 
   async scheduledDigest(): Promise<void> {
@@ -261,7 +341,7 @@ ${ANTI_HALLUCINATION_RULES}`;
 
       const userPrompt = `今天（${date}）收集到 ${items.length} 条 AI 资讯，请生成结构化日报。
 
-资讯列表：
+资讯列表（已按重要性排好序：综合评分、当天报道它的独立来源数、是否有官方一手发布。越靠前越重要，highlights 优先从前面选）：
 ${numbered}
 
 输出格式（只输出 JSON，不要 markdown 代码块，不要任何其他内容）：
@@ -323,8 +403,12 @@ ${numbered}
       // never links out to content that doesn't belong to this day.
       const normUrl = (u?: string) => (u ?? '').trim().replace(/\/+$/, '');
       const validUrls = new Set(items.map((h) => normUrl(h.url)));
-      const keepByUrl = <T extends { url?: string }>(arr?: T[]): T[] =>
-        (arr ?? []).filter((x) => validUrls.has(normUrl(x.url)));
+      // Source comes from our data, not the model: it tends to copy the title into it.
+      const sourceByUrl = new Map(items.map((h) => [normUrl(h.url), h.source as string]));
+      const keepByUrl = <T extends { url?: string; source?: string }>(arr?: T[]): T[] =>
+        (arr ?? [])
+          .filter((x) => validUrls.has(normUrl(x.url)))
+          .map((x) => ({ ...x, source: sourceByUrl.get(normUrl(x.url)) ?? x.source }));
 
       const highlights = keepByUrl(parsed.highlights);
       const droppedHighlights = (parsed.highlights?.length ?? 0) - highlights.length;

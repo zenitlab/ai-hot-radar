@@ -65,6 +65,7 @@ const SECTION_LABELS: Array<[keyof DigestData, string]> = [
   ['products', '产品发布'],
   ['community', '社区讨论'],
   ['papers', '论文研究'],
+  ['briefs', '快讯'],
 ];
 
 export default async function DigestDatePage({

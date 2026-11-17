@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ExternalLink, RefreshCw, Zap, CalendarDays, ChevronDown, ChevronRight,
-  ChevronLeft, ArrowRight, Flame, Cpu, Globe2, Globe, Package, Users, BookOpen,
+  ChevronLeft, ArrowRight, Flame, Cpu, Globe2, Globe, Package, Users, BookOpen, Newspaper,
 } from 'lucide-react';
 import { digestApi } from '../../services/api';
 import { digestJobs } from '../../services/digestJobs';
@@ -14,6 +14,7 @@ import { Skeleton, SkeletonList } from '../common/Loader';
 import { cn } from '../../lib/utils';
 import type {
   DailyDigest,
+  DigestBrief,
   DigestHighlight,
   DigestSimpleItem,
   DigestModelItem,
@@ -148,7 +149,7 @@ function Section({ icon, title, count, children, accent = 'blue' }: {
 // ── Highlight card ────────────────────────────────────────────────────────────
 
 function HighlightCard({ item }: { item: DigestHighlight }) {
-  return (
+  const card = (
     <a
       href={item.url}
       target="_blank"
@@ -198,6 +199,51 @@ function HighlightCard({ item }: { item: DigestHighlight }) {
         </div>
       )}
     </a>
+  );
+  if (!item.event) return card;
+
+  // Kept outside the card: the card is itself a link, and links can't nest.
+  const others = item.event.otherSources.map(getSourceLabel);
+  return (
+    <div>
+      {card}
+      <Link
+        href={`/story/${item.event.key}`}
+        className="mt-1.5 mx-2 flex items-center gap-1 text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-blue)] transition-colors"
+      >
+        <span className="truncate">同一事件还有 {others.join('、')} 报道</span>
+        <span className="shrink-0 inline-flex items-center gap-0.5 font-medium">
+          看完整时间线 <ArrowRight className="w-3 h-3" aria-hidden="true" />
+        </span>
+      </Link>
+    </div>
+  );
+}
+
+// ── Brief (快讯) ──────────────────────────────────────────────────────────────
+
+function BriefItem({ item }: { item: DigestBrief }) {
+  return (
+    <li className="flex items-baseline gap-2 py-2 border-b border-[var(--border-subtle)] last:border-b-0">
+      <span className="shrink-0 text-[11px] text-[var(--text-muted)] w-24 truncate">{getSourceLabel(item.source)}</span>
+      <a
+        href={item.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex-1 min-w-0 text-[14px] leading-snug text-[var(--text-primary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors break-words"
+      >
+        {item.title}
+      </a>
+      {item.storyKey && (
+        <Link
+          href={`/story/${item.storyKey}`}
+          className="shrink-0 text-[11px] text-[var(--text-muted)] hover:text-[var(--accent-blue)]"
+          aria-label={`查看事件：${item.title}`}
+        >
+          事件
+        </Link>
+      )}
+    </li>
   );
 }
 
@@ -486,7 +532,8 @@ export function DigestView({
     (data.modelIntel?.length ?? 0) > 0 ||
     (data.products?.length ?? 0) > 0 ||
     (data.community?.length ?? 0) > 0 ||
-    (data.papers?.length ?? 0) > 0
+    (data.papers?.length ?? 0) > 0 ||
+    (data.briefs?.length ?? 0) > 0
   );
 
   return (
@@ -708,6 +755,15 @@ export function DigestView({
                   <div className="space-y-2">
                     {data!.papers.map((item) => <PaperItem key={item.url} item={item} />)}
                   </div>
+                </Section>
+              )}
+
+              {/* 快讯：正文之外、按重要性排在后面的事件，一行一条 */}
+              {(data!.briefs?.length ?? 0) > 0 && (
+                <Section icon={<Newspaper className="w-4 h-4" />} title="快讯" count={data!.briefs!.length} accent="blue">
+                  <ul className="px-4 py-1 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)]">
+                    {data!.briefs!.map((item) => <BriefItem key={item.url} item={item} />)}
+                  </ul>
                 </Section>
               )}
 
