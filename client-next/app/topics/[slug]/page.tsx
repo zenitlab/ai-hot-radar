@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Flame } from 'lucide-react';
 
 import { TopicIcon } from '@/components/topics/TopicIcon';
+import { FollowButton } from '@/components/follows/FollowButton';
 import { CATEGORY_LABEL } from '@/lib/categories';
 import { fetchTopicSSR, type TopicItem, type TopicResponse } from '@/lib/server-api';
 import { ogImages, twitterImages } from '@/lib/og-meta';
@@ -175,7 +176,8 @@ export default async function TopicPage(props: Props) {
         <header className="mb-6">
           <div className="flex items-center gap-3">
             <TopicIcon slug={topic.slug} size="lg" />
-            <h1 className="text-xl sm:text-2xl font-bold leading-snug text-[var(--text-primary)]">{topic.name}</h1>
+            <h1 className="min-w-0 flex-1 text-xl sm:text-2xl font-bold leading-snug text-[var(--text-primary)]">{topic.name}</h1>
+            <FollowButton slug={topic.slug} name={topic.name} size="md" />
           </div>
           <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{topic.description}</p>
           <p className="mt-2 text-xs text-[var(--text-muted)]">

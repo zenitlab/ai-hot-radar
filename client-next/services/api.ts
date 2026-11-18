@@ -1,4 +1,6 @@
 import { adminHeaders } from '@/lib/admin';
+// Type-only: lib/server-api.ts is server code, but its response shapes are shared.
+import type { TopicResponse, TopicsResponse } from '@/lib/server-api';
 
 const API_BASE = '/api';
 
@@ -241,6 +243,12 @@ export const curatedApi = {
       return r.json();
     });
   },
+};
+
+// Topics (shapes in lib/server-api.ts)
+export const topicsApi = {
+  getAll: () => request<TopicsResponse>('/topics'),
+  getOne: (slug: string) => request<TopicResponse>(`/topics/${encodeURIComponent(slug)}`),
 };
 
 // Digest

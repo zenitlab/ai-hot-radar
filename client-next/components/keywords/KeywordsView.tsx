@@ -153,10 +153,10 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
   const backToList = () => { setSelectedId(null); setDetail(null); };
 
   return (
-    <div className="mx-auto grid max-w-[1180px] gap-8 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10 lg:pt-8">
+    <div className="mx-auto grid max-w-[1180px] gap-8 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10">
       {/* List. Mobile shows either the list or one entity; desktop shows both. */}
       <div className={cn('min-w-0 lg:sticky lg:top-6 lg:self-start', selectedEntity && 'hidden lg:block')}>
-        <h1 className="text-[22px] font-bold">我的关注</h1>
+        <h2 className="text-lg font-bold">站长追踪</h2>
         {isAdmin ? (
           <form onSubmit={handleAdd} className="mt-3 flex gap-2">
             <input

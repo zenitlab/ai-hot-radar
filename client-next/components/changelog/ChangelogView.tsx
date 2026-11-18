@@ -23,6 +23,17 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11-18",
+    version: "v0.21.0",
+    tag: "feature",
+    title: "关注你在意的公司和方向",
+    items: [
+      "主题页每个主题都有「关注」按钮，OpenAI、Anthropic、DeepSeek 这类公司和 Agent、AI 编程这类方向都能关注",
+      "「我的关注」新增「我关注的主题」：把关注的主题的最新资讯合在一起按时间排好，每条标出属于哪个主题",
+      "不用注册登录，关注记在当前浏览器里；原来的关注对象移到「站长追踪」",
+    ],
+  },
+  {
+    date: "2026-11-18",
     version: "v0.20.0",
     tag: "tweak",
     title: "资讯页和「我的关注」改版",

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
 
 import { TopicIcon } from '@/components/topics/TopicIcon';
+import { FollowButton } from '@/components/follows/FollowButton';
 import { fetchTopicsSSR } from '@/lib/server-api';
 import { ogImages, twitterImages } from '@/lib/og-meta';
 import { generateBreadcrumbSchema, safeJsonLd } from '@/lib/structured-data';
@@ -41,6 +41,9 @@ export default async function TopicsPage() {
           <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">按主题看 AI</h1>
           <p className="mt-2 text-sm text-[var(--text-secondary)]">
             按公司与模型、技术方向、内容类型浏览 {total} 个主题，追踪近 {data?.windowDays ?? 30} 天的精选与重要进展。
+            点「关注」后，在
+            <Link href="/keywords" className="mx-1 font-semibold text-[var(--accent-blue)] hover:underline">我的关注</Link>
+            里看这些主题的最新动态。
           </p>
         </header>
 
@@ -57,25 +60,22 @@ export default async function TopicsPage() {
               <p className="mb-3 text-xs text-[var(--text-muted)]">{g.description}</p>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {g.topics.map((t) => (
-                  <li key={t.slug}>
+                  <li key={t.slug} className="relative">
                     <Link
                       href={`/topics/${t.slug}`}
-                      className="group flex h-full items-start gap-3 rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-3.5 hover:border-[var(--card-border-hover)] transition-colors"
+                      className="group flex h-full items-start gap-3 rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-3.5 pr-24 hover:border-[var(--card-border-hover)] transition-colors"
                     >
                       <TopicIcon slug={t.slug} />
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="flex items-center justify-between gap-2">
-                          <span className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)]">{t.name}</span>
-                          <span className="inline-flex shrink-0 items-center text-xs text-[var(--text-muted)]">
-                            近 {data?.windowDays ?? 30} 天 {t.count} 条
-                            <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
-                          </span>
-                        </span>
+                        <span className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)]">{t.name}</span>
+                        <span className="mt-0.5 text-xs text-[var(--text-muted)]">近 {data?.windowDays ?? 30} 天 {t.count} 条</span>
                         {t.latest && (
                           <span className="mt-1 text-[13px] leading-snug text-[var(--text-secondary)] line-clamp-2">{t.latest.title}</span>
                         )}
                       </span>
                     </Link>
+                    {/* Outside the link so a click follows instead of navigating. */}
+                    <FollowButton slug={t.slug} name={t.name} className="absolute right-3 top-3.5" />
                   </li>
                 ))}
               </ul>
