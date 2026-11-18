@@ -50,6 +50,14 @@ describe('unsupportedTerms', () => {
 describe('acceptTitleZh', () => {
   const source = 'v2.1.159 Claude Code Releases bug fixes';
 
+  it('measures length by reading width, so Latin product names count half', () => {
+    const src = 'NVIDIA Vera Rubin NVL72 Achieves up to 2x Blackwell Ultra Performance in MLPerf Training v6.1';
+    const title = 'NVIDIA Vera Rubin NVL72 在 MLPerf Training v6.1 中性能最高达 Blackwell Ultra 两倍';
+    expect(title.length).toBeGreaterThan(60);
+    expect(acceptTitleZh(title, src)).toBe(title);
+    expect(acceptTitleZh('这'.repeat(61), '这'.repeat(61))).toBe('');
+  });
+
   it('accepts a faithful Chinese title', () => {
     expect(acceptTitleZh('“Claude Code v2.1.159 发布”', source)).toBe('Claude Code v2.1.159 发布');
   });

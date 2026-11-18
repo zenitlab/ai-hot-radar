@@ -145,13 +145,36 @@ export function unsupportedTerms(text: string, source: string): string[] {
  * names nothing the source doesn't. Returns '' when it should be discarded, in
  * which case the original title is shown instead.
  */
+/**
+ * Reading width of a title: a Chinese character counts 1, anything else 0.5.
+ * Titles carry Latin product names ("NVIDIA Vera Rubin NVL72", "MLPerf
+ * Training v6.1") that run long in characters but read about half as wide.
+ */
+export function displayWidth(text: string): number {
+  let width = 0;
+  for (const ch of text) width += /[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/u.test(ch) ? 1 : 0.5;
+  return width;
+}
+
 export function acceptTitleZh(raw: unknown, source: string): string {
   if (typeof raw !== 'string') return '';
   const title = stripUnsupportedYears(raw.replace(/\s+/gu, ' ').trim().replace(/^["“「『]+|["”」』。.]+$/gu, ''), source);
-  if (title.length < 4 || title.length > 60) return '';
+  if (title.length < 4 || displayWidth(title) > 60) return '';
   if (!/[\u4e00-\u9fff]/u.test(title)) return ''; // not actually Chinese
   // A long all-lowercase word is ordinary English left untranslated ("unpublished"), not a name.
   if (/(?<![A-Za-z0-9.\-_])[a-z]{8,}(?![A-Za-z0-9.\-_])/u.test(title)) return '';
   if (unsupportedTerms(title, source).length > 0) return '';
   return title;
+}
+
+/**
+ * True when `text` reads as Chinese: at least 4 CJK characters making up
+ * 15%+ of it. Product names and numbers are Latin either way, so a Chinese
+ * title can be mostly Latin by length ("OpenAI 发布 GPT-6.2 Astra 和 Sol"); a
+ * title with no real Chinese ("GPT-6.2 Astra and Sol") is English.
+ */
+export function isChineseText(text: string | null | undefined): boolean {
+  if (!text) return false;
+  const cjk = text.match(/[\u4e00-\u9fff]/gu)?.length ?? 0;
+  return cjk >= 4 && cjk >= text.replace(/\s+/gu, '').length * 0.15;
 }

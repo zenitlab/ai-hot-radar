@@ -1,10 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import type OpenAI from 'openai';
 import { createLlmClient } from '../utils/llm-client';
 import { composeDigestItems, pickSupplements, REPEAT_WINDOW_DAYS, SUPPLEMENT_MIN_SOURCES, summariseDay } from '../utils/digest-compose';
-import { ANTI_HALLUCINATION_RULES, UNTRUSTED_NOTE } from '../utils/writing-rules';
+import { ANTI_HALLUCINATION_RULES, UNTRUSTED_NOTE, isChineseText } from '../utils/writing-rules';
+import { AiService } from '../services/ai.service';
+
+/** The digest prompt is long and its answer is ~4000 tokens; give it more than the client's default. */
+const DIGEST_TIMEOUT_MS = 180_000;
 
 export interface DigestHighlight {
   title: string;
@@ -68,6 +72,12 @@ export interface DigestData {
   briefs?: DigestBrief[];
   generatedAt: string;
   itemCount: number;
+  /**
+   * True when the model call failed and the digest was assembled by rule from
+   * item titles and summaries (fallbackDigest). Such a digest is regenerated
+   * by retryFallbackDigest.
+   */
+  fallback?: boolean;
 }
 
 @Injectable()
@@ -76,7 +86,13 @@ export class DigestService {
   private readonly client: OpenAI;
   private readonly model: string;
 
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    // Same queue and 429 retries as every other model call. Calling the client
+    // directly let the 08:05 digest race the 08:00 scan on a one-at-a-time
+    // free tier, and the rejected call fell back to the rule-based digest.
+    @Optional() private readonly ai?: AiService,
+  ) {
     this.client = createLlmClient();
     this.model = process.env.MODEL_NAME ?? 'qwen-coder-turbo';
   }
@@ -212,18 +228,6 @@ export class DigestService {
     return out;
   }
 
-  /** Runs every morning at 08:05 Beijing time (5 minutes after the 08:00 scan),
-   *  generating the digest dated *today*. By convention (see generateDigest)
-   *  this digest summarizes the just-completed previous Beijing day.
-   *
-   *  The 5-minute delay ensures the 08:00 hotspot scan completes first, so the
-   *  digest includes the latest overnight data. HotspotScheduler runs at 08:00
-   *  (via its cron); typical scan duration is 1-3 minutes, so 08:05 provides a
-   *  safe margin without making users wait too long for the morning digest.
-   *
-   *  Pinning the timezone explicitly so this works regardless of the server's
-   *  local TZ (Docker images often default to UTC, dev machines vary). */
-  @Cron('0 5 8 * * *', { timeZone: 'Asia/Shanghai' })
   /**
    * Rule-based pre-selection (utils/digest-compose.ts): one item per event,
    * ranked by importance; events from the last week only with news; at most 2
@@ -281,8 +285,45 @@ export class DigestService {
     return { main, briefs };
   }
 
+  /** Runs every morning at 08:05 Beijing time (5 minutes after the 08:00 scan),
+   *  generating the digest dated *today*. By convention (see generateDigest)
+   *  this digest summarizes the just-completed previous Beijing day.
+   *
+   *  The 5-minute delay ensures the 08:00 hotspot scan completes first, so the
+   *  digest includes the latest overnight data. HotspotScheduler runs at 08:00
+   *  (via its cron); typical scan duration is 1-3 minutes, so 08:05 provides a
+   *  safe margin without making users wait too long for the morning digest.
+   *
+   *  Pinning the timezone explicitly so this works regardless of the server's
+   *  local TZ (Docker images often default to UTC, dev machines vary). */
+  // Keep this decorator directly on scheduledDigest. It once ended up on
+  // composeItems (a helper inserted between it and this method), so the 08:05
+  // run called composeItems() with no arguments and no digest was generated.
+  @Cron('0 5 8 * * *', { timeZone: 'Asia/Shanghai' })
   async scheduledDigest(): Promise<void> {
     const today = this.getBeijingDate(0);
+    await this.generateDigest(today);
+  }
+
+  /**
+   * Today's digest fell back to the rule-based version (model call failed):
+   * try the model again at 08:35 and 09:35, when the morning scans are done.
+   * At most two extra calls a day, and none on days the 08:05 run worked.
+   */
+  @Cron('0 35 8,9 * * *', { timeZone: 'Asia/Shanghai' })
+  async retryFallbackDigest(): Promise<void> {
+    if (!process.env.OPENAI_API_KEY) return;
+    const today = this.getBeijingDate(0);
+    const row = await this.prisma.dailyDigest.findUnique({ where: { date: today } });
+    if (!row) return;
+    let fallback = false;
+    try {
+      fallback = Boolean((JSON.parse(row.data) as DigestData).fallback);
+    } catch {
+      return;
+    }
+    if (!fallback) return;
+    this.logger.log(`[Digest] ${today} is the rule-based fallback; asking the model again`);
     await this.generateDigest(today);
   }
 
@@ -377,21 +418,24 @@ ${numbered}
 - 所有 url 必须来自输入数据，不要编造
 - affects 写具体方向，如"AI Coding"、"Agent开发"、"中文LLM"，不要写"所有人"`;
 
-      const result = await this.client.chat.completions.create({
-        model: this.model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        temperature: 0.3,
-        max_tokens: 4000,
-      });
-
-      const msg = result.choices?.[0]?.message;
-      // MiMo/reasoning models: prefer content; fallback to reasoning_content if content is null
-      const raw = msg?.content || (msg as any)?.reasoning_content || '';
+      const messages = [
+        { role: 'system' as const, content: systemPrompt },
+        { role: 'user' as const, content: userPrompt },
+      ];
+      let raw: string;
+      if (this.ai) {
+        raw = this.ai.cleanModelResponse(await this.ai.callRaw(messages, 4000, 'digest', DIGEST_TIMEOUT_MS));
+      } else {
+        const result = await this.client.chat.completions.create({ model: this.model, messages, temperature: 0.3, max_tokens: 4000 });
+        const msg = result.choices?.[0]?.message;
+        // MiMo/reasoning models: prefer content; fallback to reasoning_content if content is null
+        raw = msg?.content || (msg as any)?.reasoning_content || '';
+      }
       const match = raw.match(/\{[\s\S]*\}/);
-      if (!match) return fallback;
+      if (!match) {
+        this.logger.warn(`[Digest] Model output had no JSON (${raw.length} chars); using the rule-based digest`);
+        return fallback;
+      }
 
       const parsed = JSON.parse(match[0]) as Partial<DigestData>;
 
@@ -437,15 +481,20 @@ ${numbered}
   }
 
   private fallbackDigest(items: any[], date: string): DigestData {
+    // Without the model nothing gets translated, so only items that already
+    // have Chinese go in; a mostly-English digest reads worse than a short one.
+    const zhTitle = (h: any): string => h.titleZh || (isChineseText(h.title) ? h.title : '');
+    const zhSummary = (h: any): string => (isChineseText(h.summary) ? h.summary : '');
+    items = items.filter((h) => zhTitle(h));
     const pick = (cat: string, region?: string) =>
       items
         .filter((h) => (!cat || h.category === cat) && (!region || h.region === region))
         .slice(0, 8)
-        .map((h) => ({ title: h.titleZh || h.title, summary: h.summary ?? '', source: h.source, url: h.url }));
+        .map((h) => ({ title: zhTitle(h), summary: zhSummary(h), source: h.source, url: h.url }));
 
     // Build a fallback summary that actually conveys what happened today by
     // pulling the top 1–2 hotspot titles instead of just reporting a count.
-    const top = items.slice(0, 2).map((h) => (h.titleZh || h.title)?.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const top = items.slice(0, 2).map((h) => zhTitle(h).replace(/\s+/g, ' ').trim()).filter(Boolean);
     const summary =
       top.length === 0
         ? `共收录 ${items.length} 条 AI 资讯`
@@ -455,9 +504,10 @@ ${numbered}
 
     return {
       summary,
+      fallback: true,
       highlights: items.slice(0, 5).map((h) => ({
-        title: h.titleZh || h.title,
-        summary: h.summary ?? '',
+        title: zhTitle(h),
+        summary: zhSummary(h),
         whyImportant: '',
         affects: [],
         source: h.source,
@@ -468,7 +518,7 @@ ${numbered}
       modelIntel: items
         .filter((h) => h.category === 'model')
         .slice(0, 6)
-        .map((h) => ({ model: (h.titleZh || h.title).slice(0, 20), change: '更新', detail: h.summary?.slice(0, 40) ?? '', impact: '' })),
+        .map((h) => ({ model: zhTitle(h).slice(0, 20), change: '更新', detail: zhSummary(h).slice(0, 40), impact: '' })),
       products: pick('product'),
       community: pick('community'),
       papers: pick('research').map((p) => ({ ...p, impact: '' })),

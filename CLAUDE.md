@@ -27,11 +27,16 @@ Every prompt that produces text readers see (Chinese title, summary, recommend r
 - Prompts: `UNTRUSTED_NOTE` always (feed text is attacker-controlled), plus `ANTI_HALLUCINATION_RULES` and, where they apply, `SELF_CONTAINED_TITLE_RULES` / `ANSWER_FIRST_SUMMARY_RULES`.
 - Guards: `acceptTitleZh`, `cleanSummary`, `stripUnsupportedYears`, `groundSummary`, `unsupportedTerms`. They exist because live runs with the production model (agnes-3.0-flash) ignored the prompt rules on thin sources: it padded summaries with invented reactions and wrote sentences about the reporting itself. Don't remove a guard because the prompt already says the same thing.
 - `Hotspot.titleZh` is nullable (rejected or pre-existing rows). The frontend must show titles through `displayTitle()` in `client-next/lib/utils.ts`, never `item.title` directly.
+- English that slipped through scoring is filled in by `server/src/hotspots/translate.job.ts` (`server/src/utils/translate.ts`), one call per 20 items; its output goes through the same guards. `acceptTitleZh` measures length with `displayWidth` (Latin counts half), because translated titles keep Latin product names.
 - Event overviews (`StoryDigest`, written by `server/src/hotspots/story-digest.job.ts`) cost one AI call each and are capped by `STORY_DIGEST_PER_RUN`. The same call returns the 已确认 / 尚未确认 / 为什么重要 points (`StoryDigest.points`, JSON); `parseStoryDigest` checks each point on its own, and an unconfirmed point without an attribution (据/称/爆料…) is dropped, because otherwise the site states a rumour in its own voice. The free LLM tier allows roughly 1000 calls a day, so anything that adds a call per item needs the user's agreement first.
 
 ## Article fetching (server/src/services/article-fetch.service.ts)
 
 Thin feed items (< 300 chars) get their article fetched before scoring. Feed URLs are attacker-controlled, so keep both guards when touching it: `safeLookup` refuses private/metadata addresses on every connection, and `isSafeRedirect` covers redirects to IP literals (Node skips DNS for those). `198.18.0.0/15` is deliberately allowed because local Clash TUN answers DNS from it. Fetched text is for the model only: don't store it in `Hotspot.content` or show it on the site.
+
+## Scheduled jobs
+
+Put `@Cron` directly above the method it should run, with nothing in between. A helper inserted between the decorator and `scheduledDigest` once took the cron, so the daily digest silently stopped. `server/src/__tests__/digestSchedule.test.ts` checks the digest crons; do the same for new ones. Model calls in jobs go through `AiService` (queue + 429 retries), never a raw client.
 
 ## Write endpoints are admin-only
 
