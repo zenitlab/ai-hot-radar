@@ -63,8 +63,8 @@ type Report = StoryResponse['items'][number];
 
 /** The overview's fact sheet, in the order a reader needs it. Borrowed from agihunt.info event pages. */
 const POINT_GROUPS: Array<{ key: keyof StoryPoints; label: string; Icon: typeof CircleCheck; iconClass: string }> = [
-  { key: 'confirmed', label: '已确认', Icon: CircleCheck, iconClass: 'text-emerald-600 dark:text-emerald-400' },
-  { key: 'unconfirmed', label: '尚未确认', Icon: CircleHelp, iconClass: 'text-amber-600 dark:text-amber-400' },
+  { key: 'confirmed', label: '已确认', Icon: CircleCheck, iconClass: 'text-[var(--accent-emerald)]' },
+  { key: 'unconfirmed', label: '尚未确认', Icon: CircleHelp, iconClass: 'text-[var(--accent-amber)]' },
   { key: 'why', label: '为什么重要', Icon: Lightbulb, iconClass: 'text-[var(--accent-blue)]' },
 ];
 
@@ -162,7 +162,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
       })),
     }),
     generateBreadcrumbSchema([
-      { name: '热点雷达', path: '/hotspot' },
+      { name: 'AI 热点榜', path: '/hot' },
       { name: title.slice(0, 40), path: `/story/${key}` },
     ]),
   ];
@@ -173,9 +173,9 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
 
       <article className="px-4 py-6 max-w-3xl mx-auto">
         <nav aria-label="位置" className="mb-4 text-xs text-[var(--text-muted)]">
-          <Link href="/hotspot" className="inline-flex items-center gap-0.5 hover:text-[var(--text-primary)]">
+          <Link href="/hot" className="inline-flex items-center gap-0.5 hover:text-[var(--text-primary)]">
             <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
-            热点雷达
+            热点榜
           </Link>
           <span aria-hidden="true"> / </span>
           <span>事件详情</span>
@@ -252,7 +252,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
         {official.length > 0 && (
           <section aria-labelledby="official" className="mb-6">
             <h2 id="official" className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[var(--text-primary)]">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+              <ShieldCheck className="w-4 h-4 text-[var(--accent-emerald)]" aria-hidden="true" />
               一手来源
               <span className="font-normal text-xs text-[var(--text-muted)]">{official.length} 篇 · 直接了解当事方的说法</span>
             </h2>
@@ -290,10 +290,10 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
                         {getSourceLabel(h.source)}
                       </span>
                       {h.id === firstId && (
-                        <span className="rounded bg-violet-500/10 px-1.5 py-0.5 text-violet-700 dark:text-violet-400">首报</span>
+                        <span className="rounded border border-[var(--border-default)] px-1.5 text-[var(--text-secondary)]">首报</span>
                       )}
                       {OFFICIAL_TIERS.has(h.sourceTier ?? '') && (
-                        <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-emerald-700 dark:text-emerald-400">官方</span>
+                        <span className="rounded border border-current px-1.5 text-[var(--accent-emerald)]">官方</span>
                       )}
                       {h.isCurated && (
                         <span className="rounded bg-[var(--accent-blue)]/10 px-1.5 py-0.5 text-[var(--accent-blue)]">精选</span>

@@ -51,6 +51,8 @@ export interface Hotspot {
   isCurated?: boolean;
   tags?: string; // JSON array string
   clusterKey?: string;
+  /** Distinct sources covering this item's event; set by the curated API. */
+  sourceCount?: number;
   isClusterMain?: boolean;
   // Engagement
   viewCount?: number;

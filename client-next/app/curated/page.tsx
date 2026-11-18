@@ -1,5 +1,14 @@
 import { CuratedView } from '@/components/curated/CuratedView';
-import { fetchCuratedSSR } from '@/lib/server-api';
+import { CURATED_PAGE_SIZE, beijingToday } from '@/lib/curated';
+import { HeatPanel } from '@/components/curated/HeatPanel';
+import { HomeRail } from '@/components/curated/HomeRail';
+import {
+  fetchCuratedSSR,
+  fetchDigestSSR,
+  fetchRecentDigestsSSR,
+  fetchTopicsSSR,
+  fetchTrendingBoardSSR,
+} from '@/lib/server-api';
 import { generateHotspotListSchema, safeJsonLd } from '@/lib/structured-data';
 import { displayTitle } from '@/lib/utils';
 
@@ -14,8 +23,22 @@ import { displayTitle } from '@/lib/utils';
  */
 export const dynamic = 'force-dynamic';
 
+const HOT_COUNT = 6;
+
+/**
+ * Homepage (DESIGN.md, mockup design/mockups/a-radar.html): what's heating up
+ * now, the last 7 days of 精选 grouped by day, and a rail with the latest
+ * digest and company topics. Every block is in the first HTML.
+ */
 export default async function CuratedPage() {
-  const { items, total } = await fetchCuratedSSR('today', 50);
+  const today = beijingToday();
+  const [{ items, total }, board, topics, recent] = await Promise.all([
+    fetchCuratedSSR('week', CURATED_PAGE_SIZE),
+    fetchTrendingBoardSSR(HOT_COUNT),
+    fetchTopicsSSR(),
+    fetchRecentDigestsSSR(),
+  ]);
+  const digest = recent[0] ? await fetchDigestSSR(recent[0].date) : null;
 
   // ItemList tells AI engines this page is an aggregated feed rather than one
   // article, so individual entries can be attributed to their own source.
@@ -43,7 +66,13 @@ export default async function CuratedPage() {
           dangerouslySetInnerHTML={{ __html: safeJsonLd(listSchema) }}
         />
       )}
-      <CuratedView initialItems={items} initialTotal={total} />
+      <CuratedView
+        initialItems={items}
+        initialTotal={total}
+        today={today}
+        top={<HeatPanel events={board.events} />}
+        rail={<HomeRail digest={digest} topics={topics} today={today} />}
+      />
     </>
   );
 }

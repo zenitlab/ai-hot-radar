@@ -1,406 +1,293 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import {
-  Star, Search, X, Flame, Sparkles, Bookmark,
-  Clock, Zap, Repeat2, MessageCircle, Eye, ThermometerSun,
-} from 'lucide-react';
-import { curatedApi, hotspotsApi, keywordsApi } from '../../services/api';
-import { relativeTime } from '../../utils/relativeTime';
-import { cn, displayTitle } from '../../lib/utils';
-import { getSourceIcon, getSourceLabel } from '../../lib/sourceMeta';
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { Search, X } from 'lucide-react';
+import { curatedApi } from '../../services/api';
+import { displayTitle } from '../../lib/utils';
+import { getSourceLabel } from '../../lib/sourceMeta';
+import { CATEGORY_LABEL } from '../../lib/categories';
+import { sourceCountColor } from '../../lib/heat';
+import { CURATED_PAGE_SIZE } from '../../lib/curated';
 import { HotspotTabs } from '../hotspot/HotspotTabs';
 import { BackToTop } from '../common/BackToTop';
 import { SkeletonList } from '../common/Loader';
-import { EmptyState } from '../common/EmptyState';
 import type { Hotspot, HotspotTab } from '../../types';
-import { CATEGORY_LABEL } from '../../lib/categories';
-import Link from 'next/link';
 
-type Period = 'today' | 'week';
+const WEEK = '日一二三四五六';
 
-/**
- * Curated card — visually unified with HotspotCard but lighter on chrome.
- * Differences from HotspotCard (intentional):
- *   - No importance/urgent/high/low badges (curated items are pre-filtered
- *     by quality score; the score itself is the badge)
- *   - No 真假/可信/可疑/直接提及 chips
- *   - No AI relevance reason / raw content collapsibles
- *   - Engagement metrics shown as a single trailing row
- *   - Reading-first: bigger title, wider summary leading
- */
-function CuratedCard({ item, index = 0 }: { item: Hotspot; index?: number }) {
-  const tags = item.tags ? (JSON.parse(item.tags) as string[]) : [];
+const when = (h: Hotspot) => h.publishedAt || h.createdAt;
 
-  // Same heat formula as HotspotCard for visual consistency
-  const heatRaw =
-    (item.likeCount ?? 0) * 2 +
-    (item.retweetCount ?? 0) * 3 +
-    (item.replyCount ?? 0) * 1.5 +
-    (item.commentCount ?? 0) * 1.5 +
-    (item.viewCount ?? 0) / 100;
-  const heatScore = heatRaw > 0 ? Math.min(100, Math.round(Math.log10(heatRaw + 1) * 25)) : 0;
-  const heat =
-    heatScore >= 80 ? { label: '爆', color: 'text-red-500 dark:text-red-400' } :
-    heatScore >= 60 ? { label: '热', color: 'text-orange-500 dark:text-orange-400' } :
-    heatScore >= 40 ? { label: '温', color: 'text-amber-500 dark:text-amber-400' } :
-    null;
+/** Beijing calendar day of an ISO time, as YYYY-MM-DD; same on server and client. */
+const bjDay = (iso: string) => new Date(new Date(iso).getTime() + 8 * 3600_000).toISOString().slice(0, 10);
 
-  // <article> marks each card as a self-contained item so crawlers can tell
-  // where one story ends and the next begins — the list is otherwise a flat run
-  // of <a> elements with no structural boundary.
+const bjTime = (iso: string) =>
+  new Date(iso).toLocaleTimeString('zh-CN', { timeZone: 'Asia/Shanghai', hour: '2-digit', minute: '2-digit', hour12: false });
+
+function dayHeading(day: string, today: string) {
+  const [y, m, d] = day.split('-').map(Number);
+  const weekday = WEEK[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+  const yesterday = bjDay(new Date(new Date(`${today}T12:00:00+08:00`).getTime() - 86_400_000).toISOString());
+  const rel = day === today ? '今天' : day === yesterday ? '昨天' : '';
+  return { label: `${m}月${d}日 星期${weekday}`, rel };
+}
+
+/** Consecutive runs of items from the same Beijing day, in list order. */
+function groupByDay(items: Hotspot[]) {
+  const groups: Array<{ day: string; items: Hotspot[] }> = [];
+  for (const it of items) {
+    const day = bjDay(when(it));
+    const last = groups[groups.length - 1];
+    if (last?.day === day) last.items.push(it);
+    else groups.push({ day, items: [it] });
+  }
+  return groups;
+}
+
+function FeedItem({ item }: { item: Hotspot }) {
+  const n = item.sourceCount ?? 1;
+  const tick = sourceCountColor(n);
+  const category = item.category ? CATEGORY_LABEL[item.category] : null;
   return (
-    <article>
-      {/* Opens our item page (summary, reason, event context); the source link lives there. */}
-      <Link
-          href={`/items/${item.id}`}
-          style={{ animationDelay: `${index * 30}ms` }}
-          className="block p-5 sm:p-6 rounded-3xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition duration-200 group"
-        >
-        {/* Top row: source icon + label · category · keyword (left) | heat + score (right) */}
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="flex items-center gap-1 text-[12px] text-[var(--text-muted)] font-medium">
-            {getSourceIcon(item.source, 'w-3.5 h-3.5')}
-            {getSourceLabel(item.source)}
-          </span>
-          {item.category && CATEGORY_LABEL[item.category] && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-elevated)] text-[var(--text-secondary)]">
-              {CATEGORY_LABEL[item.category]}
-            </span>
-          )}
-          {item.keyword && (
-            <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] border border-[var(--accent-blue)]/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
-              {item.keyword.text}
-            </span>
-          )}
-          <div className="ml-auto flex items-center gap-1.5">
-            {heat && (
-              <span className={cn('flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-[var(--input-bg)] border border-[var(--input-border)] font-medium', heat.color)}>
-                <ThermometerSun className="w-3 h-3" />
-                {heat.label} {heatScore}
-              </span>
-            )}
-            {item.qualityScore != null && (
-              <span className="text-xs font-mono px-2.5 py-0.5 rounded-full border border-[var(--accent-blue)]/30 text-[var(--accent-blue)] dark:text-blue-400">
-                {Math.round(item.qualityScore)}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Title — large, semibold, reading-first */}
-        <h3 className="text-[17px] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors leading-snug mb-2.5">
-          {displayTitle(item)}
+    <li className="grid grid-cols-[40px_4px_minmax(0,1fr)] gap-x-3 border-b border-[var(--border-subtle)] py-4 sm:grid-cols-[44px_4px_minmax(0,1fr)]">
+      <time dateTime={when(item)} className="pt-0.5 text-[13px] text-[var(--text-muted)]">
+        {bjTime(when(item))}
+      </time>
+      <span
+        className="min-h-6 w-1 rounded-full"
+        style={{ background: tick ?? 'transparent' }}
+        title={n > 1 ? `${n} 家来源报道了这件事` : undefined}
+        aria-hidden="true"
+      />
+      <article className="min-w-0">
+        <h3 className="text-base font-semibold leading-normal sm:text-[17px]">
+          <Link href={`/items/${item.id}`} className="hover:text-[var(--accent-blue)]">
+            {displayTitle(item)}
+          </Link>
         </h3>
-
-        {/* AI Summary — quote-style block, identical to HotspotCard */}
         {item.summary && (
-          <div className="mb-3 pl-3 border-l-2 border-[var(--accent-blue)]/40 dark:border-blue-400/40">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <Sparkles className="w-3 h-3 text-[var(--accent-blue)] dark:text-blue-400" />
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--accent-blue)]/80 dark:text-blue-400/70">
-                AI 摘要
-              </span>
-            </div>
-            <p className="text-[14px] text-[var(--text-secondary)] leading-[1.7] line-clamp-3">
-              {item.summary}
-            </p>
-          </div>
+          <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)] line-clamp-2">{item.summary}</p>
         )}
-
-        {item.recommendReason && (
-          <p className="mb-3 text-[13px] leading-[1.7] text-[var(--text-secondary)]">
-            <span className="font-semibold text-[var(--text-primary)]">推荐理由：</span>
-            {item.recommendReason}
-          </p>
-        )}
-
-        {/* Engagement metrics — only when there are any */}
-        {(item.likeCount || item.retweetCount || item.commentCount || item.viewCount) && (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--text-muted)] mb-2.5">
-            {item.likeCount != null && item.likeCount > 0 && (
-              <span className="flex items-center gap-1" title="点赞">
-                <Zap className="w-3 h-3" />
-                {item.likeCount.toLocaleString()}
-              </span>
-            )}
-            {item.retweetCount != null && item.retweetCount > 0 && (
-              <span className="flex items-center gap-1" title="转发">
-                <Repeat2 className="w-3 h-3" />
-                {item.retweetCount.toLocaleString()}
-              </span>
-            )}
-            {item.commentCount != null && item.commentCount > 0 && (
-              <span className="flex items-center gap-1" title="评论">
-                <MessageCircle className="w-3 h-3" />
-                {item.commentCount.toLocaleString()}
-              </span>
-            )}
-            {item.viewCount != null && item.viewCount > 0 && (
-              <span className="flex items-center gap-1" title="浏览">
-                <Eye className="w-3 h-3" />
-                {item.viewCount.toLocaleString()}
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Bottom row: tags (left) + time (right) — same baseline */}
-        <div className="flex items-end justify-between gap-3">
-          <div className="flex flex-wrap gap-1.5 flex-1 min-w-0">
-            {tags.slice(0, 4).map((tag: string) => (
-              <span
-                key={tag}
-                className="text-[11px] px-2.5 py-1 rounded-md bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-          {/* datetime carries the machine-readable timestamp; the visible text
-              stays relative ("3 小时前"), which crawlers can't parse on its own. */}
-          <time
-            dateTime={item.publishedAt || item.createdAt}
-            className="flex items-center gap-1 text-[11px] text-[var(--text-muted)] shrink-0"
-          >
-            <Clock className="w-3 h-3" />
-            {relativeTime(item.publishedAt || item.createdAt)}
-          </time>
-        </div>
-      </Link>
-    </article>
+        <p className="mt-1.5 flex flex-wrap gap-x-3 text-[13px] text-[var(--text-muted)]">
+          <span>{getSourceLabel(item.source)}</span>
+          {n > 1 && item.clusterKey && (
+            <Link href={`/story/${item.clusterKey}`} className="font-medium hover:underline" style={{ color: tick ?? undefined }}>
+              {n} 家来源
+            </Link>
+          )}
+          {category && <span>{category}</span>}
+          {item.qualityScore != null && <span>评分 {Math.round(item.qualityScore)}</span>}
+        </p>
+      </article>
+    </li>
   );
 }
 
-
 /**
- * `initialItems` / `initialTotal` are prefetched on the server by
- * `app/curated/page.tsx` so the default view (today · all · no search) is
- * present in the initial HTML — AI crawlers don't run JS, so anything fetched
- * only in an effect is invisible to them. Both are optional: without them the
- * component falls back to its original client-fetch-on-mount behaviour.
+ * The 精选 feed: the last 7 days of curated items, newest first, grouped by
+ * Beijing day. Showing days rather than "today only" keeps the page full in
+ * the early hours, when today has nothing yet.
+ *
+ * `initialItems` / `initialTotal` come from the server (app/curated/page.tsx)
+ * so the default view is in the first HTML for crawlers. `top` and `rail` are
+ * server-rendered blocks placed above the feed and in the right column.
  */
 export function CuratedView({
   initialItems = [],
   initialTotal = 0,
+  today,
+  top,
+  rail,
 }: {
   initialItems?: Hotspot[];
   initialTotal?: number;
-} = {}) {
-  const [period, setPeriod] = useState<Period>('today');
+  /** Beijing date of the request, YYYY-MM-DD; fixes 今天/昨天 to the server's clock. */
+  today: string;
+  top?: React.ReactNode;
+  rail?: React.ReactNode;
+}) {
   const [activeTab, setActiveTab] = useState<HotspotTab>('all');
   const [searchInput, setSearchInput] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
   const [items, setItems] = useState<Hotspot[]>(initialItems);
   const [total, setTotal] = useState(initialTotal);
-  // Server already rendered the list — skip the skeleton on first paint.
-  const [loading, setLoading] = useState(initialItems.length === 0);
-  const [overview, setOverview] = useState<{ today: number; curated: number; keywords: number } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
-  // Guards the filter effect from re-requesting data the server already sent.
-  // Only armed when server data exists, so the empty-state path still fetches.
-  const skipInitialFetch = useRef(initialItems.length > 0);
+  // The server already sent the default view; only refetch once filters change.
+  const filtersTouched = useRef(false);
 
-  // One-time fetch of overview metrics for the top stat strip.
-  // "今日新增" = total hotspots created today (from /hotspots/stats)
-  // "今日精选" = today's curated count, unfiltered — fetched with no
-  //   category/region/search so it stays stable when the user changes tabs.
-  // "关注的关键词" = active keywords count.
-  useEffect(() => {
-    Promise.all([
-      hotspotsApi.getStats().catch(() => null),
-      keywordsApi.getAll().catch(() => []),
-      curatedApi.getAll('today', 1, 0, {}).catch(() => null),
-    ]).then(([stats, kws, todayCurated]) => {
-      if (!stats) return;
-      const activeKws = (kws as { isActive: boolean }[]).filter(k => k.isActive).length;
-      setOverview({
-        today: stats.today,
-        curated: todayCurated?.total ?? 0,
-        keywords: activeKws,
-      });
-    });
-  }, []);
-
-  useEffect(() => {
-    // First run with server-provided data: it already matches the default
-    // filters, so refetching would duplicate the request. Disarm and let every
-    // subsequent filter change fetch normally.
-    if (skipInitialFetch.current) {
-      skipInitialFetch.current = false;
-      return;
-    }
-
-    setLoading(true);
+  const filterOpts = () => {
     const opts: { category?: string; region?: string; search?: string } = {};
-    // Tab → category or region filter
-    if (activeTab === 'domestic' || activeTab === 'international') {
-      opts.region = activeTab;
-    } else if (activeTab !== 'all') {
-      opts.category = activeTab;
-    }
+    if (activeTab === 'domestic' || activeTab === 'international') opts.region = activeTab;
+    else if (activeTab !== 'all') opts.category = activeTab;
     if (appliedSearch) opts.search = appliedSearch;
+    return opts;
+  };
 
-    curatedApi.getAll(period, 50, 0, opts)
+  useEffect(() => {
+    if (!filtersTouched.current) return;
+    let cancelled = false;
+    curatedApi
+      .getAll('week', CURATED_PAGE_SIZE, 0, filterOpts())
       .then((res) => {
+        if (cancelled) return;
         setItems(res.items || []);
         setTotal(res.total || 0);
       })
-      .finally(() => setLoading(false));
-  }, [period, activeTab, appliedSearch]);
+      .catch(() => {})
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+    };
+    // filterOpts reads exactly these two values.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, appliedSearch]);
 
-  const handleSearch = () => setAppliedSearch(searchInput.trim());
-  const handleClearSearch = () => {
+  const changeFilter = (apply: () => void) => {
+    filtersTouched.current = true;
+    setLoading(true);
+    apply();
+  };
+
+  const loadMore = () => {
+    setLoadingMore(true);
+    curatedApi
+      .getAll('week', CURATED_PAGE_SIZE, items.length, filterOpts())
+      .then((res) => {
+        const seen = new Set(items.map((i) => i.id));
+        setItems([...items, ...(res.items || []).filter((i: Hotspot) => !seen.has(i.id))]);
+        setTotal(res.total || 0);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingMore(false));
+  };
+
+  const search = () => changeFilter(() => setAppliedSearch(searchInput.trim()));
+  const clearSearch = () => {
     setSearchInput('');
-    setAppliedSearch('');
+    changeFilter(() => setAppliedSearch(''));
     searchRef.current?.focus();
   };
 
+  const groups = groupByDay(items);
+
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="flex items-center gap-2.5 text-2xl font-bold text-[var(--text-primary)] tracking-tight">
-            <Star className="w-5 h-5 text-[var(--accent-blue)] dark:text-blue-400" />
-            精选资讯
-          </h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
-            AI 质量评分筛选，{total} 条精选内容
-          </p>
-        </div>
-        <div className="flex gap-1 p-1 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-subtle)]">
-          {(['today', 'week'] as Period[]).map(p => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setPeriod(p)}
-              className={cn(
-                'px-3 py-1.5 rounded-lg text-sm transition-colors',
-                period === p
-                  ? 'bg-[var(--card-bg)] text-[var(--text-primary)] shadow-sm font-medium'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              )}
-            >
-              {p === 'today' ? '今日' : '本周'}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="mx-auto grid max-w-[1180px] gap-10 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:pt-8">
+      <div className="min-w-0">
+        <h1 className="sr-only">AI 精选资讯：今日 AI 热点与大模型动态</h1>
+        {top}
 
-      {/* Stats strip — at-a-glance overview, only on default tab/period */}
-      {overview && (
-        <div className="grid grid-cols-3 gap-2.5 mb-5">
-          <StatTile
-            icon={<Flame className="w-4 h-4" />}
-            label="今日新增"
-            value={overview.today}
-            accent="text-red-500 dark:text-red-400 bg-red-500/10"
-          />
-          <StatTile
-            icon={<Sparkles className="w-4 h-4" />}
-            label="今日精选"
-            value={overview.curated}
-            accent="text-[var(--accent-blue)] dark:text-blue-400 bg-[var(--accent-blue)]/10 dark:bg-blue-500/10"
-          />
-          <StatTile
-            icon={<Bookmark className="w-4 h-4" />}
-            label="关注的关键词"
-            value={overview.keywords}
-            accent="text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
-          />
+        <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 className="text-lg font-bold sm:text-xl">精选</h2>
+          <p className="text-[13px] text-[var(--text-muted)]">最近 7 天按评分筛出的 {total} 条，按时间排列</p>
         </div>
-      )}
 
-      {/* Tabs + Search row — stacked on mobile, side-by-side on lg+ */}
-      <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 mb-4">
-        <div className="flex-1 min-w-0">
-          <HotspotTabs activeTab={activeTab} onChange={setActiveTab} />
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          <div className="relative flex-1 lg:flex-initial">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)] pointer-events-none" />
+        <div className="mb-2 flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-3">
+          <div className="min-w-0 flex-1">
+            <HotspotTabs activeTab={activeTab} onChange={(t) => changeFilter(() => setActiveTab(t))} />
+          </div>
+          <form
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              search();
+            }}
+            className="relative shrink-0"
+          >
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" aria-hidden="true" />
             <input
               ref={searchRef}
-              type="text"
-              aria-label="搜索标题/摘要"
+              type="search"
+              aria-label="搜索精选"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="搜索标题/摘要"
-              className="w-full lg:w-44 pl-8 pr-7 py-1.5 rounded-xl text-xs bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--border-active)]"
+              placeholder="搜索标题和摘要"
+              className="w-full rounded-lg border border-[var(--input-border)] bg-[var(--input-bg)] py-1.5 pl-8 pr-7 text-sm placeholder:text-[var(--text-muted)] focus:border-[var(--border-active)] focus:outline-none lg:w-52"
             />
             {searchInput && (
               <button
                 type="button"
-                aria-label="清除搜索"
-                onClick={handleClearSearch}
+                aria-label="清空搜索"
+                onClick={clearSearch}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               >
-                <X className="w-3 h-3" />
+                <X className="h-3.5 w-3.5" />
               </button>
             )}
+          </form>
+        </div>
+
+        {appliedSearch && !loading && (
+          <p className="mb-2 text-[13px] text-[var(--text-muted)]">
+            包含「{appliedSearch}」的精选共 {total} 条
+          </p>
+        )}
+
+        {loading ? (
+          <SkeletonList count={5} itemClassName="h-20 rounded-lg" />
+        ) : items.length === 0 ? (
+          <div className="border-y border-[var(--border-subtle)] py-10 text-center text-sm text-[var(--text-secondary)]">
+            {appliedSearch ? (
+              <>
+                最近 7 天没有包含「{appliedSearch}」的精选。
+                <button type="button" onClick={clearSearch} className="ml-1 font-semibold text-[var(--accent-blue)] hover:underline">
+                  清空搜索
+                </button>
+              </>
+            ) : activeTab !== 'all' ? (
+              <>
+                这个分类最近 7 天没有精选。
+                <button
+                  type="button"
+                  onClick={() => changeFilter(() => setActiveTab('all'))}
+                  className="ml-1 font-semibold text-[var(--accent-blue)] hover:underline"
+                >
+                  看全部
+                </button>
+              </>
+            ) : (
+              <>
+                最近 7 天还没有精选内容，可以先看
+                <Link href="/hotspot" className="mx-1 font-semibold text-[var(--accent-blue)] hover:underline">
+                  全部动态
+                </Link>
+              </>
+            )}
           </div>
-          <button
-            type="button"
-            onClick={handleSearch}
-            className="px-3 py-1.5 rounded-xl text-xs font-medium bg-[var(--card-bg)] border border-[var(--input-border)] text-[var(--text-primary)] hover:border-[var(--accent-blue)]/50 hover:bg-[var(--card-bg-hover)] transition-colors shrink-0"
-          >
-            搜索
-          </button>
-        </div>
+        ) : (
+          <>
+            {groups.map((g) => {
+              const { label, rel } = dayHeading(g.day, today);
+              return (
+                <section key={g.day} aria-label={label} className="mt-6 first:mt-2">
+                  <h3 className="flex items-baseline gap-2 text-[15px] font-bold text-[var(--text-secondary)]">
+                    {label}
+                    {rel && <span className="text-[13px] font-normal text-[var(--text-muted)]">{rel}</span>}
+                  </h3>
+                  <ol>
+                    {g.items.map((item) => (
+                      <FeedItem key={item.id} item={item} />
+                    ))}
+                  </ol>
+                </section>
+              );
+            })}
+            {items.length < total && (
+              <button
+                type="button"
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="mt-6 w-full rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] py-2.5 text-sm font-medium hover:border-[var(--card-border-hover)] disabled:opacity-60"
+              >
+                {loadingMore ? '加载中' : `加载更多（还有 ${total - items.length} 条）`}
+              </button>
+            )}
+          </>
+        )}
       </div>
 
-      {appliedSearch && (
-        <div className="mb-3 text-xs text-[var(--text-muted)]">
-          搜索: <span className="text-[var(--accent-blue)] dark:text-blue-400">“{appliedSearch}”</span>
-          <button type="button" onClick={handleClearSearch} className="ml-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
-            清除
-          </button>
-        </div>
-      )}
-
-      {loading ? (
-        <SkeletonList count={5} itemClassName="h-28 rounded-3xl" />
-      ) : items.length === 0 ? (
-        <EmptyState
-          variant={appliedSearch ? 'search' : 'star'}
-          title={appliedSearch ? '没有匹配的精选内容' : '暂无精选内容'}
-          description={appliedSearch ? `换个词试试，或者清空搜索看全部精选` : '系统正在抓取并评分最新资讯，稍后回来看看'}
-        />
-      ) : (
-        <div className="space-y-3">
-          {items.map((item, index) => (
-            <CuratedCard key={item.id} item={item} index={index} />
-          ))}
-        </div>
-      )}
-
+      {rail}
       <BackToTop />
-    </div>
-  );
-}
-
-function StatTile({
-  icon,
-  label,
-  value,
-  accent,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-  accent: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 p-3 sm:p-4 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)]">
-      <span className={cn('flex items-center justify-center w-9 h-9 rounded-xl shrink-0', accent)}>
-        {icon}
-      </span>
-      <div className="min-w-0">
-        <div className="text-[19px] sm:text-[22px] font-bold text-[var(--text-primary)] leading-tight tabular-nums">
-          {value}
-        </div>
-        <div className="text-[11px] text-[var(--text-muted)] truncate">{label}</div>
-      </div>
     </div>
   );
 }

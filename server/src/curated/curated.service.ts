@@ -83,14 +83,24 @@ export class CuratedService {
       this.prisma.hotspot.count({ where }),
     ]);
 
+    // How many distinct sources cover each item's event, so the list can show
+    // "等 3 家" without a request per item.
+    const keys = [...new Set(items.map((h) => h.clusterKey).filter((k): k is string => Boolean(k)))];
+    const pairs = keys.length
+      ? await this.prisma.hotspot.groupBy({ by: ['clusterKey', 'source'], where: { clusterKey: { in: keys } } })
+      : [];
+    const sourceCount = new Map<string, number>();
+    for (const p of pairs) if (p.clusterKey) sourceCount.set(p.clusterKey, (sourceCount.get(p.clusterKey) ?? 0) + 1);
+
     return {
       period,
       total,
       limit,
       offset,
       items: items.map((h) => {
-        if (!h.media) return h;
-        try { return { ...h, media: JSON.parse(h.media) as any }; } catch { return h; }
+        const withCount = { ...h, sourceCount: (h.clusterKey && sourceCount.get(h.clusterKey)) || 1 };
+        if (!h.media) return withCount;
+        try { return { ...withCount, media: JSON.parse(h.media) as any }; } catch { return withCount; }
       }),
     };
   }
