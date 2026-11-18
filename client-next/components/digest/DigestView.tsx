@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
+import { useIsAdmin } from '@/lib/admin';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -383,6 +384,7 @@ export function DigestView({
   initialDigest?: DailyDigest | null;
   initialRecent?: { date: string; summary?: string }[];
 } = {}) {
+  const isAdmin = useIsAdmin();
   const today = getBeijingToday();
   const allDates = lastThreeMonths();
 
@@ -660,7 +662,7 @@ export function DigestView({
             )}
           </div>
           {/* Show top-right button only when content exists (regen). Empty state has its own '立即生成日报' button. */}
-          {hasContent && (
+          {hasContent && isAdmin && (
             <button
               type="button"
               onClick={handleGenerate}
@@ -680,7 +682,7 @@ export function DigestView({
             <DigestEmptyState
               date={selectedDate}
               today={today}
-              onGenerate={handleGenerate}
+              onGenerate={isAdmin ? handleGenerate : undefined}
               generating={generating}
             />
           ) : (
@@ -877,7 +879,8 @@ function LoadingSkeleton() {
 }
 
 function DigestEmptyState({ date, today, onGenerate, generating }: {
-  date: string; today: string; onGenerate: () => void; generating: boolean;
+  /** Admin only; visitors get no generate button. */
+  date: string; today: string; onGenerate?: () => void; generating: boolean;
 }) {
   const isToday = date === today;
   return (
@@ -908,10 +911,10 @@ function DigestEmptyState({ date, today, onGenerate, generating }: {
         {isToday ? '今日日报尚未生成' : `${date} 暂无日报`}
       </p>
       <p className="mt-1.5 text-sm text-[var(--text-muted)] max-w-md">
-        {isToday ? '每天北京时间早上 8:00 自动生成，也可手动触发' : '该日期暂无数据，可手动触发生成'}
+        {isToday ? '每天北京时间早上 8 点自动生成，请稍后再来' : '这一天没有生成日报'}
       </p>
 
-      {date <= today && (
+      {onGenerate && date <= today && (
         <button
           type="button"
           onClick={onGenerate}

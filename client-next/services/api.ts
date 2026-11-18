@@ -1,3 +1,5 @@
+import { adminHeaders } from '@/lib/admin';
+
 const API_BASE = '/api';
 
 export interface Keyword {
@@ -60,12 +62,15 @@ export interface Stats {
 }
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const method = (options.method ?? 'GET').toUpperCase();
   const response = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...options.headers
+      // Writes are admin-only on the backend (server/src/auth/admin.guard.ts).
+      ...(method === 'GET' ? {} : adminHeaders()),
+      ...options.headers,
     },
-    ...options
   });
 
   if (!response.ok) {
@@ -256,7 +261,7 @@ export const digestApi = {
     return r.json();
   }),
   generate: (date?: string) =>
-    fetch(`/api/digest/generate${date ? `?date=${date}` : ''}`, { method: 'POST' }).then(r => {
+    fetch(`/api/digest/generate${date ? `?date=${date}` : ''}`, { method: 'POST', headers: adminHeaders() }).then(r => {
       if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
       return r.json();
     }),

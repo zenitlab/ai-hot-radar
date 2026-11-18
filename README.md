@@ -66,7 +66,7 @@ AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统白天每
 
 ### 4. 我的关注
 
-订阅自定义关键词，AI 自动扩展同义词、判断真伪与相关性。订阅后实时通过 WebSocket 推送，重要热点可触发邮件通知。
+订阅自定义关键词，AI 自动扩展同义词、判断真伪与相关性。订阅后实时通过 WebSocket 推送，重要热点可触发邮件通知。关注列表全站共用一份，访客只能查看，增删由管理员操作（见下方「管理员口令」）。
 
 ### 5. Agent 接入
 
@@ -262,6 +262,17 @@ BAIDU_PUSH_TOKEN=                 # 搜索资源平台 → 普通收录 → API�
 ```bash
 docker compose logs --since 1h backend | grep -E "Baidu push|IndexNow"
 ```
+
+### 管理员口令（ADMIN_TOKEN）
+
+站点没有用户账号，所以所有写操作和会消耗模型额度的操作都要求管理员口令：手动扫描（两次之间至少隔 10 分钟）、生成日报、删除资讯、增删关注词、刷新知识卡片、通知已读与删除、系统设置、AI 对话、实时搜索。实现见 `server/src/auth/admin.guard.ts`，前端在 `client-next/lib/admin.ts`。
+
+```bash
+# 服务器 .env.production
+ADMIN_TOKEN=$(openssl rand -hex 24)   # 不配置时这些操作对所有人关闭
+```
+
+在网站侧栏底部点「管理员登录」输入一次即可，浏览器会记住；访客看不到扫描、生成日报、增删关注词这些按钮。新增写接口时记得加 `@UseGuards(AdminGuard)`。
 
 ### 排查小抄
 

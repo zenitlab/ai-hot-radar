@@ -29,6 +29,10 @@ Every prompt that produces text readers see (Chinese title, summary, recommend r
 
 Thin feed items (< 300 chars) get their article fetched before scoring. Feed URLs are attacker-controlled, so keep both guards when touching it: `safeLookup` refuses private/metadata addresses on every connection, and `isSafeRedirect` covers redirects to IP literals (Node skips DNS for those). `198.18.0.0/15` is deliberately allowed because local Clash TUN answers DNS from it. Fetched text is for the model only: don't store it in `Hotspot.content` or show it on the site.
 
+## Write endpoints are admin-only
+
+The site has no user accounts. Every route that writes data or spends model/API quota must carry `@UseGuards(AdminGuard)` (`server/src/auth/admin.guard.ts`, checks the `x-admin-token` header against `ADMIN_TOKEN`; unset means closed to everyone). On the frontend, `request()` in `client-next/services/api.ts` adds the header to non-GET calls, and admin-only controls render only when `useIsAdmin()` (`client-next/lib/admin.ts`) is true. Before this, deletes, settings, scans and keyword edits were open to anyone.
+
 ## Agent skill
 
 `client-next/app/skill.md/route.ts` serves the installable SKILL.md that agents read. When an API endpoint or field it describes changes, update that file (and bump `SKILL_VERSION`), `client-next/public/llms.txt`, and the API table in `components/agent/AgentView.tsx` together.

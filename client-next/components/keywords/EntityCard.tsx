@@ -26,8 +26,9 @@ interface EntityCardProps {
   isSelected: boolean;
   isRefreshing: boolean;
   onClick: () => void;
-  onRefresh: (e: React.MouseEvent) => void;
-  onDelete: (e: React.MouseEvent) => void;
+  /** Admin only; the buttons are hidden when absent. */
+  onRefresh?: (e: React.MouseEvent) => void;
+  onDelete?: (e: React.MouseEvent) => void;
 }
 
 export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefresh, onDelete }: EntityCardProps) {
@@ -68,6 +69,7 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
           </span>
           <h3 className="font-semibold text-[var(--text-primary)] truncate">{entity.name}</h3>
         </div>
+        {onRefresh && onDelete && (
         <div className="relative z-20 flex items-center gap-1 shrink-0 ml-2">
           <button
             type="button"
@@ -87,6 +89,7 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
+        )}
       </div>
 
       {/* Summary */}

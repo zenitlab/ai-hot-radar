@@ -65,8 +65,12 @@ function prioritizeResults(results: SearchResult[]): SearchResult[] {
   return [...results].sort((a, b) => (priorityMap[a.source] || 99) - (priorityMap[b.source] || 99));
 }
 
+/** Minimum gap between two manual (admin-triggered) scans. */
+export const MANUAL_SCAN_COOLDOWN_MS = 10 * 60_000;
+
 @Injectable()
 export class HotspotScheduler implements OnApplicationBootstrap {
+  private lastManualScanAt = 0;
   private readonly logger = new Logger(HotspotScheduler.name);
   private isScanning = false;
   private lastScanStartedAt: Date | null = null;
@@ -92,6 +96,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
 
   getScanStatus() {
     return {
+      nextManualScanAt: this.lastManualScanAt ? new Date(this.lastManualScanAt + MANUAL_SCAN_COOLDOWN_MS).toISOString() : null,
       isScanning: this.isScanning,
       lastScanStartedAt: this.lastScanStartedAt,
       lastScanFinishedAt: this.lastScanFinishedAt,
@@ -99,10 +104,15 @@ export class HotspotScheduler implements OnApplicationBootstrap {
     };
   }
 
-  /** Fire-and-forget trigger. Returns immediately whether scan was started or already running. */
-  triggerScan(): { started: boolean; reason?: string } {
+  /** Fire-and-forget trigger. Returns immediately whether scan was started, already running, or (manual) cooling down. */
+  triggerScan(opts: { manual?: boolean } = {}): { started: boolean; reason?: string } {
     if (this.isScanning) {
       return { started: false, reason: 'already_running' };
+    }
+    if (opts.manual) {
+      const since = Date.now() - this.lastManualScanAt;
+      if (since < MANUAL_SCAN_COOLDOWN_MS) return { started: false, reason: 'cooldown' };
+      this.lastManualScanAt = Date.now();
     }
     this.runHotspotCheck().catch(err => this.logger.error('❌ Triggered scan failed:', err));
     return { started: true };

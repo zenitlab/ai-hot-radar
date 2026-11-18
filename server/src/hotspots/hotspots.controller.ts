@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Delete, Param, Body, Query, HttpCode, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Query, HttpCode, NotFoundException, UseGuards } from '@nestjs/common';
+import { AdminGuard } from '../auth/admin.guard';
 import { HotspotsService, HotspotFilterQuery } from './hotspots.service';
 
 @Controller('api/hotspots')
@@ -50,11 +51,13 @@ export class HotspotsController {
     return this.hotspotsService.findOne(id);
   }
 
+  @UseGuards(AdminGuard)
   @Post('search')
   search(@Body() body: { query: string; sources?: string[] }) {
     return this.hotspotsService.search(body);
   }
 
+  @UseGuards(AdminGuard)
   @Delete(':id')
   @HttpCode(204)
   remove(@Param('id') id: string) {

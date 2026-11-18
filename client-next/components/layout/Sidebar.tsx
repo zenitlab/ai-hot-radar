@@ -14,6 +14,7 @@ import {
   Shapes,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { AdminSignIn } from "../common/AdminSignIn";
 
 interface NavItem {
   path: string;
@@ -178,6 +179,7 @@ export function Sidebar({ unreadCount, onNavigate }: SidebarProps) {
             </span>
           )}
         </button>
+        <AdminSignIn className="mt-2 px-3" />
       </div>
     </div>
   );

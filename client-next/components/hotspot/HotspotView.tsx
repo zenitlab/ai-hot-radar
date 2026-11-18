@@ -1,5 +1,6 @@
 'use client';
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useIsAdmin } from "@/lib/admin";
 import {
   Radio,
   RefreshCw,
@@ -53,6 +54,7 @@ export function HotspotView({
   initialTotalPages?: number;
   initialTrending?: TrendingEvent[];
 } = {}) {
+  const isAdmin = useIsAdmin();
   const [hotspots, setHotspots] = useState<Hotspot[]>(initialHotspots);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [stats, setStats] = useState<{ total: number } | null>(
@@ -281,6 +283,7 @@ export function HotspotView({
               })}
             </span>
           )}
+          {isAdmin && (
           <button
             type="button"
             onClick={handleManualCheck}
@@ -297,6 +300,7 @@ export function HotspotView({
             />
             {isChecking ? scanProgress || "正在扫描…" : "立即扫描"}
           </button>
+          )}
         </div>
       </div>
 

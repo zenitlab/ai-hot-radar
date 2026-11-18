@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, UseGuards } from '@nestjs/common';
+import { AdminGuard } from '../auth/admin.guard';
 import { DigestService } from './digest.service';
 
 @Controller('api/digest')
@@ -11,6 +12,7 @@ export class DigestController {
   }
 
   /** Manually generate digest. date defaults to today (Beijing time). */
+  @UseGuards(AdminGuard)
   @Post('generate')
   async generate(@Query('date') date?: string) {
     const target = date || this.digestService.getBeijingDatePublic();

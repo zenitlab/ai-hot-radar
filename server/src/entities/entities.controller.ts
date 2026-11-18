@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Param, Query, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, HttpCode, UseGuards } from '@nestjs/common';
+import { AdminGuard } from '../auth/admin.guard';
 import { EntitiesService } from './entities.service';
 
 @Controller('api/entities')
@@ -25,6 +26,7 @@ export class EntitiesController {
     return this.entitiesService.findOne(id);
   }
 
+  @UseGuards(AdminGuard)
   @Post(':id/refresh')
   @HttpCode(200)
   refresh(@Param('id') id: string) {

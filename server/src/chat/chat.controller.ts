@@ -1,9 +1,11 @@
 import {
   Controller, Get, Post, Delete,
-  Param, Body, Res, HttpCode,
+  Param, Body, Res, HttpCode, UseGuards,
 } from '@nestjs/common';
+import { AdminGuard } from '../auth/admin.guard';
 import { ChatService } from './chat.service';
 
+@UseGuards(AdminGuard)
 @Controller('api/chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}

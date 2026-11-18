@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useIsAdmin } from '@/lib/admin';
 import { Plus, Bookmark, Brain, ExternalLink, Clock, X, ChevronLeft } from 'lucide-react';
 import { keywordsApi, entitiesApi } from '../../services/api';
 import { subscribeToKeywords } from '../../services/socket';
@@ -21,6 +22,7 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<EntityCardDetail | null>(null);
   const [newKeyword, setNewKeyword] = useState('');
+  const isAdmin = useIsAdmin();
   const [isAdding, setIsAdding] = useState(false);
   const [refreshingId, setRefreshingId] = useState<string | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -162,6 +164,7 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
             <Bookmark className="w-5 h-5 text-[var(--accent-blue)] dark:text-blue-400" />
             我的关注
           </h1>
+          {isAdmin ? (
           <form onSubmit={handleAdd} className="flex gap-2">
             <input
               value={newKeyword}
@@ -180,6 +183,9 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
               <Plus className="w-4 h-4" />
             </button>
           </form>
+          ) : (
+            <p className="text-sm text-[var(--text-secondary)]">站长持续追踪的公司、模型和产品，点开看各自的最新动态。</p>
+          )}
         </div>
 
         {/* Entity cards list */}
@@ -187,8 +193,8 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
           {entities.length === 0 ? (
             <EmptyState
               variant="bookmark"
-              title="添加你关注的实体"
-              description="输入 Claude、OpenAI、Cursor 等关键词，AI 会自动抓取相关动态"
+              title={isAdmin ? '添加你关注的实体' : '还没有关注的实体'}
+              description={isAdmin ? '输入 Claude、OpenAI、Cursor 等关键词，AI 会自动抓取相关动态' : '站长添加关注后会显示在这里'}
             />
           ) : (
             entities.map((entity) => (
@@ -198,8 +204,8 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
                 isSelected={selectedId === entity.id}
                 isRefreshing={refreshingId === entity.id}
                 onClick={() => handleSelectCard(entity)}
-                onRefresh={(e) => handleRefresh(e, entity.id)}
-                onDelete={(e) => handleDelete(e, entity.keyword.id, entity.id)}
+                onRefresh={isAdmin ? (e) => handleRefresh(e, entity.id) : undefined}
+                onDelete={isAdmin ? (e) => handleDelete(e, entity.keyword.id, entity.id) : undefined}
               />
             ))
           )}
