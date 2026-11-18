@@ -45,10 +45,51 @@ function clamp(s: string, max: number): string {
   return t.length > max ? `${t.slice(0, max - 1)}…` : t;
 }
 
-export async function renderOgCard(card: { kicker: string; title: string; meta?: string }): Promise<ImageResponse> {
+/**
+ * Dark palette from client-next/app/globals.css (DESIGN.md). Share cards are
+ * images, so the values are copied here; keep them in step with the tokens.
+ */
+const C = {
+  bg: '#111614',
+  text: '#e3e9e6',
+  secondary: '#a3b1ac',
+  muted: '#71807a',
+  accent: '#5fbf9f',
+  line: 'rgba(227, 233, 230, 0.12)',
+  heat: ['#6c9fc2', '#5fae7c', '#dcb03c', '#e5883c', '#e5543a'],
+};
+
+/** Heat-scale colour for a source count, as on the site (lib/heat.ts sourceCountColor). */
+export const ogSourceCountColor = (n: number) => C.heat[Math.min(5, Math.max(1, n)) - 1];
+
+/** The site mark, same drawing as public/radar.svg. */
+function RadarMark({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="14" fill="#1f6f5c" />
+      <circle cx="32" cy="32" r="20" fill="none" stroke="#ffffff" strokeWidth="4" />
+      <circle cx="32" cy="32" r="10" fill="none" stroke="#ffffff" strokeWidth="4" opacity="0.55" />
+      <path d="M32 32 47 17" stroke="#f29a4a" strokeWidth="5" strokeLinecap="round" />
+      <circle cx="32" cy="32" r="4.5" fill="#ffffff" />
+    </svg>
+  );
+}
+
+export interface OgCard {
+  /** Short label for the page type, e.g. 精选 / 热点事件. */
+  kicker?: string;
+  title: string;
+  /** Facts shown under the title, spaced apart (no dot separators). */
+  meta?: string[];
+  /** One large number on the right, e.g. a source count. */
+  stat?: { value: string; label: string; color?: string };
+}
+
+export async function renderOgCard(card: OgCard): Promise<ImageResponse> {
   const title = clamp(card.title, 60);
-  const meta = card.meta ? clamp(card.meta, 60) : '';
-  const allText = `${card.kicker}${title}${meta}AI Hot Radar`;
+  const meta = (card.meta ?? []).filter(Boolean).map((m) => clamp(m, 30));
+  const brand = 'AI 热点雷达';
+  const allText = `${brand}${card.kicker ?? ''}${title}${meta.join('')}${card.stat ? card.stat.value + card.stat.label : ''}aihotradar.com`;
   const [regular, bold] = await Promise.all([loadSubset(allText, 400), loadSubset(allText, 700)]);
   const fonts = [
     ...(regular ? [{ name: FONT_FAMILY, data: regular, weight: 400 as const, style: 'normal' as const }] : []),
@@ -62,22 +103,68 @@ export async function renderOgCard(card: { kicker: string; title: string; meta?:
           width: '100%',
           height: '100%',
           display: 'flex',
+          position: 'relative',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          padding: '64px 72px',
-          background: 'linear-gradient(135deg, #0b1220 0%, #0f1a33 60%, #13254a 100%)',
-          color: '#e6edf7',
+          padding: '60px 72px',
+          background: C.bg,
+          color: C.text,
           fontFamily: fonts.length ? FONT_FAMILY : undefined,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 30, color: '#7fb0ff', fontWeight: 700 }}>
-          <div style={{ width: 18, height: 18, borderRadius: 9, background: '#3b82f6', display: 'flex' }} />
-          {card.kicker}
+        {/* Faint radar rings off the right edge: the brand, not decoration for its own sake. */}
+        <svg width="560" height="560" viewBox="0 0 560 560" style={{ position: 'absolute', right: -170, top: 35 }}>
+          <circle cx="280" cy="280" r="270" fill="none" stroke={C.accent} strokeWidth="2" opacity="0.14" />
+          <circle cx="280" cy="280" r="180" fill="none" stroke={C.accent} strokeWidth="2" opacity="0.11" />
+          <circle cx="280" cy="280" r="90" fill="none" stroke={C.accent} strokeWidth="2" opacity="0.08" />
+        </svg>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <RadarMark size={56} />
+          <span style={{ fontSize: 34, fontWeight: 700 }}>{brand}</span>
+          {card.kicker && (
+            <span
+              style={{
+                marginLeft: 8,
+                padding: '6px 16px',
+                border: `2px solid ${C.line}`,
+                borderRadius: 10,
+                fontSize: 26,
+                color: C.accent,
+              }}
+            >
+              {card.kicker}
+            </span>
+          )}
         </div>
-        <div style={{ display: 'flex', fontSize: 64, lineHeight: 1.3, fontWeight: 700, color: '#ffffff' }}>{title}</div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 28, color: '#9fb0c8' }}>
-          <span>{meta}</span>
-          <span style={{ color: '#5f7391' }}>aihotradar.com</span>
+
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 48 }}>
+          <div style={{ display: 'flex', maxWidth: card.stat ? 820 : 1000, fontSize: 60, lineHeight: 1.32, fontWeight: 700 }}>{title}</div>
+          {card.stat && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
+              <span style={{ fontSize: 96, lineHeight: 1, fontWeight: 700, color: card.stat.color ?? C.accent }}>{card.stat.value}</span>
+              <span style={{ marginTop: 8, fontSize: 26, color: C.muted }}>{card.stat.label}</span>
+            </div>
+          )}
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingTop: 28,
+            borderTop: `2px solid ${C.line}`,
+            fontSize: 26,
+            color: C.secondary,
+          }}
+        >
+          <div style={{ display: 'flex', gap: 36 }}>
+            {meta.map((m) => (
+              <span key={m}>{m}</span>
+            ))}
+          </div>
+          <span style={{ color: C.muted }}>aihotradar.com</span>
         </div>
       </div>
     ),

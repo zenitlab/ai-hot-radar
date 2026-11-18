@@ -1,10 +1,10 @@
 import { fetchItemSSR } from '@/lib/server-api';
 import { getSourceLabel } from '@/lib/sourceMeta';
 import { CATEGORY_LABEL } from '@/lib/categories';
-import { renderOgCard, OG_SIZE } from '@/lib/og';
+import { renderOgCard, ogSourceCountColor, OG_SIZE } from '@/lib/og';
 import { displayTitle } from '@/lib/utils';
 
-export const alt = 'AI Hot Radar 内容详情';
+export const alt = 'AI 热点雷达 资讯详情';
 export const size = OG_SIZE;
 export const contentType = 'image/png';
 
@@ -12,17 +12,19 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const { id } = await params;
   const d = /^[0-9a-f-]{36}$/i.test(id) ? await fetchItemSSR(id) : null;
   if (!d) {
-    return renderOgCard({ kicker: 'AI Hot Radar · 内容详情', title: '内容不存在或已过期' });
+    return renderOgCard({ kicker: '资讯', title: '这条资讯不存在或已过期' });
   }
   const { item } = d;
-  const parts = [
-    getSourceLabel(item.source),
-    item.category ? CATEGORY_LABEL[item.category] : undefined,
-    item.qualityScore != null ? `AI 评分 ${Math.round(item.qualityScore)}` : undefined,
-  ].filter(Boolean);
+  const sources = d.story?.sourceCount ?? 1;
   return renderOgCard({
-    kicker: item.isCurated ? 'AI Hot Radar · 精选' : 'AI Hot Radar',
+    kicker: item.isCurated ? '精选' : '资讯',
     title: displayTitle(item),
-    meta: parts.join(' · '),
+    meta: [getSourceLabel(item.source), item.category ? CATEGORY_LABEL[item.category] : ''],
+    stat:
+      sources > 1
+        ? { value: String(sources), label: '家来源报道', color: ogSourceCountColor(sources) }
+        : item.qualityScore != null
+          ? { value: String(Math.round(item.qualityScore)), label: 'AI 评分' }
+          : undefined,
   });
 }
