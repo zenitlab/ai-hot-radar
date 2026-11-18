@@ -1,3 +1,5 @@
+"use client";
+import { useState } from "react";
 import { cn } from "../../lib/utils";
 import { BackToTop } from "../common/BackToTop";
 
@@ -18,10 +20,11 @@ const CHANGELOG: ChangelogEntry[] = [
     version: "v0.20.0",
     tag: "tweak",
     items: [
-      "单条资讯页改为主栏加右栏：标题、原标题和导读在左，同一事件的其他报道、收录的日报和相关精选放到右边；多家来源报道的资讯在标题下直接显示「N 家来源报道」",
-      "我的关注改版：左边是关注列表，右边是简介、关系图、近 7 天提及次数和最新资讯；关系图和趋势图跟随深浅色，资讯标题支持中 / 原切换，点开进入站内资讯页",
-      "Agent 接入、关于、更新日志三个页面去掉卡片和彩色图标，改为细线分隔的说明列表，正文和顶栏左对齐",
-      "更新日志按版本排列，左边是版本号、日期和类型",
+      "📄 单条资讯页改为主栏加右栏：标题、原标题和导读在左，同一事件的其他报道、收录的日报和相关精选放到右边；多家来源报道的资讯在标题下直接显示「N 家来源报道」",
+      "🔖 我的关注改版：左边是关注列表，右边是简介、关系图、近 7 天提及次数和最新资讯；关系图和趋势图跟随深浅色，资讯标题支持中 / 原切换，点开进入站内资讯页",
+      "🧭 关于页按模块分块，每块带图标，右侧加本页目录；能做什么改为可点击的功能卡片，信息源按类别分组",
+      "🔌 Agent 接入：三种接入方式改为带图标的选项卡，能力和订阅地址分卡片列出，右栏放接入须知和给 AI 读的说明文件",
+      "📜 更新日志按日期分组，日期和星期放在每组最前面；每条前面的图标保留并对齐，右栏可以按类型筛选、按月份跳转",
     ],
   },
   {
@@ -832,67 +835,196 @@ const CHANGELOG: ChangelogEntry[] = [
   },
 ];
 
-const TAG_LABEL: Record<NonNullable<ChangelogEntry["tag"]>, string> = {
-  feature: "新功能",
-  fix: "修复",
-  tweak: "优化",
-};
+type Tag = NonNullable<ChangelogEntry["tag"]>;
 
-/**
- * Older entries start with an emoji; DESIGN.md drops decorative symbols, so
- * strip it when rendering rather than rewriting history. New entries don't
- * need one.
- */
-const LEADING_EMOJI = /^(?:\p{Extended_Pictographic}|\p{Regional_Indicator}|[\u{1F170}-\u{1F251}])[\u{FE0F}\u{200D}\p{Extended_Pictographic}]*\s*/u;
-const plain = (item: string) => item.replace(LEADING_EMOJI, "");
+const TAGS: { tag: Tag; label: string; color: string }[] = [
+  { tag: "feature", label: "新功能", color: "var(--accent-blue)" },
+  { tag: "tweak", label: "优化", color: "var(--accent-amber)" },
+  { tag: "fix", label: "修复", color: "var(--accent-red)" },
+];
+const TAG = Object.fromEntries(TAGS.map((t) => [t.tag, t])) as Record<Tag, (typeof TAGS)[number]>;
 
-/** 2026-11-18 → 2026年11月18日 */
-const fmtDate = (d: string) => {
+/** Each item starts with its own emoji; split it off so it sits in an aligned icon column. */
+const LEADING_EMOJI = /^((?:\p{Extended_Pictographic}|\p{Regional_Indicator}|[\u{1F170}-\u{1F251}])[\u{FE0F}\u{200D}\p{Extended_Pictographic}]*)\s*/u;
+function splitIcon(item: string): [string | null, string] {
+  const m = item.match(LEADING_EMOJI);
+  return m ? [m[1], item.slice(m[0].length)] : [null, item];
+}
+
+const WEEK = "日一二三四五六";
+function dayLabel(d: string) {
   const [y, m, day] = d.split("-").map(Number);
-  return `${y}年${m}月${day}日`;
-};
+  return { date: `${y} 年 ${m} 月 ${day} 日`, weekday: `周${WEEK[new Date(Date.UTC(y, m - 1, day)).getUTCDay()]}` };
+}
+
+/** Consecutive entries sharing a date (the list is newest first). */
+function groupByDate(entries: ChangelogEntry[]) {
+  const groups: { date: string; entries: ChangelogEntry[] }[] = [];
+  for (const e of entries) {
+    const last = groups[groups.length - 1];
+    if (last?.date === e.date) last.entries.push(e);
+    else groups.push({ date: e.date, entries: [e] });
+  }
+  return groups;
+}
+
+const MONTHS = (() => {
+  const m = new Map<string, { count: number; firstDate: string }>();
+  for (const e of CHANGELOG) {
+    const key = e.date.slice(0, 7);
+    const cur = m.get(key);
+    if (cur) cur.count++;
+    else m.set(key, { count: 1, firstDate: e.date });
+  }
+  return [...m.entries()].map(([key, v]) => ({ key, ...v }));
+})();
+
+const RAIL_CARD = "rounded-[14px] border border-[var(--card-border)] bg-[var(--card-bg)] p-4";
 
 export function ChangelogView() {
-  return (
-    <div className="mx-auto max-w-[1180px] px-4 pb-12 pt-6 sm:px-6 lg:pt-8">
-      <header className="mb-6 max-w-[760px]">
-        <h1 className="text-[22px] font-bold">更新日志</h1>
-        <p className="mt-1 text-sm text-[var(--text-secondary)]">
-          每次上线改了什么，最新的在最上面。
-        </p>
-      </header>
+  const [filter, setFilter] = useState<Tag | "all">("all");
+  const shown = filter === "all" ? CHANGELOG : CHANGELOG.filter((e) => e.tag === filter);
+  const groups = groupByDate(shown);
+  const count = (t: Tag) => CHANGELOG.filter((e) => e.tag === t).length;
 
-      <ol className="max-w-[860px] border-t border-[var(--border-subtle)]">
-        {/* Several releases can share a date; date + version is unique. */}
-        {CHANGELOG.map((entry) => (
-          <li
-            key={`${entry.date}-${entry.version}`}
-            className="grid gap-x-8 gap-y-2 border-b border-[var(--border-subtle)] py-5 sm:grid-cols-[140px_minmax(0,1fr)]"
-          >
-            <div className="flex items-baseline gap-3 sm:block">
-              <p className="text-[15px] font-bold tabular-nums">{entry.version}</p>
-              <p className="text-[13px] text-[var(--text-muted)] sm:mt-0.5">
-                <time dateTime={entry.date}>{fmtDate(entry.date)}</time>
-              </p>
-              {entry.tag && (
-                <p
+  const jumpTo = (date: string) => {
+    setFilter("all");
+    // Wait for the unfiltered list to render before scrolling.
+    requestAnimationFrame(() => document.getElementById(`d-${date}`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+
+  return (
+    <div className="mx-auto grid max-w-[1180px] gap-10 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:pt-8">
+      <div className="min-w-0">
+        <header className="mb-6">
+          <h1 className="text-[22px] font-bold">更新日志</h1>
+          <p className="mt-1 text-sm text-[var(--text-secondary)]">新功能、优化和修复都记在这里，最新的在最上面。</p>
+        </header>
+
+        {/* Type filter for narrow screens; the rail has the same control on wide ones. */}
+        <div className="mb-4 flex flex-wrap gap-2 lg:hidden">
+          {[{ tag: "all" as const, label: "全部" }, ...TAGS].map((t) => (
+            <button
+              key={t.tag}
+              type="button"
+              aria-pressed={filter === t.tag}
+              onClick={() => setFilter(t.tag)}
+              className={cn(
+                "rounded-full border px-3 py-1 text-[13px]",
+                filter === t.tag
+                  ? "border-[var(--accent-blue)] font-semibold text-[var(--accent-blue)]"
+                  : "border-[var(--card-border)] text-[var(--text-secondary)]",
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="space-y-5">
+          {groups.map((g) => {
+            const { date, weekday } = dayLabel(g.date);
+            return (
+              <section
+                key={g.date}
+                id={`d-${g.date}`}
+                aria-label={`${date} ${weekday}`}
+                className="scroll-mt-6 rounded-[14px] border border-[var(--card-border)] bg-[var(--card-bg)] px-4 sm:px-6"
+              >
+                <h2 className="flex items-baseline gap-2.5 border-b border-[var(--border-subtle)] py-4">
+                  <time dateTime={g.date} className="text-lg font-bold tabular-nums sm:text-xl">{date}</time>
+                  <span className="text-sm text-[var(--text-muted)]">{weekday}</span>
+                </h2>
+                {g.entries.map((entry) => {
+                  const tag = entry.tag ? TAG[entry.tag] : null;
+                  return (
+                    <article
+                      key={entry.version}
+                      className="grid gap-x-6 gap-y-2 border-b border-[var(--border-subtle)] py-4 last:border-b-0 sm:grid-cols-[96px_minmax(0,1fr)]"
+                    >
+                      <div className="flex items-baseline gap-3 sm:block">
+                        <p className="text-[15px] font-bold tabular-nums">{entry.version}</p>
+                        {tag && (
+                          <p className="flex items-center gap-1.5 text-[13px] text-[var(--text-secondary)] sm:mt-1">
+                            <i className="h-1.5 w-1.5 rounded-full" style={{ background: tag.color }} aria-hidden="true" />
+                            {tag.label}
+                          </p>
+                        )}
+                      </div>
+                      <ul className="space-y-2">
+                        {entry.items.map((item, j) => {
+                          const [icon, text] = splitIcon(item);
+                          return (
+                            <li key={j} className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-1.5 text-[15px] leading-relaxed">
+                              <span className="text-center" aria-hidden="true">{icon ?? "·"}</span>
+                              <span>{text}</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </article>
+                  );
+                })}
+              </section>
+            );
+          })}
+        </div>
+      </div>
+
+      <aside className="hidden space-y-4 lg:block lg:sticky lg:top-6 lg:self-start" aria-label="筛选与跳转">
+        <section className={RAIL_CARD}>
+          <h2 className="mb-2 text-[15px] font-bold">按类型看</h2>
+          <ul>
+            {[{ tag: "all" as const, label: "全部", color: "var(--text-muted)", n: CHANGELOG.length }, ...TAGS.map((t) => ({ ...t, n: count(t.tag) }))].map((t) => (
+              <li key={t.tag}>
+                <button
+                  type="button"
+                  aria-pressed={filter === t.tag}
+                  onClick={() => setFilter(t.tag)}
                   className={cn(
-                    "text-[13px] sm:mt-0.5",
-                    entry.tag === "feature" ? "font-medium text-[var(--accent-blue)]" : "text-[var(--text-secondary)]",
+                    "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm",
+                    filter === t.tag ? "bg-[var(--bg-elevated)] font-semibold" : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]",
                   )}
                 >
-                  {TAG_LABEL[entry.tag]}
-                </p>
-              )}
-            </div>
-            <ul className="max-w-[640px] list-disc space-y-1.5 pl-4 text-[15px] leading-relaxed text-[var(--text-primary)] marker:text-[var(--text-muted)]">
-              {entry.items.map((item, j) => (
-                <li key={j}>{plain(item)}</li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ol>
+                  <i className="h-1.5 w-1.5 rounded-full" style={{ background: t.color }} aria-hidden="true" />
+                  {t.label}
+                  <span className="ml-auto tabular-nums text-[var(--text-muted)]">{t.n}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className={RAIL_CARD}>
+          <h2 className="mb-2 text-[15px] font-bold">按月份</h2>
+          <ul>
+            {MONTHS.map((m) => {
+              const [y, mo] = m.key.split("-").map(Number);
+              return (
+                <li key={m.key}>
+                  <button
+                    type="button"
+                    onClick={() => jumpTo(m.firstDate)}
+                    className="flex w-full items-center rounded-lg px-2.5 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                  >
+                    {y} 年 {mo} 月
+                    <span className="ml-auto tabular-nums text-[var(--text-muted)]">{m.count} 次更新</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        <section className={RAIL_CARD}>
+          <h2 className="mb-1 text-[15px] font-bold">有想法或遇到问题</h2>
+          <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+            想要的功能、用着不顺的地方，欢迎发邮件到{" "}
+            <a href="mailto:gundam_zzc@126.com" className="text-[var(--accent-blue)] hover:underline">gundam_zzc@126.com</a>
+            ，或在 GitHub 提 issue。
+          </p>
+        </section>
+      </aside>
 
       <BackToTop />
     </div>
