@@ -65,15 +65,27 @@ export function UpdateStatus() {
       .catch(() => {});
   }, []);
 
+  // Poll only while the tab is visible: a backgrounded tab used to ask every
+  // minute (every 5 s during a scan) for as long as it stayed open, which made
+  // /api/scan-status the busiest path on the site. Coming back to the tab
+  // checks once right away. The 5 s pace during a scan is for the admin who
+  // started it; visitors don't need it.
+  const fast = isAdmin && status?.isScanning;
   useEffect(() => {
-    load();
-    const poll = setInterval(load, status?.isScanning ? SCANNING_POLL_MS : POLL_MS);
-    window.addEventListener('focus', load);
+    let poll: ReturnType<typeof setInterval> | undefined;
+    const start = () => {
+      clearInterval(poll);
+      if (document.visibilityState !== 'visible') return;
+      load();
+      poll = setInterval(load, fast ? SCANNING_POLL_MS : POLL_MS);
+    };
+    start();
+    document.addEventListener('visibilitychange', start);
     return () => {
       clearInterval(poll);
-      window.removeEventListener('focus', load);
+      document.removeEventListener('visibilitychange', start);
     };
-  }, [load, status?.isScanning]);
+  }, [load, fast]);
 
   // A scan just finished: show the new items without a full reload.
   const wasScanning = useRef(false);
