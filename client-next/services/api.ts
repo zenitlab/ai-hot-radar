@@ -298,10 +298,11 @@ const chatApi = {
 export interface NewsItem {
   id: string;
   title: string;
+  titleZh?: string | null;
   url: string;
   source: string;
   createdAt: string;
-  publishedAt?: string;
+  publishedAt?: string | null;
   summary: string | null;
   importance?: 'low' | 'medium' | 'high' | 'urgent';
   qualityScore?: number;

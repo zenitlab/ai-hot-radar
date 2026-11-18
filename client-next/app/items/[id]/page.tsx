@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronLeft, ExternalLink, Layers, CalendarDays, Sparkles } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 import { fetchItemSSR, type ItemDetailResponse } from '@/lib/server-api';
 import { getSourceIcon, getSourceLabel } from '@/lib/sourceMeta';
@@ -9,6 +9,7 @@ import { CATEGORY_LABEL } from '@/lib/categories';
 import { generateBreadcrumbSchema, generateItemSchema, safeJsonLd } from '@/lib/structured-data';
 import { displayTitle } from '@/lib/utils';
 import { ItemTitle } from '@/components/common/ItemTitle';
+import { sourceCountColor } from '@/lib/heat';
 
 /**
  * Item page: our summary and recommendation for one external article, its
@@ -36,6 +37,12 @@ const fmtDateTime = (iso: string) =>
     minute: '2-digit',
     hour12: false,
   });
+
+/** 2026-11-17 → 11月17日 */
+const fmtDigestDate = (d: string) => {
+  const [, m, day] = d.split('-').map(Number);
+  return `${m}月${day}日`;
+};
 
 function isIndexable(d: ItemDetailResponse): boolean {
   return Boolean(d.item.isCurated && d.item.summary?.trim());
@@ -97,130 +104,124 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(schemas) }} />
 
-      <article className="px-4 py-6 max-w-3xl mx-auto">
-        <nav aria-label="位置" className="mb-4 text-xs text-[var(--text-muted)]">
-          <Link href="/curated" className="inline-flex items-center gap-0.5 hover:text-[var(--text-primary)]">
-            <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
-            精选
-          </Link>
-          <span aria-hidden="true"> / </span>
-          <span>内容详情</span>
-        </nav>
+      <div className="mx-auto grid max-w-[1180px] gap-10 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:pt-8">
+        <article className="min-w-0 max-w-[720px]">
+          <nav aria-label="位置" className="mb-5 flex items-center gap-1.5 text-[13px] text-[var(--text-muted)]">
+            <Link href="/curated" className="hover:text-[var(--text-primary)]">
+              精选
+            </Link>
+            <span aria-hidden="true">/</span>
+            <span>{section ?? '资讯'}</span>
+          </nav>
 
-        <header className="mb-5">
-          <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-[var(--text-muted)]">
-            <span className="inline-flex items-center gap-1 font-medium">
-              {getSourceIcon(item.source, 'w-3.5 h-3.5')}
-              {sourceLabel}
-            </span>
-            {section && (
-              <span className="rounded bg-[var(--bg-elevated)] px-1.5 py-0.5 text-[var(--text-secondary)]">{section}</span>
-            )}
-            {item.isCurated && (
-              <span className="rounded bg-[var(--accent-blue)]/10 px-1.5 py-0.5 text-[var(--accent-blue)]">精选</span>
-            )}
-            {item.qualityScore != null && (
-              <span className="rounded-full border border-[var(--accent-blue)]/30 px-2 py-0.5 font-mono text-[var(--accent-blue)]" title="AI 评分">
-                AI 评分 {Math.round(item.qualityScore)}
+          <header className="mb-6">
+            <p className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-[var(--text-muted)]">
+              <span className="inline-flex items-center gap-1 font-medium text-[var(--text-secondary)]">
+                {getSourceIcon(item.source, 'w-3.5 h-3.5')}
+                {sourceLabel}
               </span>
-            )}
-          </div>
-          <h1 className="text-xl sm:text-2xl font-bold leading-snug text-[var(--text-primary)] break-words">{title}</h1>
-          {/* Original headline stays visible when ours is a translation, so readers can match it to the source. */}
-          {title !== item.title && (
-            <p className="mt-1.5 text-[13px] leading-snug text-[var(--text-muted)] break-words">原标题：{item.title}</p>
-          )}
-          <p className="mt-2 text-xs text-[var(--text-muted)]">
-            发布于 <time dateTime={published}>{fmtDateTime(published)}</time>
-            {item.authorName && <> · {item.authorName}</>}
-          </p>
-        </header>
-
-        {/* Answer-first: summary and reason before anything else. */}
-        <section aria-labelledby="ai-guide" className="mb-5 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4 sm:p-5">
-          <h2 id="ai-guide" className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[var(--text-primary)]">
-            <Sparkles className="w-4 h-4 text-[var(--accent-blue)]" aria-hidden="true" />
-            AI 导读
-          </h2>
-          {item.summary ? (
-            <p className="text-[15px] leading-[1.8] text-[var(--text-secondary)]">{item.summary}</p>
-          ) : (
-            <p className="text-sm text-[var(--text-muted)]">这条内容暂无 AI 导读，可直接阅读原文。</p>
-          )}
-          {item.recommendReason && (
-            <p className="mt-3 text-[13px] leading-relaxed text-[var(--text-secondary)]">
-              <span className="font-semibold text-[var(--text-primary)]">推荐理由：</span>
-              {item.recommendReason}
+              <time dateTime={published}>{fmtDateTime(published)}</time>
+              {item.authorName && <span>{item.authorName}</span>}
             </p>
+            <h1 className="break-words text-[22px] font-bold leading-snug sm:text-[26px]">{title}</h1>
+            {/* Original headline stays visible when ours is a translation, so readers can match it to the source. */}
+            {title !== item.title && (
+              <p className="mt-2 break-words text-sm leading-snug text-[var(--text-muted)]">原标题：{item.title}</p>
+            )}
+            <p className="mt-3 flex flex-wrap gap-x-3 text-[13px] text-[var(--text-muted)]">
+              {item.isCurated && <span className="font-medium text-[var(--accent-blue)]">精选</span>}
+              {item.qualityScore != null && <span className="tabular-nums">评分 {Math.round(item.qualityScore)}</span>}
+              {story && story.sourceCount > 1 && (
+                <Link href={`/story/${story.clusterKey}`} className="font-medium hover:underline" style={{ color: sourceCountColor(story.sourceCount) ?? undefined }}>
+                  {story.sourceCount} 家来源报道
+                </Link>
+              )}
+            </p>
+          </header>
+
+          {/* Answer-first: summary and reason before anything else. */}
+          <section aria-labelledby="guide" className="mb-6 rounded-[14px] border border-[var(--card-border)] bg-[var(--card-bg)] px-5 py-4 sm:px-6 sm:py-5">
+            <h2 id="guide" className="mb-2 text-[15px] font-bold">导读</h2>
+            {item.summary ? (
+              <p className="text-[15px] leading-[1.85] text-[var(--text-primary)]">{item.summary}</p>
+            ) : (
+              <p className="text-sm text-[var(--text-secondary)]">这条还没有导读，信息以原文为准。</p>
+            )}
+            {item.recommendReason && (
+              <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
+                <span className="font-semibold text-[var(--text-primary)]">值得看的原因：</span>
+                {item.recommendReason}
+              </p>
+            )}
+            <p className="mt-3 text-xs text-[var(--text-muted)]">导读由 AI 根据原文写成，可能有出入，以原文为准。</p>
+          </section>
+
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--accent-blue)] px-5 py-2.5 text-sm font-semibold text-[var(--on-accent)] hover:opacity-90 sm:inline-flex sm:w-auto"
+          >
+            到 {sourceLabel} 阅读原文
+            <ExternalLink className="h-4 w-4" aria-hidden="true" />
+          </a>
+
+          <footer className="mt-10 border-t border-[var(--border-subtle)] pt-4 text-xs leading-relaxed text-[var(--text-muted)]">
+            标题与原文版权归原作者，本页只提供摘要与导读，完整内容请阅读原文。
+          </footer>
+        </article>
+
+        <aside className="min-w-0 space-y-8 lg:pt-10" aria-label="相关内容">
+          {story && story.others.length > 0 && (
+            <section aria-labelledby="event">
+              <h2 id="event" className="mb-1 flex items-baseline justify-between gap-3 text-[15px] font-bold">
+                同一事件的其他报道
+                <span className="text-[13px] font-normal text-[var(--text-muted)]">共 {story.sourceCount} 家</span>
+              </h2>
+              <ul>
+                {story.others.slice(0, 5).map((o) => (
+                  <li key={o.id} className="border-b border-[var(--border-subtle)] py-2.5">
+                    <Link href={`/items/${o.id}`} className="block break-words text-sm leading-snug hover:text-[var(--accent-blue)]">
+                      <ItemTitle item={o} />
+                    </Link>
+                    <span className="mt-0.5 block text-xs text-[var(--text-muted)]">{getSourceLabel(o.source)}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link href={`/story/${story.clusterKey}`} className="mt-2 inline-block text-sm font-semibold text-[var(--accent-blue)] hover:underline">
+                看事件全部报道和时间线
+              </Link>
+            </section>
           )}
-          <p className="mt-3 text-[11px] text-[var(--text-muted)]">导读由 AI 根据原文生成，以原文为准。</p>
-        </section>
 
-        <a
-          href={item.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mb-6 flex w-full items-center justify-center gap-1.5 rounded-xl bg-[var(--accent-blue)] px-4 py-3 text-sm font-semibold text-[var(--on-accent)] hover:opacity-90 sm:w-auto sm:inline-flex"
-        >
-          阅读原文 · {sourceLabel}
-          <ExternalLink className="w-4 h-4" aria-hidden="true" />
-        </a>
+          {digestDate && (
+            <section aria-labelledby="in-digest">
+              <h2 id="in-digest" className="mb-1 text-[15px] font-bold">收录于日报</h2>
+              <Link href={`/digest/${digestDate}`} className="text-sm text-[var(--accent-blue)] hover:underline">
+                {fmtDigestDate(digestDate)}日报
+              </Link>
+            </section>
+          )}
 
-        {story && story.others.length > 0 && (
-          <section aria-labelledby="event" className="mb-6">
-            <h2 id="event" className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[var(--text-primary)]">
-              <Layers className="w-4 h-4" aria-hidden="true" />
-              同一事件的其他报道
-              <span className="font-normal text-xs text-[var(--text-muted)]">共 {story.sourceCount} 家来源</span>
-            </h2>
-            <ul className="space-y-1.5">
-              {story.others.slice(0, 5).map((o) => (
-                <li key={o.id} className="text-sm">
-                  <Link href={`/items/${o.id}`} className="text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words">
-                    <span className="text-[var(--text-muted)]">{getSourceLabel(o.source)}：</span>
-                    <ItemTitle item={o} />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <Link href={`/story/${story.clusterKey}`} className="mt-2 inline-block text-xs text-[var(--accent-blue)] hover:underline">
-              查看事件全部报道与时间线 →
-            </Link>
-          </section>
-        )}
-
-        {digestDate && (
-          <p className="mb-6 flex items-center gap-1.5 text-sm text-[var(--text-secondary)]">
-            <CalendarDays className="w-4 h-4" aria-hidden="true" />
-            收录于
-            <Link href={`/digest/${digestDate}`} className="text-[var(--accent-blue)] hover:underline">
-              {digestDate} AI 日报
-            </Link>
-          </p>
-        )}
-
-        {related.length > 0 && (
-          <section aria-labelledby="related" className="border-t border-[var(--card-border)] pt-4">
-            <h2 id="related" className="mb-2 text-sm font-semibold text-[var(--text-primary)]">
-              相关精选{section ? ` · ${section}` : ''}
-            </h2>
-            <ul className="space-y-1.5">
-              {related.map((r) => (
-                <li key={r.id} className="text-sm">
-                  <Link href={`/items/${r.id}`} className="text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words">
-                    <ItemTitle item={r} />
-                  </Link>
-                  <span className="ml-1.5 text-xs text-[var(--text-muted)]">{getSourceLabel(r.source)}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        <footer className="mt-8 border-t border-[var(--card-border)] pt-4 text-xs text-[var(--text-muted)]">
-          标题与原文版权归原作者，本页仅提供摘要与导读，完整内容请阅读原文。
-        </footer>
-      </article>
+          {related.length > 0 && (
+            <section aria-labelledby="related">
+              <h2 id="related" className="mb-1 text-[15px] font-bold">
+                {section ? `更多${section}精选` : '相关精选'}
+              </h2>
+              <ul>
+                {related.map((r) => (
+                  <li key={r.id} className="border-b border-[var(--border-subtle)] py-2.5">
+                    <Link href={`/items/${r.id}`} className="block break-words text-sm leading-snug hover:text-[var(--accent-blue)]">
+                      <ItemTitle item={r} />
+                    </Link>
+                    <span className="mt-0.5 block text-xs text-[var(--text-muted)]">{getSourceLabel(r.source)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </aside>
+      </div>
     </>
   );
 }

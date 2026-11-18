@@ -1,16 +1,18 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useIsAdmin } from '@/lib/admin';
-import { Plus, Bookmark, Brain, ExternalLink, Clock, X, ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
+import { Plus, X, ChevronLeft } from 'lucide-react';
 import { keywordsApi, entitiesApi } from '../../services/api';
 import { subscribeToKeywords } from '../../services/socket';
 import { relativeTime } from '../../utils/relativeTime';
 import { cn } from '../../lib/utils';
-import { EntityCard } from './EntityCard';
+import { EntityCard, ENTITY_TYPE_LABEL } from './EntityCard';
 import { EntityRelationGraph } from './EntityRelationGraph';
 import { TrendChart } from './TrendChart';
 import { Skeleton, SkeletonList } from '../common/Loader';
-import { EmptyState } from '../common/EmptyState';
+import { ItemTitle } from '../common/ItemTitle';
+import { getSourceLabel } from '../../lib/sourceMeta';
 import type { EntityCardSummary, EntityCardDetail, NewsItem, RelatedData } from '../../services/api';
 
 interface KeywordsViewProps {
@@ -37,7 +39,9 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
     } catch (err) {
       console.error('Failed to load entities:', err);
     }
-  }, []);  const startPolling = useCallback(() => {
+  }, []);
+
+  const startPolling = useCallback(() => {
     if (pollRef.current) {
       clearInterval(pollRef.current);
       pollRef.current = null;
@@ -107,7 +111,7 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
     try {
       await keywordsApi.create({ text: newKeyword.trim() });
       setNewKeyword('');
-      onToast?.('关键词添加成功，正在生成知识卡片...', 'success');
+      onToast?.('已关注，正在生成简介和关系', 'success');
       await loadEntities();
       startPolling();
     } catch (err: any) {
@@ -122,11 +126,11 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
     setRefreshingId(id);
     try {
       await entitiesApi.refresh(id);
-      onToast?.('刷新成功', 'success');
+      onToast?.('已重新生成', 'success');
       await loadEntities();
       if (selectedId === id) loadDetail(id);
     } catch {
-      onToast?.('刷新失败', 'error');
+      onToast?.('重新生成失败，稍后再试', 'error');
     } finally {
       setRefreshingId(null);
     }
@@ -138,64 +142,55 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
       await keywordsApi.delete(keywordId);
       setEntities((prev) => prev.filter((en) => en.id !== entityId));
       if (selectedId === entityId) { setSelectedId(null); setDetail(null); }
-      onToast?.('已删除', 'success');
+      onToast?.('已取消关注', 'success');
     } catch {
-      onToast?.('删除失败', 'error');
+      onToast?.('取消关注失败，稍后再试', 'error');
     }
   };
 
   const selectedEntity = entities.find((e) => e.id === selectedId) ?? null;
+  const backToList = () => { setSelectedId(null); setDetail(null); };
 
   return (
-    <div className="flex h-full overflow-hidden">
-      {/* ── Left panel: cards ───────────────────────────────────
-          Desktop: always visible at fixed width.
-          Mobile: full-width when no entity selected; hidden once one is. */}
-      <div
-        className={cn(
-          'flex-col border-r border-[var(--border-subtle)] overflow-hidden',
-          'lg:flex lg:w-[320px] lg:shrink-0',
-          selectedEntity ? 'hidden lg:flex' : 'flex w-full',
-        )}
-      >
-        {/* Header + add form */}
-        <div className="p-4 border-b border-[var(--border-subtle)] shrink-0">
-          <h1 className="flex items-center gap-2.5 text-2xl font-bold text-[var(--text-primary)] mb-3 tracking-tight">
-            <Bookmark className="w-5 h-5 text-[var(--accent-blue)] dark:text-blue-400" />
-            我的关注
-          </h1>
-          {isAdmin ? (
-          <form onSubmit={handleAdd} className="flex gap-2">
+    <div className="mx-auto grid max-w-[1180px] gap-8 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10 lg:pt-8">
+      {/* List. Mobile shows either the list or one entity; desktop shows both. */}
+      <div className={cn('min-w-0 lg:sticky lg:top-6 lg:self-start', selectedEntity && 'hidden lg:block')}>
+        <h1 className="text-[22px] font-bold">我的关注</h1>
+        {isAdmin ? (
+          <form onSubmit={handleAdd} className="mt-3 flex gap-2">
             <input
               value={newKeyword}
               onChange={(e) => setNewKeyword(e.target.value)}
-              placeholder="添加关键词，如 Claude..."
-              aria-label="添加关键词"
+              placeholder="公司、模型或产品名，如 Claude"
+              aria-label="要关注的名称"
               disabled={isAdding}
-              className="flex-1 min-w-0 px-3 py-2 rounded-lg text-sm bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
+              className="min-w-0 flex-1 rounded-lg border border-[var(--input-border)] bg-[var(--input-bg)] px-3 py-2 text-sm placeholder:text-[var(--text-muted)] focus:border-[var(--border-active)] focus:outline-none"
             />
             <button
               type="submit"
-              aria-label="添加关键词"
               disabled={isAdding || !newKeyword.trim()}
-              className="px-3 py-2 rounded-xl bg-[var(--accent-blue)]/85 text-[var(--on-accent)] text-sm font-medium flex items-center gap-1 hover:bg-[var(--accent-blue)] transition-colors disabled:opacity-50"
+              className="flex items-center gap-1 rounded-lg bg-[var(--accent-blue)] px-3 py-2 text-sm font-semibold text-[var(--on-accent)] hover:opacity-90 disabled:opacity-50"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              关注
             </button>
           </form>
-          ) : (
-            <p className="text-sm text-[var(--text-secondary)]">站长持续追踪的公司、模型和产品，点开看各自的最新动态。</p>
-          )}
-        </div>
+        ) : (
+          <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">站长持续追踪的公司、模型和产品，点开看简介、关系和最新动态。</p>
+        )}
 
-        {/* Entity cards list */}
-        <div className="flex-1 overflow-y-scroll p-3 space-y-2.5">
+        <div className="mt-4 border-t border-[var(--border-subtle)] lg:max-h-[calc(100dvh-220px)] lg:overflow-y-auto">
           {entities.length === 0 ? (
-            <EmptyState
-              variant="bookmark"
-              title={isAdmin ? '添加你关注的实体' : '还没有关注的实体'}
-              description={isAdmin ? '输入 Claude、OpenAI、Cursor 等关键词，AI 会自动抓取相关动态' : '站长添加关注后会显示在这里'}
-            />
+            <p className="py-8 text-sm leading-relaxed text-[var(--text-secondary)]">
+              {isAdmin
+                ? '还没有关注任何对象。在上面输入 Claude、OpenAI、Cursor 这类名称，系统会生成简介和关系，并汇总相关资讯。'
+                : '站长还没有添加关注。想看某家公司的动态，可以先去主题页。'}
+              {!isAdmin && (
+                <Link href="/topics" className="ml-1 font-semibold text-[var(--accent-blue)] hover:underline">
+                  看主题
+                </Link>
+              )}
+            </p>
           ) : (
             entities.map((entity) => (
               <EntityCard
@@ -212,57 +207,48 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
         </div>
       </div>
 
-      {/* ── Right panel: detail ─────────────────────────────────
-          Desktop: always visible.
-          Mobile: shown only when an entity is selected; back button returns to list. */}
-      <div
-        className={cn(
-          'flex-1 min-w-0 overflow-y-scroll',
-          'lg:block lg:p-5',
-          selectedEntity ? 'block' : 'hidden lg:block',
-        )}
-      >
+      {/* Detail */}
+      <div className={cn('min-w-0', !selectedEntity && 'hidden lg:block')}>
         {selectedEntity && (
-          <div className="lg:hidden sticky top-0 z-10 flex items-center gap-3 px-3 py-2.5 bg-[var(--bg-base)]/95 backdrop-blur border-b border-[var(--border-subtle)]">
-            <button
-              type="button"
-              onClick={() => { setSelectedId(null); setDetail(null); }}
-              aria-label="返回关键词列表"
-              className="flex items-center justify-center w-8 h-8 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors shrink-0"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <div className="flex-1 min-w-0 flex items-center gap-2">
-              <Bookmark className="w-4 h-4 text-[var(--accent-blue)] dark:text-blue-400 shrink-0" />
-              <span className="text-sm font-semibold text-[var(--text-primary)] truncate">
-                {selectedEntity.keyword.text}
-              </span>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={backToList}
+            className="-ml-1 mb-3 flex items-center gap-0.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] lg:hidden"
+          >
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            全部关注
+          </button>
         )}
-        <div className="p-4 lg:p-0">
-          {!selectedEntity ? (
-            <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)] text-sm gap-2 py-20">
-              <Brain className="w-10 h-10 opacity-20" />
-              <p>点击左侧卡片查看实体详情</p>
-            </div>
-          ) : loadingDetail ? (
-            <div className="space-y-4">
-              <Skeleton className="h-4 w-40" />
-              <Skeleton className="h-72" />
-              <Skeleton className="h-4 w-32" />
-              <SkeletonList count={3} itemClassName="h-8" />
-            </div>
-          ) : detail ? (
-            <DetailPanel entity={selectedEntity} detail={detail} />
-          ) : null}
-        </div>
+        {!selectedEntity ? (
+          entities.length > 0 && <p className="pt-12 text-sm text-[var(--text-secondary)]">从左边选一个，查看它的简介、关系和最新资讯。</p>
+        ) : loadingDetail ? (
+          <div className="space-y-4">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-4 w-full max-w-lg" />
+            <Skeleton className="h-64" />
+            <SkeletonList count={3} itemClassName="h-12" />
+          </div>
+        ) : detail ? (
+          <DetailPanel entity={selectedEntity} detail={detail} />
+        ) : null}
       </div>
     </div>
   );
 }
 
 // ── Detail panel ──────────────────────────────────────────────────────────────
+const RELATED_GROUPS: { key: 'relatedProducts' | 'relatedCompanies' | 'relatedModels' | 'competesWith'; title: string }[] = [
+  { key: 'relatedCompanies', title: '相关公司' },
+  { key: 'relatedModels', title: '关联模型' },
+  { key: 'relatedProducts', title: '集成产品' },
+  { key: 'competesWith', title: '竞争对手' },
+];
+
+const IMPORTANCE: Record<string, { label: string; color: string }> = {
+  urgent: { label: '紧急', color: 'var(--heat-5)' },
+  high: { label: '重要', color: 'var(--heat-4)' },
+};
+
 function DetailPanel({ entity, detail }: { entity: EntityCardSummary; detail: EntityCardDetail }) {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [nodeNews, setNodeNews] = useState<NewsItem[] | null>(null);
@@ -273,6 +259,7 @@ function DetailPanel({ entity, detail }: { entity: EntityCardSummary; detail: En
   })();
 
   const totalMentions = detail.trend.reduce((s, t) => s + t.count, 0);
+  const type = entity.type ?? relData?.type ?? null;
 
   const handleNodeClick = useCallback(async (name: string | null) => {
     setSelectedNode(name);
@@ -299,184 +286,121 @@ function DetailPanel({ entity, detail }: { entity: EntityCardSummary; detail: En
   }
 
   const displayNews = selectedNode ? (nodeNews ?? []) : detail.latestNews;
-  const newsTitle = selectedNode ? `与「${selectedNode}」相关资讯` : '最新相关资讯';
+  const groups = RELATED_GROUPS.filter((g) => (relData?.[g.key]?.length ?? 0) > 0);
 
   return (
-    <div className="space-y-5">
-      {/* Title */}
-      <div>
-        <h2 className="text-xl font-bold text-[var(--text-primary)]">{entity.name}</h2>
-        {entity.summary && (
-          <p className="text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">{entity.summary}</p>
-        )}
+    <div>
+      <header>
+        <h2 className="text-[22px] font-bold">
+          {entity.name}
+          {type && <span className="ml-2 text-[15px] font-normal text-[var(--text-muted)]">{ENTITY_TYPE_LABEL[type] ?? type}</span>}
+        </h2>
+        {entity.summary && <p className="mt-2 max-w-[640px] text-[15px] leading-relaxed text-[var(--text-secondary)]">{entity.summary}</p>}
+        <dl className="mt-4 flex gap-8">
+          <Stat label="今天提及" value={entity.todayMentions} />
+          <Stat label="近 7 天提及" value={totalMentions} />
+          <Stat label="关联产品" value={relData?.relatedProducts?.length ?? 0} />
+        </dl>
+      </header>
+
+      <div className="mt-8 space-y-8">
+        <section aria-labelledby="graph">
+          <h3 id="graph" className="mb-2 text-[15px] font-bold">关系</h3>
+          <div className="h-80 overflow-hidden rounded-[14px] border border-[var(--card-border)] bg-[var(--card-bg)]">
+            <EntityRelationGraph entityName={entity.name} relatedData={relData} selectedNode={selectedNode} onNodeClick={handleNodeClick} />
+          </div>
+          <p className="mt-1.5 text-xs text-[var(--text-muted)]">点图里的名称，下面的资讯会换成和它相关的。</p>
+        </section>
+        <section aria-labelledby="trend">
+          <h3 id="trend" className="mb-2 text-[15px] font-bold">近 7 天提及次数</h3>
+          <div className="h-48 rounded-[14px] border border-[var(--card-border)] bg-[var(--card-bg)] p-2">
+            <TrendChart data={detail.trend} name={entity.name} />
+          </div>
+        </section>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-3">
-        <StatCard label="今日提及" value={entity.todayMentions} />
-        <StatCard label="7日提及" value={totalMentions} />
-        <StatCard label="关联产品" value={relData?.relatedProducts?.length ?? 0} />
-      </div>
+      {groups.length > 0 && (
+        <dl className="mt-8 border-t border-[var(--border-subtle)]">
+          {groups.map((g) => (
+            <div key={g.key} className="grid gap-x-6 gap-y-1.5 border-b border-[var(--border-subtle)] py-3 sm:grid-cols-[96px_minmax(0,1fr)]">
+              <dt className="text-sm font-semibold">{g.title}</dt>
+              <dd className="flex flex-wrap gap-1.5">
+                {relData![g.key].map((name) => {
+                  const active = selectedNode === name;
+                  return (
+                    <button
+                      key={name}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => handleNodeClick(active ? null : name)}
+                      className={cn(
+                        'rounded-md px-2 py-0.5 text-[13px]',
+                        active
+                          ? 'bg-[var(--accent-blue)] text-[var(--on-accent)]'
+                          : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
+                      )}
+                    >
+                      {name}
+                    </button>
+                  );
+                })}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
 
-      {/* Relation graph */}
-      <div>
-        <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">关系图谱</h3>
-        <div className="h-72 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] overflow-hidden">
-          <EntityRelationGraph
-            entityName={entity.name}
-            relatedData={relData}
-            selectedNode={selectedNode}
-            onNodeClick={handleNodeClick}
-          />
-        </div>
-        {selectedNode && (
-          <p className="text-[11px] text-[var(--text-muted)] mt-1.5 text-center">
-            已选中节点：<span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">{selectedNode}</span>
+      <section aria-labelledby="news" className="mt-8">
+        <h3 id="news" className="flex flex-wrap items-baseline gap-x-3 text-[15px] font-bold">
+          {selectedNode ? `和「${selectedNode}」相关的资讯` : '最新相关资讯'}
+          {selectedNode && (
             <button
               type="button"
               onClick={() => handleNodeClick(null)}
-              aria-label="取消选中节点"
-              className="ml-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+              className="inline-flex items-center gap-0.5 text-[13px] font-normal text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             >
-              <X className="w-3 h-3 inline" /> 取消
+              <X className="h-3.5 w-3.5" aria-hidden="true" />
+              回到 {entity.name}
             </button>
+          )}
+        </h3>
+        {loadingNodeNews ? (
+          <SkeletonList count={3} itemClassName="mt-3 h-14" />
+        ) : displayNews.length > 0 ? (
+          <ul className="mt-1">
+            {displayNews.map((n) => {
+              const imp = n.importance ? IMPORTANCE[n.importance] : undefined;
+              return (
+                <li key={n.id} className="border-b border-[var(--border-subtle)] py-3.5">
+                  <Link href={`/items/${n.id}`} className="text-base font-semibold leading-snug hover:text-[var(--accent-blue)]">
+                    <ItemTitle item={n} />
+                  </Link>
+                  {n.summary && <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-[var(--text-secondary)]">{n.summary}</p>}
+                  <p className="mt-1 flex flex-wrap gap-x-3 text-[13px] text-[var(--text-muted)]">
+                    <span>{getSourceLabel(n.source)}</span>
+                    <time dateTime={n.publishedAt || n.createdAt}>{relativeTime(n.publishedAt || n.createdAt)}</time>
+                    {imp && <span className="font-medium" style={{ color: imp.color }}>{imp.label}</span>}
+                    {n.qualityScore != null && <span className="tabular-nums">评分 {Math.round(n.qualityScore)}</span>}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="mt-3 text-sm text-[var(--text-secondary)]">
+            {selectedNode ? `最近没有提到「${selectedNode}」的精选资讯。` : '最近没有提到它的精选资讯，有新报道时会出现在这里。'}
           </p>
         )}
-      </div>
-
-      {/* Trend chart */}
-      <div>
-        <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">热度趋势（近7天）</h3>
-        <div className="h-44 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] p-2">
-          <TrendChart data={detail.trend} name={entity.name} />
-        </div>
-      </div>
-
-      {/* Related info */}
-      {relData && (
-        <div className="grid grid-cols-2 gap-3">
-          {relData.relatedProducts?.length > 0 && (
-            <RelatedSection title="集成产品" items={relData.relatedProducts} color="amber" onTagClick={handleNodeClick} />
-          )}
-          {relData.relatedCompanies?.length > 0 && (
-            <RelatedSection title="相关公司" items={relData.relatedCompanies} color="emerald" onTagClick={handleNodeClick} />
-          )}
-          {relData.relatedModels?.length > 0 && (
-            <RelatedSection title="关联模型" items={relData.relatedModels} color="blue" onTagClick={handleNodeClick} />
-          )}
-          {relData.competesWith?.length > 0 && (
-            <RelatedSection title="竞争关系" items={relData.competesWith} color="red" onTagClick={handleNodeClick} />
-          )}
-        </div>
-      )}
-
-      {/* News section */}
-      <div>
-        <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">{newsTitle}</h3>
-        {loadingNodeNews ? (
-          <SkeletonList count={3} itemClassName="h-24" />
-        ) : displayNews.length > 0 ? (
-          <div className="space-y-2.5">
-            {displayNews.map((n) => (
-              <a
-                key={n.id}
-                href={n.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block p-4 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] hover:-translate-y-0.5 transition group"
-              >
-                {/* Source + importance + quality on top */}
-                <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] mb-1.5">
-                  <span className="font-medium">{n.source}</span>
-                  {n.importance && n.importance !== 'low' && (
-                    <span className={cn(
-                      'text-[10px] px-1.5 py-0.5 rounded',
-                      n.importance === 'urgent' && 'bg-red-500/15 text-red-500 dark:text-red-400',
-                      n.importance === 'high' && 'bg-orange-500/15 text-orange-600 dark:text-orange-400',
-                      n.importance === 'medium' && 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
-                    )}>
-                      {n.importance === 'urgent' ? '紧急' : n.importance === 'high' ? '重要' : '关注'}
-                    </span>
-                  )}
-                  {n.qualityScore != null && (
-                    <span className="font-mono">{Math.round(n.qualityScore)}分</span>
-                  )}
-                  <span className="ml-auto flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {relativeTime(n.publishedAt || n.createdAt)}
-                  </span>
-                </div>
-
-                {/* Title */}
-                <p className="text-[14px] font-medium text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug mb-1.5">
-                  {n.title}
-                  <ExternalLink className="inline-block w-3 h-3 ml-1 mb-0.5 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                </p>
-
-                {/* Summary */}
-                {n.summary && (
-                  <p className="text-[12.5px] text-[var(--text-secondary)] line-clamp-2 leading-relaxed">
-                    {n.summary}
-                  </p>
-                )}
-              </a>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-[var(--text-muted)] text-sm">
-            {selectedNode ? `暂无与「${selectedNode}」相关的资讯` : '暂无相关资讯，继续抓取中...'}
-          </div>
-        )}
-      </div>
+      </section>
     </div>
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] text-center">
-      <div className="text-lg font-bold text-[var(--text-primary)]">{value}</div>
-      <div className="text-[11px] text-[var(--text-muted)] mt-0.5">{label}</div>
-    </div>
-  );
-}
-
-const COLOR_CLASSES: Record<string, string> = {
-  amber:   'bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20',
-  emerald: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20',
-  blue:    'bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20',
-  red:     'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20',
-};
-
-function RelatedSection({
-  title,
-  items,
-  color,
-  onTagClick,
-}: {
-  title: string;
-  items: string[];
-  color: string;
-  onTagClick: (name: string) => void;
-}) {
-  return (
-    <div className="p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)]">
-      <h4 className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-2">{title}</h4>
-      <div className="flex flex-wrap gap-1.5">
-        {items.map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => onTagClick(item)}
-            className={cn(
-              'text-[11px] px-2 py-0.5 rounded-full border font-medium transition-colors cursor-pointer',
-              COLOR_CLASSES[color] ?? COLOR_CLASSES.blue,
-            )}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
+    <div>
+      <dt className="text-[13px] text-[var(--text-muted)]">{label}</dt>
+      <dd className="text-2xl font-extrabold tabular-nums" style={{ fontStretch: '80%' }}>{value}</dd>
     </div>
   );
 }

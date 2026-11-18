@@ -1,4 +1,3 @@
-import { History } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { BackToTop } from "../common/BackToTop";
 
@@ -14,6 +13,17 @@ interface ChangelogEntry {
 }
 
 const CHANGELOG: ChangelogEntry[] = [
+  {
+    date: "2026-11-18",
+    version: "v0.20.0",
+    tag: "tweak",
+    items: [
+      "单条资讯页改为主栏加右栏：标题、原标题和导读在左，同一事件的其他报道、收录的日报和相关精选放到右边；多家来源报道的资讯在标题下直接显示「N 家来源报道」",
+      "我的关注改版：左边是关注列表，右边是简介、关系图、近 7 天提及次数和最新资讯；关系图和趋势图跟随深浅色，资讯标题支持中 / 原切换，点开进入站内资讯页",
+      "Agent 接入、关于、更新日志三个页面去掉卡片和彩色图标，改为细线分隔的说明列表，正文和顶栏左对齐",
+      "更新日志按版本排列，左边是版本号、日期和类型",
+    ],
+  },
   {
     date: "2026-11-18",
     version: "v0.19.1",
@@ -822,84 +832,67 @@ const CHANGELOG: ChangelogEntry[] = [
   },
 ];
 
-const TAG_STYLES: Record<
-  NonNullable<ChangelogEntry["tag"]>,
-  { label: string; className: string }
-> = {
-  feature: {
-    label: "新功能",
-    className: "bg-[var(--accent-blue)]/15 text-[var(--accent-blue)] border-[var(--accent-blue)]/25 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/20",
-  },
-  fix: {
-    label: "修复",
-    className: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
-  },
-  tweak: {
-    label: "优化",
-    className: "bg-amber-500/15 text-amber-400 border-amber-500/20",
-  },
+const TAG_LABEL: Record<NonNullable<ChangelogEntry["tag"]>, string> = {
+  feature: "新功能",
+  fix: "修复",
+  tweak: "优化",
+};
+
+/**
+ * Older entries start with an emoji; DESIGN.md drops decorative symbols, so
+ * strip it when rendering rather than rewriting history. New entries don't
+ * need one.
+ */
+const LEADING_EMOJI = /^(?:\p{Extended_Pictographic}|\p{Regional_Indicator}|[\u{1F170}-\u{1F251}])[\u{FE0F}\u{200D}\p{Extended_Pictographic}]*\s*/u;
+const plain = (item: string) => item.replace(LEADING_EMOJI, "");
+
+/** 2026-11-18 → 2026年11月18日 */
+const fmtDate = (d: string) => {
+  const [y, m, day] = d.split("-").map(Number);
+  return `${y}年${m}月${day}日`;
 };
 
 export function ChangelogView() {
   return (
-    <div className="px-4 py-6 max-w-3xl mx-auto">
-      <div className="flex items-center gap-2.5 mb-2">
-        <History className="w-5 h-5 text-[var(--accent-blue)] dark:text-blue-400" />
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">
-          更新日志
-        </h1>
-      </div>
-      <p className="text-xs text-[var(--text-muted)] mb-6">
-        AI Hot Radar 的产品迭代记录，按时间顺序倒排
-      </p>
+    <div className="mx-auto max-w-[1180px] px-4 pb-12 pt-6 sm:px-6 lg:pt-8">
+      <header className="mb-6 max-w-[760px]">
+        <h1 className="text-[22px] font-bold">更新日志</h1>
+        <p className="mt-1 text-sm text-[var(--text-secondary)]">
+          每次上线改了什么，最新的在最上面。
+        </p>
+      </header>
 
-      <div className="relative">
-        {/* timeline line */}
-        <div className="absolute left-2 top-2 bottom-2 w-px bg-[var(--card-border)]" />
-
-        <ul className="space-y-6">
-          {/* Several releases can share a date; date + version is unique. */}
-          {CHANGELOG.map((entry) => (
-            <li key={`${entry.date}-${entry.version}`} className="relative pl-8">
-              {/* dot */}
-              <span className="absolute left-[3px] top-2 w-2.5 h-2.5 rounded-full bg-[var(--accent-blue)] dark:bg-blue-500 ring-4 ring-[var(--bg-base)]" />
-
-              <div className="rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] p-5">
-                <div className="flex flex-wrap items-center gap-2 mb-3">
-                  <span className="text-sm font-semibold text-[var(--text-primary)]">
-                    {entry.date}
-                  </span>
-                  {entry.version && (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[var(--input-bg)] text-[var(--text-muted)] border border-[var(--input-border)]">
-                      {entry.version}
-                    </span>
+      <ol className="max-w-[860px] border-t border-[var(--border-subtle)]">
+        {/* Several releases can share a date; date + version is unique. */}
+        {CHANGELOG.map((entry) => (
+          <li
+            key={`${entry.date}-${entry.version}`}
+            className="grid gap-x-8 gap-y-2 border-b border-[var(--border-subtle)] py-5 sm:grid-cols-[140px_minmax(0,1fr)]"
+          >
+            <div className="flex items-baseline gap-3 sm:block">
+              <p className="text-[15px] font-bold tabular-nums">{entry.version}</p>
+              <p className="text-[13px] text-[var(--text-muted)] sm:mt-0.5">
+                <time dateTime={entry.date}>{fmtDate(entry.date)}</time>
+              </p>
+              {entry.tag && (
+                <p
+                  className={cn(
+                    "text-[13px] sm:mt-0.5",
+                    entry.tag === "feature" ? "font-medium text-[var(--accent-blue)]" : "text-[var(--text-secondary)]",
                   )}
-                  {entry.tag && (
-                    <span
-                      className={cn(
-                        "text-[10px] px-2 py-0.5 rounded-md border font-medium",
-                        TAG_STYLES[entry.tag].className,
-                      )}
-                    >
-                      {TAG_STYLES[entry.tag].label}
-                    </span>
-                  )}
-                </div>
-                <ul className="space-y-1.5">
-                  {entry.items.map((item, j) => (
-                    <li
-                      key={j}
-                      className="text-sm text-[var(--text-secondary)] pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-[var(--accent-blue)]/60 dark:before:text-blue-400/60"
-                    >
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+                >
+                  {TAG_LABEL[entry.tag]}
+                </p>
+              )}
+            </div>
+            <ul className="max-w-[640px] list-disc space-y-1.5 pl-4 text-[15px] leading-relaxed text-[var(--text-primary)] marker:text-[var(--text-muted)]">
+              {entry.items.map((item, j) => (
+                <li key={j}>{plain(item)}</li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ol>
 
       <BackToTop />
     </div>

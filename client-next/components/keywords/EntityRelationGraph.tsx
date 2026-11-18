@@ -2,6 +2,8 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 import type { RelatedData } from '../../services/api';
+import { cssVar } from '../../lib/cssVar';
+import { useTheme } from '../../providers/ThemeProvider';
 
 interface Props {
   entityName: string;
@@ -9,14 +11,6 @@ interface Props {
   selectedNode?: string | null;
   onNodeClick: (name: string | null) => void;
 }
-
-const CAT: Record<number, { color: string; label: string }> = {
-  0: { color: '#3b82f6', label: '实体' },
-  1: { color: '#10b981', label: '公司' },
-  2: { color: '#8b5cf6', label: '模型' },
-  3: { color: '#f59e0b', label: '产品' },
-  4: { color: '#ef4444', label: '竞品' },
-};
 
 const EDGE_LABEL: Record<number, string> = {
   1: '相关公司',
@@ -29,6 +23,7 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
   const onClickRef = useRef(onNodeClick);
+  const { theme } = useTheme();
   // Sync the latest callback without causing re-renders (layout effect
   // runs synchronously after DOM mutations, before the browser paints).
   useLayoutEffect(() => {
@@ -42,9 +37,13 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
       chartRef.current = echarts.init(containerRef.current, undefined, { renderer: 'svg' });
     }
 
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-    const tc = isDark ? '#c4c6d0' : '#374151';
-    const tm = isDark ? '#8b8fa8' : '#9ca3af';
+    // Theme tokens, not per-category colours: the edge label already says
+    // how a node relates, and DESIGN.md keeps colour for heat and selection.
+    const accent = cssVar('--accent-blue');
+    const tc = cssVar('--text-secondary');
+    const tm = cssVar('--text-muted');
+    const nodeFill = cssVar('--bg-elevated');
+    const nodeBorder = tm;
 
     const nodes: any[] = [];
     const links: any[] = [];
@@ -56,13 +55,11 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
       symbolSize: 52,
       fixed: true,
       x: 300, y: 180,
-      category: 0,
-      itemStyle: { color: '#3b82f6', borderColor: '#93c5fd', borderWidth: 2.5 },
-      label: { show: true, fontSize: 13, fontWeight: 'bold', color: '#fff', position: 'inside' },
+      itemStyle: { color: accent },
+      label: { show: true, fontSize: 13, fontWeight: 'bold', color: cssVar('--on-accent'), position: 'inside' },
     });
 
     const pushGroup = (list: string[] | undefined, cat: number) => {
-      const { color } = CAT[cat];
       const edgeLabel = EDGE_LABEL[cat];
       for (const name of list ?? []) {
         if (!name || name === entityName) continue;
@@ -72,10 +69,9 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
             id: name,
             name,
             symbolSize: isSelected ? 38 : 28,
-            category: cat,
             itemStyle: {
-              color: color + '22',
-              borderColor: color,
+              color: nodeFill,
+              borderColor: isSelected ? accent : nodeBorder,
               borderWidth: isSelected ? 3 : 1.5,
             },
             label: { show: true, fontSize: 11, color: tc, position: 'bottom' },
@@ -84,8 +80,9 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
         links.push({
           source: entityName,
           target: name,
-          label: { show: true, formatter: edgeLabel, fontSize: 9, color: tm },
-          lineStyle: { color: color + '70', width: 1.5, curveness: 0.12 },
+          // Relation shows on hover; the groups are also listed under the graph.
+          label: { show: false, formatter: edgeLabel, fontSize: 10, color: tm },
+          lineStyle: { color: cssVar('--border-default'), width: 1.5, curveness: 0.12 },
         });
       }
     };
@@ -101,10 +98,10 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
         tooltip: {
           formatter: (p: any) =>
             p.dataType === 'node'
-              ? `<b style="color:${isDark ? '#e8eaf0' : '#1a1d2e'}">${p.data.name}</b>${p.data.id !== entityName ? `<br/><span style="color:${tm};font-size:11px">点击查看相关资讯</span>` : ''}`
+              ? `<b style="color:${cssVar('--text-primary')}">${p.data.name}</b>${p.data.id !== entityName ? `<br/><span style="color:${tm};font-size:11px">点击查看相关资讯</span>` : ''}`
               : `<span style="color:${tm}">${p.data.label?.formatter ?? ''}</span>`,
-          backgroundColor: isDark ? '#0d0d20' : '#fff',
-          borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+          backgroundColor: cssVar('--dropdown-bg'),
+          borderColor: cssVar('--card-border'),
           extraCssText: 'border-radius:8px;padding:6px 10px;',
         },
         series: [
@@ -115,7 +112,6 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
             animationDuration: 700,
             data: nodes,
             links,
-            categories: Object.values(CAT).map(({ label, color }) => ({ name: label, itemStyle: { color } })),
             roam: 'move',
             draggable: true,
             force: {
@@ -126,7 +122,7 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
             },
             edgeSymbol: ['none', 'arrow'],
             edgeSymbolSize: [0, 8],
-            edgeLabel: { show: true, fontSize: 9 },
+            edgeLabel: { show: false, fontSize: 10 },
             label: { position: 'bottom', fontSize: 11 },
             lineStyle: { width: 1.5 },
             emphasis: {
@@ -134,19 +130,10 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
               scale: true,
               itemStyle: { borderWidth: 3 },
               lineStyle: { width: 2.5 },
+              edgeLabel: { show: true },
             },
           },
         ],
-        legend: {
-          bottom: 4,
-          left: 'center',
-          data: Object.values(CAT).map((c) => c.label),
-          textStyle: { color: tm, fontSize: 10 },
-          itemWidth: 8,
-          itemHeight: 8,
-          icon: 'circle',
-          itemGap: 10,
-        },
       },
       true,
     );
@@ -166,7 +153,7 @@ export function EntityRelationGraph({ entityName, relatedData, selectedNode, onN
     return () => {
       chart.off('click');
     };
-  }, [entityName, relatedData, selectedNode]);
+  }, [entityName, relatedData, selectedNode, theme]);
 
   useEffect(() => {
     const resize = () => chartRef.current?.resize();

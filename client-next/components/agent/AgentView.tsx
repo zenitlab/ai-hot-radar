@@ -1,9 +1,6 @@
 'use client';
 import { useState, useSyncExternalStore } from 'react';
-import {
-  Plug, Copy, Check, ExternalLink, Sparkles, Rss, Code2,
-  CalendarDays, Newspaper, Search, Zap, Terminal, BookOpen, Flame, GitBranch, LayoutGrid, ShieldCheck,
-} from 'lucide-react';
+import { Check, Copy, ExternalLink } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 type AgentTab = 'skill' | 'rss' | 'api';
@@ -41,52 +38,34 @@ const API_DOCS = [
 
 const SKILL_CAPABILITIES = [
   {
-    icon: CalendarDays,
     title: 'AI 日报',
     desc: '今天或指定日期的 AI 日报：当日总结、重点事件和各板块要点，每条带原文链接',
     example: '给我一份今天的 AI 日报',
-    accent: 'text-blue-400',
-    bg: 'bg-blue-500/10',
   },
   {
-    icon: Flame,
     title: '热点榜',
     desc: '过去 48 小时多家来源同时报道的事件，按热度排序，看得出哪件事正在发酵',
     example: '现在 AI 圈最热的是什么',
-    accent: 'text-red-400',
-    bg: 'bg-red-500/10',
   },
   {
-    icon: GitBranch,
     title: '事件来龙去脉',
     desc: '一件事的全部报道和事件概览，区分已确认的事实和尚未确认的传闻',
     example: 'OpenAI 新模型的消息，现在确认了哪些',
-    accent: 'text-violet-400',
-    bg: 'bg-violet-500/10',
   },
   {
-    icon: LayoutGrid,
     title: '主题动态',
     desc: '按公司（OpenAI、Anthropic、DeepSeek 等）或方向（Agent、AI 编程等）看近 30 天的动态',
     example: 'Anthropic 最近有什么动态',
-    accent: 'text-amber-400',
-    bg: 'bg-amber-500/10',
   },
   {
-    icon: Newspaper,
     title: '精选资讯',
     desc: '经质量评分筛出的精选，可以只看最近几天',
     example: '最近 3 天有哪些值得看的 AI 新闻',
-    accent: 'text-emerald-400',
-    bg: 'bg-emerald-500/10',
   },
   {
-    icon: Search,
     title: '关键词搜索',
     desc: '在全部资讯的标题和摘要里搜索关键词',
     example: '搜一下最近关于 MCP 的新闻',
-    accent: 'text-sky-400',
-    bg: 'bg-sky-500/10',
   },
 ];
 
@@ -96,10 +75,10 @@ const INSTALL_STEPS = [
   '之后直接用中文提问，它会自己选接口、附上原文链接回答',
 ];
 
-const TABS: { id: AgentTab; label: string; icon: React.ElementType; desc: string }[] = [
-  { id: 'skill', label: 'Skill', icon: Sparkles, desc: 'AI 助手原生集成' },
-  { id: 'rss',   label: 'RSS',   icon: Rss,      desc: 'RSS 阅读器订阅' },
-  { id: 'api',   label: 'API',   icon: Code2,    desc: 'JSON HTTP 接口' },
+const TABS: { id: AgentTab; label: string; desc: string }[] = [
+  { id: 'skill', label: 'Skill', desc: '给 AI 助手' },
+  { id: 'rss',   label: 'RSS',   desc: '给阅读器' },
+  { id: 'api',   label: 'API',   desc: '给程序和机器人' },
 ];
 
 function CopyButton({ text }: { text: string }) {
@@ -113,10 +92,11 @@ function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={copy}
-      className="p-1.5 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
-      title={copied ? '已复制' : '复制'}
+      className="flex h-8 shrink-0 items-center gap-1 rounded-lg px-2 text-[13px] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+      aria-label={copied ? '已复制' : `复制 ${text}`}
     >
-      {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+      {copied ? <Check className="h-3.5 w-3.5 text-[var(--accent-blue)]" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
+      {copied ? '已复制' : '复制'}
     </button>
   );
 }
@@ -139,13 +119,6 @@ const subscribeOrigin = () => () => {};
 const getOriginSnapshot = () => window.location.origin;
 const getOriginServerSnapshot = () => '';
 
-const METHOD_COLORS: Record<string, string> = {
-  GET:    'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
-  POST:   'bg-blue-500/15    text-blue-400    border-blue-500/20',
-  PUT:    'bg-amber-500/15   text-amber-400   border-amber-500/20',
-  DELETE: 'bg-red-500/15     text-red-400     border-red-500/20',
-};
-
 export function AgentView() {
   const [activeTab, setActiveTab] = useState<AgentTab>('skill');
   // Runtime origin — read via useSyncExternalStore so SSR and the first client
@@ -158,252 +131,146 @@ export function AgentView() {
     getOriginServerSnapshot,
   );
 
+  const skillLine = `请阅读 ${baseUrl}/skill.md 并按其中的说明安装为 skill`;
+  const manual = `mkdir -p ~/.claude/skills/aihotradar && curl -fsSL ${baseUrl}/skill.md -o ~/.claude/skills/aihotradar/SKILL.md`;
+
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
-      {/* ── Header ────────────────────────────────────────── */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2.5 mb-2">
-          <Plug className="w-5 h-5 text-[var(--accent-blue)] dark:text-blue-400" />
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Agent 接入</h1>
+    <div className="mx-auto max-w-[1180px] px-4 pb-12 pt-6 sm:px-6 lg:pt-8">
+      <div className="max-w-[760px]">
+        <header className="mb-6">
+          <h1 className="text-[22px] font-bold">Agent 接入</h1>
+          <p className="mt-2 text-[15px] leading-relaxed text-[var(--text-secondary)]">
+            AI 日报、热点榜、事件详情、主题动态、精选和搜索都开放给外部使用，有 Skill、RSS、API 三种方式，免费、不用注册。Claude
+            Code 等 AI 助手、RSS 阅读器、飞书或企业微信机器人都能直接接。
+          </p>
+        </header>
+
+        <div role="tablist" aria-label="接入方式" className="mb-6 flex gap-6 border-b border-[var(--border-subtle)]">
+          {TABS.map((tab) => {
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                id={`tab-${tab.id}`}
+                aria-selected={active}
+                aria-controls={`panel-${tab.id}`}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  '-mb-px flex items-baseline gap-2 border-b-2 pb-2.5 pt-1',
+                  active
+                    ? 'border-[var(--accent-blue)] text-[var(--text-primary)]'
+                    : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
+                )}
+              >
+                <span className={cn('text-[15px]', active && 'font-semibold')}>{tab.label}</span>
+                <span className="hidden text-[13px] text-[var(--text-muted)] sm:inline">{tab.desc}</span>
+              </button>
+            );
+          })}
         </div>
-        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-          把 AI Hot Radar 的 AI 日报、热点榜、事件详情、主题动态、精选和搜索，以 <span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">Skill</span>、
-          <span className="text-[var(--accent-emerald)] dark:text-emerald-400 font-medium"> RSS</span>、
-          <span className="text-[var(--accent-amber)] dark:text-purple-400 font-medium"> API</span> 三种方式开放给外部消费 —
-          全部免费、无需注册。Claude Code 等 AI 助手、RSS 阅读器、飞书或企业微信机器人都能直接用。
-        </p>
-      </div>
 
-      {/* ── Tabs ──────────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-2 p-1 bg-[var(--bg-elevated)] rounded-xl mb-6 border border-[var(--border-subtle)]">
-        {TABS.map((tab) => {
-          const Icon = tab.icon;
-          const active = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                'flex flex-col items-center gap-1 py-2.5 px-3 rounded-xl transition-all',
-                active
-                  ? 'bg-[var(--accent-blue)]/25 text-[var(--accent-blue)] dark:bg-blue-500/30 dark:text-blue-200 border border-[var(--accent-blue)]/40 dark:border-blue-500/40 font-medium shadow-sm'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)]',
-              )}
-            >
-              <div className="flex items-center gap-1.5">
-                <Icon className="w-4 h-4" />
-                <span className="font-semibold text-sm">{tab.label}</span>
-              </div>
-              <span className={cn('text-[10px]', active ? 'opacity-80' : 'text-[var(--text-muted)]')}>
-                {tab.desc}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── Skill ─────────────────────────────────────────── */}
-      {activeTab === 'skill' && (
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] dark:bg-blue-500/15 dark:text-blue-400">
-                <Sparkles className="w-4 h-4" />
-              </span>
-              <h2 className="font-semibold text-[var(--text-primary)]">什么是 Skill？</h2>
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4">
-              Skill 是给 AI 助手（如 Claude Code）用的说明书。安装一次后，你的 AI 助手就知道怎么查
-              AI 日报、热点榜、事件详情和各公司动态，直接用中文提问即可，不用记接口。
+        {activeTab === 'skill' && (
+          <section id="panel-skill" role="tabpanel" aria-labelledby="tab-skill">
+            <p className="text-[15px] leading-relaxed text-[var(--text-secondary)]">
+              Skill 是给 AI 助手（比如 Claude Code）看的说明书。装一次之后，它就知道怎么查日报、热点榜、事件和各公司动态，你直接用中文提问，不用记接口。
             </p>
-            <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--card-border)] p-3">
-              <div className="flex items-center justify-between gap-2 mb-1.5">
-                <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-                  在 AI 助手中粘贴这一行
-                </span>
-                <CopyButton text={`请阅读 ${baseUrl}/skill.md 并按其中的说明安装为 skill`} />
-              </div>
-              <code className="block text-sm text-[var(--accent-blue)] dark:text-blue-400 break-all">
-                请阅读 {baseUrl}/skill.md 并按其中的说明安装为 skill
-              </code>
+
+            <h2 className="mb-2 mt-6 text-[15px] font-bold">在 AI 助手里粘贴这一行</h2>
+            <div className="flex items-start justify-between gap-2 rounded-lg bg-[var(--bg-elevated)] py-2 pl-3 pr-1">
+              <p className="min-w-0 break-all py-1 text-sm text-[var(--text-primary)]">{skillLine}</p>
+              <CopyButton text={skillLine} />
             </div>
-            <ol className="mt-4 space-y-1.5 text-sm text-[var(--text-secondary)]">
-              {INSTALL_STEPS.map((step, i) => (
-                <li key={step} className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent-blue)]/10 text-[11px] font-semibold text-[var(--accent-blue)] dark:text-blue-400">
-                    {i + 1}
-                  </span>
-                  {step}
-                </li>
+            <ol className="mt-4 list-decimal space-y-1 pl-5 text-[15px] leading-relaxed text-[var(--text-secondary)] marker:text-[var(--text-muted)]">
+              {INSTALL_STEPS.map((step) => (
+                <li key={step}>{step}</li>
               ))}
             </ol>
             <details className="mt-4 text-sm">
-              <summary className="cursor-pointer text-[var(--text-muted)] hover:text-[var(--text-primary)]">手动安装（Claude Code）</summary>
-              <div className="mt-2 flex items-start justify-between gap-2 rounded-xl border border-[var(--card-border)] bg-[var(--bg-elevated)] p-3">
-                <code className="text-xs text-[var(--text-secondary)] font-mono break-all">
-                  mkdir -p ~/.claude/skills/aihotradar && curl -fsSL {baseUrl}/skill.md -o ~/.claude/skills/aihotradar/SKILL.md
-                </code>
-                <CopyButton text={`mkdir -p ~/.claude/skills/aihotradar && curl -fsSL ${baseUrl}/skill.md -o ~/.claude/skills/aihotradar/SKILL.md`} />
+              <summary className="cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]">手动安装到 Claude Code</summary>
+              <div className="mt-2 flex items-start justify-between gap-2 rounded-lg bg-[var(--bg-elevated)] py-2 pl-3 pr-1">
+                <code className="min-w-0 break-all py-1 text-[13px] text-[var(--text-secondary)]">{manual}</code>
+                <CopyButton text={manual} />
               </div>
-              <p className="mt-2 text-xs text-[var(--text-muted)]">其他 AI 助手把 skill.md 存到它自己的 skill 或指令目录即可。想更新时重新下载覆盖。</p>
+              <p className="mt-2 text-[13px] text-[var(--text-muted)]">其他 AI 助手把 skill.md 存到它自己的 skill 或指令目录即可。想更新时重新下载覆盖。</p>
             </details>
-          </div>
 
-          <div>
-            <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">
-              Skill 提供的能力
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {SKILL_CAPABILITIES.map((cap) => {
-                const Icon = cap.icon;
-                return (
-                  <div
-                    key={cap.title}
-                    className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[var(--card-border-hover)] transition-colors"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={cn('p-1.5 rounded-lg', cap.bg)}>
-                        <Icon className={cn('w-4 h-4', cap.accent)} />
-                      </span>
-                      <h4 className="font-semibold text-[var(--text-primary)] text-sm">{cap.title}</h4>
-                    </div>
-                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-2">{cap.desc}</p>
-                    <div className="flex items-start gap-1.5 text-[11px] text-[var(--text-muted)] bg-[var(--bg-elevated)] rounded px-2 py-1.5">
-                      <Terminal className="w-3 h-3 mt-0.5 shrink-0" />
-                      <code>{cap.example}</code>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+            <h2 className="mb-1 mt-8 text-[15px] font-bold">装好后能问什么</h2>
+            <dl className="border-t border-[var(--border-subtle)]">
+              {SKILL_CAPABILITIES.map((cap) => (
+                <div key={cap.title} className="grid gap-x-6 gap-y-1 border-b border-[var(--border-subtle)] py-3.5 sm:grid-cols-[120px_minmax(0,1fr)]">
+                  <dt className="text-[15px] font-semibold">{cap.title}</dt>
+                  <dd>
+                    <p className="text-sm leading-relaxed text-[var(--text-secondary)]">{cap.desc}</p>
+                    <p className="mt-1 text-[13px] text-[var(--text-muted)]">试试问：「{cap.example}」</p>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
 
-      {/* ── RSS ───────────────────────────────────────────── */}
-      {activeTab === 'rss' && (
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                <Rss className="w-4 h-4" />
-              </span>
-              <h2 className="font-semibold text-[var(--text-primary)]">RSS 订阅</h2>
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              提供 3 个 RSS Feed，复制链接到你常用的 RSS 阅读器（Feedly、Inoreader、NetNewsWire 等）即可订阅。
-              资讯每 30 分钟更新，日报每天早上 8 点更新。
+        {activeTab === 'rss' && (
+          <section id="panel-rss" role="tabpanel" aria-labelledby="tab-rss">
+            <p className="text-[15px] leading-relaxed text-[var(--text-secondary)]">
+              把链接复制到常用的 RSS 阅读器（Feedly、Inoreader、NetNewsWire 等）就能订阅。资讯每 30 分钟更新，日报每天早上 8 点更新。
             </p>
-          </div>
-
-          <div className="space-y-3">
-            {getRssFeeds(baseUrl).map((feed) => (
-              <div
-                key={feed.url}
-                className="p-4 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] transition-colors"
-              >
-                <div className="flex items-center justify-between gap-3 mb-1.5">
-                  <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
-                    <Rss className="w-4 h-4 text-[var(--text-muted)]" />
-                    {feed.label}
-                  </h3>
-                  <div className="flex items-center gap-1">
-                    <CopyButton text={feed.url} />
-                    <a
-                      href={feed.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1.5 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
-                      title="在新标签打开"
-                    >
-                      <ExternalLink className="w-4 h-4" />
+            <ul className="mt-5 border-t border-[var(--border-subtle)]">
+              {getRssFeeds(baseUrl).map((feed) => (
+                <li key={feed.label} className="border-b border-[var(--border-subtle)] py-4">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h2 className="text-[15px] font-semibold">{feed.label}</h2>
+                    <a href={feed.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[13px] text-[var(--accent-blue)] hover:underline">
+                      打开
+                      <ExternalLink className="h-3 w-3" aria-hidden="true" />
                     </a>
                   </div>
-                </div>
-                <p className="text-xs text-[var(--text-secondary)] mb-2.5 leading-relaxed">{feed.desc}</p>
-                <code className="block text-xs text-[var(--accent-blue)] dark:text-blue-400 bg-[var(--bg-base)]/60 rounded px-2 py-1.5 break-all">
-                  {feed.url}
-                </code>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+                  <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">{feed.desc}</p>
+                  <div className="mt-2 flex items-start justify-between gap-2 rounded-lg bg-[var(--bg-elevated)] py-1.5 pl-3 pr-1">
+                    <code className="min-w-0 break-all py-1 text-[13px]">{feed.url}</code>
+                    <CopyButton text={feed.url} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
-      {/* ── API ───────────────────────────────────────────── */}
-      {activeTab === 'api' && (
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                <Code2 className="w-4 h-4" />
-              </span>
-              <h2 className="font-semibold text-[var(--text-primary)]">REST API</h2>
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              全部接口免认证、JSON 格式返回，可直接对接飞书机器人 / 企业微信 / n8n / 自动化工作流。日期按北京时间。
+        {activeTab === 'api' && (
+          <section id="panel-api" role="tabpanel" aria-labelledby="tab-api">
+            <p className="text-[15px] leading-relaxed text-[var(--text-secondary)]">
+              全部接口免认证，返回 JSON，可以直接接飞书机器人、企业微信、n8n 等自动化流程。日期按北京时间。请求频率请控制在每秒 1 次以内，相同请求 10 分钟内请复用结果。
             </p>
-            <div className="flex flex-wrap items-center gap-3 text-xs">
-              <span className="inline-flex items-center gap-1.5 text-[var(--text-muted)]">
-                <Zap className="w-3 h-3 text-amber-400" /> 无需 Token
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-[var(--text-muted)]">
-                <BookOpen className="w-3 h-3 text-[var(--accent-blue)] dark:text-blue-400" /> JSON 响应
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-[var(--text-muted)]">
-                <Terminal className="w-3 h-3 text-emerald-400" /> 直接 curl 调用
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-[var(--text-muted)]">
-                <ShieldCheck className="w-3 h-3 text-violet-400" /> 每秒不超过 1 次，相同请求 10 分钟内请复用
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            {API_DOCS.map((api) => (
-              <div
-                key={api.path}
-                className="p-3 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--card-border-hover)] transition-colors"
-              >
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span
-                    className={cn(
-                      'text-[11px] font-mono font-bold px-2 py-0.5 rounded border',
-                      METHOD_COLORS[api.method] ?? METHOD_COLORS.GET,
-                    )}
-                  >
-                    {api.method}
-                  </span>
-                  <code className="text-sm text-[var(--accent-blue)] dark:text-blue-400 font-mono">{api.path}</code>
-                  <div className="ml-auto">
+            <ul className="mt-5 border-t border-[var(--border-subtle)]">
+              {API_DOCS.map((api) => (
+                <li key={api.path} className="border-b border-[var(--border-subtle)] py-3.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <code className="min-w-0 break-all text-sm">
+                      <span className="mr-2 text-[13px] font-semibold text-[var(--text-muted)]">{api.method}</span>
+                      <span className="font-semibold">{api.path}</span>
+                    </code>
                     <CopyButton text={`${baseUrl}${api.path}`} />
                   </div>
-                </div>
-                <p className="text-xs text-[var(--text-secondary)] mt-2">{api.desc}</p>
-                {api.params && api.params !== '—' && (
-                  <p className="text-[11px] text-[var(--text-muted)] mt-1 font-mono">
-                    参数：{api.params}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
+                  <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">{api.desc}</p>
+                  {api.params && api.params !== '—' && (
+                    <p className="mt-1 text-[13px] text-[var(--text-muted)]">参数：{api.params}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
 
-          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--bg-elevated)] p-4">
-            <p className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">
-              示例
-            </p>
-            <code className="block text-xs text-[var(--text-secondary)] font-mono whitespace-pre-wrap break-all">
+            <h2 className="mb-2 mt-8 text-[15px] font-bold">示例</h2>
+            <pre className="overflow-x-auto rounded-lg bg-[var(--bg-elevated)] px-3 py-2.5 text-[13px] leading-relaxed text-[var(--text-secondary)]">
 {`curl ${baseUrl}/api/agent/digest
 curl "${baseUrl}/api/hotspots/trending?limit=10"
 curl ${baseUrl}/api/topics/anthropic
 curl "${baseUrl}/api/agent/curated?days=1&limit=10"
 curl "${baseUrl}/api/agent/search?q=Claude&limit=10"`}
-            </code>
-          </div>
-        </div>
-      )}
+            </pre>
+          </section>
+        )}
+      </div>
     </div>
   );
 }
