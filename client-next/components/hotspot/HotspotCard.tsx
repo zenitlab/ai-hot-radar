@@ -7,7 +7,7 @@ import {
   AlertTriangle, Flame, Zap, TrendingUp,
   Eye, Activity, Clock, Target, MessageCircle, Repeat2, Quote, User,
   ShieldAlert, ChevronDown, ChevronUp, ThermometerSun, FileText,
-  Sparkles, ExternalLink,
+  ExternalLink,
 } from 'lucide-react';
 import { cn, displayTitle } from '../../lib/utils';
 import { getSourceIcon, getSourceLabel } from '../../lib/sourceMeta';
@@ -29,12 +29,20 @@ function calcHeatScore(h: Hotspot): number {
 }
 
 function getHeatLevel(score: number): { label: string; color: string } {
-  if (score >= 80) return { label: '爆', color: 'text-red-400' };
-  if (score >= 60) return { label: '热', color: 'text-orange-400' };
-  if (score >= 40) return { label: '温', color: 'text-amber-400' };
-  if (score >= 20) return { label: '凉', color: 'text-blue-400' };
-  return { label: '冷', color: 'text-slate-500' };
+  if (score >= 80) return { label: '爆', color: 'text-[var(--heat-5)]' };
+  if (score >= 60) return { label: '热', color: 'text-[var(--heat-4)]' };
+  if (score >= 40) return { label: '温', color: 'text-[var(--heat-3)]' };
+  if (score >= 20) return { label: '凉', color: 'text-[var(--heat-1)]' };
+  return { label: '冷', color: 'text-[var(--text-muted)]' };
 }
+
+/** Importance in the reader's words, coloured on the heat scale. */
+const IMPORTANCE: Record<string, { label: string; color: string }> = {
+  urgent: { label: '紧急', color: 'var(--heat-5)' },
+  high: { label: '重要', color: 'var(--heat-4)' },
+  medium: { label: '一般', color: 'var(--heat-3)' },
+  low: { label: '较低', color: 'var(--heat-2)' },
+};
 
 function getImportanceIcon(importance: string) {
   switch (importance) {
@@ -93,7 +101,7 @@ export function HotspotCard({
       initial={disableEntrance ? false : { opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: disableEntrance ? 0 : index * 0.03 }}
-      className="group p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition duration-200"
+      className="group rounded-[14px] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 hover:border-[var(--card-border-hover)]"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
@@ -106,41 +114,43 @@ export function HotspotCard({
               Kept: importance · source · keyword · 可疑 (only when suspicious,
               acts as a warning) · heat. */}
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className={cn(
-              'px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider flex items-center',
-              hotspot.importance === 'urgent' && 'bg-red-500/15 text-red-400 border border-red-500/20',
-              hotspot.importance === 'high' && 'bg-orange-500/15 text-orange-400 border border-orange-500/20',
-              hotspot.importance === 'medium' && 'bg-amber-500/15 text-amber-400 border border-amber-500/20',
-              hotspot.importance === 'low' && 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20',
-            )}>
-              {getImportanceIcon(hotspot.importance)}
-              <span className="ml-1">{hotspot.importance}</span>
-            </span>
+            {IMPORTANCE[hotspot.importance] && (
+              <span
+                className="flex items-center gap-1 rounded border px-1.5 py-0.5 text-xs font-semibold"
+                style={{ color: IMPORTANCE[hotspot.importance].color, borderColor: IMPORTANCE[hotspot.importance].color }}
+              >
+                {getImportanceIcon(hotspot.importance)}
+                {IMPORTANCE[hotspot.importance].label}
+              </span>
+            )}
             <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
               {getSourceIcon(hotspot.source)}
               {getSourceLabel(hotspot.source)}
             </span>
             {hotspot.keyword && (
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] border border-[var(--accent-blue)]/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
+              <span className="rounded bg-[var(--tab-active-bg)] px-1.5 py-0.5 text-xs text-[var(--tab-active-text)]">
                 {hotspot.keyword.text}
               </span>
             )}
             {!hotspot.isReal && (
-              <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20" title="AI 评分认为可疑">
+              <span className="flex items-center gap-1 rounded border border-current px-1.5 py-0.5 text-xs text-[var(--accent-red)]" title="AI 评分认为可疑">
                 <ShieldAlert className="w-3 h-3" />
                 可疑
               </span>
             )}
-            <span className={cn('flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-[var(--input-bg)] border border-[var(--input-border)] font-medium', heat.color)}>
-              <ThermometerSun className="w-3 h-3" />
-              {heat.label} {heatScore}
-            </span>
+            {/* Social heat only means something for posts with engagement counts; RSS items have none. */}
+            {heatScore > 0 && (
+              <span className={cn('flex items-center gap-1 text-xs font-medium tabular-nums', heat.color)} title="按点赞、转发、评论和浏览量估算的社交热度">
+                <ThermometerSun className="w-3 h-3" />
+                {heat.label} {heatScore}
+              </span>
+            )}
           </div>
 
           {/* Title */}
           <Link
             href={`/items/${hotspot.id}`}
-            className="block font-semibold text-[15px] text-[var(--text-primary)] mb-2 line-clamp-2 hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors cursor-pointer leading-snug"
+            className="block font-semibold text-[15px] text-[var(--text-primary)] mb-2 line-clamp-2 hover:text-[var(--accent-blue)] transition-colors cursor-pointer leading-snug"
           >
             {displayTitle(hotspot)}
           </Link>
@@ -148,15 +158,7 @@ export function HotspotCard({
           {/* AI Summary — quote-style block with leading bar makes it
               clearly distinct from the title and original content */}
           {hotspot.summary && (
-            <div className="mb-3 pl-3 border-l-2 border-[var(--accent-blue)]/40 dark:border-blue-400/40">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <Sparkles className="w-3 h-3 text-[var(--accent-blue)] dark:text-blue-400" />
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--accent-blue)]/80 dark:text-blue-400/70">
-                  AI 摘要
-                </span>
-              </div>
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-4">{hotspot.summary}</p>
-            </div>
+            <p className="mb-3 text-sm leading-relaxed text-[var(--text-secondary)] line-clamp-4">{hotspot.summary}</p>
           )}
 
           {hotspot.recommendReason && (
@@ -184,7 +186,7 @@ export function HotspotCard({
                 {hotspot.authorUsername && <span className="text-[var(--text-muted)] ml-1">@{hotspot.authorUsername}</span>}
               </span>
               {hotspot.authorVerified && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--accent-blue)]/15 text-[var(--accent-blue)] dark:bg-blue-500/15 dark:text-blue-400">✓ 认证</span>
+                <span className="text-xs text-[var(--accent-blue)]">已认证</span>
               )}
               {hotspot.authorFollowers != null && hotspot.authorFollowers > 0 && (
                 <span className="text-[10px] text-[var(--text-muted)]">{hotspot.authorFollowers.toLocaleString()} 粉丝</span>
@@ -281,7 +283,7 @@ export function HotspotCard({
               <button
                 type="button"
                 onClick={toggleReason}
-                className="flex items-center gap-1 text-[11px] text-[var(--accent-blue)]/70 dark:text-blue-400/70 hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors"
+                className="flex items-center gap-1 text-[11px] text-[var(--accent-blue)]/70 hover:text-[var(--accent-blue)] transition-colors"
               >
                 {reasonOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 关键词关联分析
@@ -296,7 +298,7 @@ export function HotspotCard({
                     style={{ transformOrigin: 'top' }}
                     className="overflow-hidden"
                   >
-                    <p className="text-xs text-[var(--text-secondary)] mt-1 pl-4 border-l-2 border-[var(--accent-blue)]/20 dark:border-blue-500/20">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1 pl-4 border-l-2 border-[var(--accent-blue)]/20">
                       {hotspot.relevanceReason}
                     </p>
                   </m.div>

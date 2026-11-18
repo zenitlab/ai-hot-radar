@@ -2,7 +2,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useIsAdmin } from "@/lib/admin";
 import {
-  Radio,
   RefreshCw,
   ChevronLeft,
   ChevronRight,
@@ -266,13 +265,13 @@ export function HotspotView({
   };
 
   return (
-    <div className="px-4 py-6 max-w-4xl mx-auto">
+    <div className="mx-auto max-w-[860px] px-4 pb-12 pt-6 sm:px-6 lg:pt-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="flex items-center gap-2.5 text-2xl font-bold text-[var(--text-primary)] tracking-tight">
-          <Radio className="w-5 h-5 text-[var(--accent-blue)] dark:text-blue-400" />
-          热点雷达
-        </h1>
+        <div>
+          <h1 className="text-2xl font-bold">全部动态</h1>
+          <p className="mt-1 text-sm text-[var(--text-secondary)]">所有信源抓到的 AI 资讯，不做精选筛选，带重要度和热度标记</p>
+        </div>
         <div className="flex items-center gap-3">
           {lastCheckTime && !isChecking && (
             <span className="text-xs text-[var(--text-muted)]">
@@ -307,7 +306,7 @@ export function HotspotView({
       {/* Stats */}
       {stats && (
         <p className="text-xs text-[var(--text-muted)] mb-4">
-          共 {stats.total} 条热点
+          共 {stats.total} 条资讯
         </p>
       )}
 
@@ -365,7 +364,7 @@ export function HotspotView({
         <div className="flex items-center gap-2 mb-3 text-xs text-[var(--text-secondary)]">
           <span>
             搜索：
-            <span className="text-[var(--accent-blue)] dark:text-blue-400 font-medium">
+            <span className="text-[var(--accent-blue)] font-medium">
               “{appliedSearch}”
             </span>
           </span>

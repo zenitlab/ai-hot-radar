@@ -4,8 +4,7 @@ import { useIsAdmin } from '@/lib/admin';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  ExternalLink, RefreshCw, Zap, CalendarDays, ChevronDown, ChevronRight,
-  ChevronLeft, ArrowRight, Flame, Cpu, Globe2, Globe, Package, Users, BookOpen, Newspaper,
+  ExternalLink, RefreshCw, ChevronDown, ChevronRight, ChevronLeft,
 } from 'lucide-react';
 import { digestApi } from '../../services/api';
 import { digestJobs } from '../../services/digestJobs';
@@ -103,47 +102,28 @@ function dayLabel(date: string): string {
 // ── Change badge colors ───────────────────────────────────────────────────────
 
 const CHANGE_COLOR: Record<string, string> = {
-  新发布: 'bg-[var(--accent-blue)]/15 text-[var(--accent-blue)] dark:bg-blue-500/15 dark:text-blue-400',
-  降价:   'bg-green-500/15 text-green-400',
-  涨价:   'bg-red-500/15 text-red-400',
-  性能提升: 'bg-purple-500/15 text-purple-400',
-  更新:   'bg-amber-500/15 text-amber-400',
+  新发布: 'text-[var(--accent-blue)] border-current',
+  降价: 'text-[var(--accent-emerald)] border-current',
+  涨价: 'text-[var(--accent-red)] border-current',
+  性能提升: 'text-[var(--accent-cyan)] border-current',
+  更新: 'text-[var(--accent-amber)] border-current',
 };
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
 
-function Section({ icon, title, count, children, accent = 'blue' }: {
-  icon: React.ReactNode;
+function Section({ title, count, children }: {
   title: string;
   count?: number;
   children: React.ReactNode;
-  accent?: 'red' | 'blue' | 'emerald' | 'amber' | 'purple' | 'cyan' | 'pink';
 }) {
-  const accentClass = {
-    red:     'bg-red-500/10 text-red-500 dark:text-red-400',
-    blue:    'bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] dark:bg-blue-500/10 dark:text-blue-400',
-    emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-    amber:   'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-    purple:  'bg-purple-500/10 text-purple-600 dark:text-purple-400',
-    cyan:    'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
-    pink:    'bg-pink-500/10 text-pink-600 dark:text-pink-400',
-  }[accent];
-
   return (
-    <div>
-      <div className="flex items-center gap-2.5 mb-3">
-        <span className={cn('flex items-center justify-center w-7 h-7 rounded-lg', accentClass)}>
-          {icon}
-        </span>
-        <h2 className="font-bold text-[var(--text-primary)] text-base tracking-tight">{title}</h2>
-        {count !== undefined && count > 0 && (
-          <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-[var(--input-bg)] text-[var(--text-muted)]">
-            {count}
-          </span>
-        )}
-      </div>
+    <section>
+      <h2 className="mb-3 flex items-baseline gap-2 border-b border-[var(--border-default)] pb-2 text-lg font-bold">
+        {title}
+        {count !== undefined && count > 0 && <span className="text-[13px] font-normal text-[var(--text-muted)]">{count} 条</span>}
+      </h2>
       {children}
-    </div>
+    </section>
   );
 }
 
@@ -155,7 +135,7 @@ function HighlightCard({ item }: { item: DigestHighlight }) {
       href={item.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block p-5 sm:p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:-translate-y-0.5 transition duration-200"
+      className="group block rounded-[14px] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 hover:border-[var(--card-border-hover)] sm:p-6"
     >
       {/* Source */}
       <div className="flex items-center gap-1 text-[13px] text-[var(--text-muted)] mb-2">
@@ -171,24 +151,22 @@ function HighlightCard({ item }: { item: DigestHighlight }) {
 
       {/* Summary */}
       {item.summary && (
-        <p className="text-[14px] text-[var(--text-secondary)] mb-3.5 leading-[1.7]">
+        <p className="text-[14px] text-[var(--text-secondary)] leading-[1.7]">
           {item.summary}
         </p>
       )}
 
       {/* Why important — quote-style block */}
       {item.whyImportant && (
-        <div className="px-4 py-3 rounded-2xl bg-[var(--accent-blue)]/6 border border-[var(--accent-blue)]/15 dark:bg-blue-500/8 dark:border-blue-500/15 mb-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--accent-blue)] dark:text-blue-400 mb-1 flex items-center gap-1">
-            <Zap className="w-3 h-3" /> 为什么重要
-          </p>
-          <p className="text-[13px] text-[var(--text-secondary)] leading-[1.65]">{item.whyImportant}</p>
-        </div>
+        <p className="mt-3 border-l-2 border-[var(--accent-blue)] pl-3 text-[13px] leading-[1.7] text-[var(--text-secondary)]">
+          <span className="font-semibold text-[var(--text-primary)]">为什么重要：</span>
+          {item.whyImportant}
+        </p>
       )}
 
       {/* Affects — filled chips */}
       {item.affects?.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="mt-3 flex flex-wrap gap-1.5">
           {item.affects.map((a) => (
             <span
               key={a}
@@ -213,9 +191,7 @@ function HighlightCard({ item }: { item: DigestHighlight }) {
         className="mt-1.5 mx-2 flex items-center gap-1 text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-blue)] transition-colors"
       >
         <span className="truncate">同一事件还有 {others.join('、')} 报道</span>
-        <span className="shrink-0 inline-flex items-center gap-0.5 font-medium">
-          看完整时间线 <ArrowRight className="w-3 h-3" aria-hidden="true" />
-        </span>
+        <span className="shrink-0 font-medium">看完整时间线</span>
       </Link>
     </div>
   );
@@ -252,22 +228,13 @@ function BriefItem({ item }: { item: DigestBrief }) {
 
 function SimpleItem({ item }: { item: DigestSimpleItem }) {
   return (
-    <a href={item.url} target="_blank" rel="noopener noreferrer"
-      className="flex items-start gap-2 p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] hover:bg-[var(--card-bg-hover)] transition-colors group">
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
-          {item.title}
-        </p>
-        {item.summary && (
-          <p className="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-1">{item.summary}</p>
-        )}
-        <p className="flex items-center gap-1 text-[10px] text-[var(--text-muted)] mt-1">
-          {getSourceIcon(item.source, 'w-3 h-3')}
-          {getSourceLabel(item.source)}
-        </p>
-      </div>
-      <ExternalLink className="w-3 h-3 text-[var(--text-muted)] shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-    </a>
+    <li className="border-b border-[var(--border-subtle)] last:border-b-0">
+      <a href={item.url} target="_blank" rel="noopener noreferrer" className="group block py-3">
+        <span className="block text-[15px] font-medium leading-snug group-hover:text-[var(--accent-blue)]">{item.title}</span>
+        {item.summary && <span className="mt-1 block text-[13px] leading-relaxed text-[var(--text-secondary)] line-clamp-2">{item.summary}</span>}
+        <span className="mt-1 block text-xs text-[var(--text-muted)]">{getSourceLabel(item.source)}</span>
+      </a>
+    </li>
   );
 }
 
@@ -283,7 +250,7 @@ function ModelIntelTable({ items }: { items: DigestModelItem[] }) {
             <tr className="bg-[var(--input-bg)]">
               {['模型', '变化', '详情', '影响'].map((h) => (
                 <th key={h}
-                  className="text-left px-4 py-2.5 text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wide">
+                  className="text-left px-4 py-2.5 text-xs font-semibold text-[var(--text-muted)]">
                   {h}
                 </th>
               ))}
@@ -296,8 +263,8 @@ function ModelIntelTable({ items }: { items: DigestModelItem[] }) {
                   <span className="block max-w-[140px] truncate" title={item.model}>{item.model}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={cn('text-[11px] px-2 py-0.5 rounded font-medium',
-                    CHANGE_COLOR[item.change] ?? 'bg-[var(--input-bg)] text-[var(--text-secondary)]')}>
+                  <span className={cn('whitespace-nowrap rounded border px-1.5 py-0.5 text-[11px] font-medium',
+                    CHANGE_COLOR[item.change] ?? 'border-[var(--border-default)] text-[var(--text-secondary)]')}>
                     {item.change}
                   </span>
                 </td>
@@ -318,8 +285,8 @@ function ModelIntelTable({ items }: { items: DigestModelItem[] }) {
           >
             <div className="flex items-center gap-2 flex-wrap mb-2">
               <span className="font-semibold text-[var(--text-primary)] text-[15px]">{item.model}</span>
-              <span className={cn('text-[11px] px-2 py-0.5 rounded font-medium',
-                CHANGE_COLOR[item.change] ?? 'bg-[var(--input-bg)] text-[var(--text-secondary)]')}>
+              <span className={cn('rounded border px-1.5 py-0.5 text-[11px] font-medium',
+                CHANGE_COLOR[item.change] ?? 'border-[var(--border-default)] text-[var(--text-secondary)]')}>
                 {item.change}
               </span>
             </div>
@@ -345,22 +312,19 @@ function ModelIntelTable({ items }: { items: DigestModelItem[] }) {
 
 function PaperItem({ item }: { item: DigestPaperItem }) {
   return (
-    <a href={item.url} target="_blank" rel="noopener noreferrer"
-      className="block p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--card-border-hover)] transition-colors group">
-      <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-        {item.title}
-      </p>
-      {item.summary && (
-        <p className="text-xs text-[var(--text-secondary)] mt-1">{item.summary}</p>
-      )}
-      {item.impact && (
-        <p className="text-xs text-amber-500 mt-1.5">行业影响：{item.impact}</p>
-      )}
-      <p className="flex items-center gap-1 text-[10px] text-[var(--text-muted)] mt-1">
-        {getSourceIcon(item.source, 'w-3 h-3')}
-        {getSourceLabel(item.source)}
-      </p>
-    </a>
+    <li className="border-b border-[var(--border-subtle)] last:border-b-0">
+      <a href={item.url} target="_blank" rel="noopener noreferrer" className="group block py-3">
+        <span className="block text-[15px] font-medium leading-snug group-hover:text-[var(--accent-blue)]">{item.title}</span>
+        {item.summary && <span className="mt-1 block text-[13px] leading-relaxed text-[var(--text-secondary)]">{item.summary}</span>}
+        {item.impact && (
+          <span className="mt-1 block text-[13px] leading-relaxed text-[var(--text-secondary)]">
+            <span className="font-semibold text-[var(--text-primary)]">行业影响：</span>
+            {item.impact}
+          </span>
+        )}
+        <span className="mt-1 block text-xs text-[var(--text-muted)]">{getSourceLabel(item.source)}</span>
+      </a>
+    </li>
   );
 }
 
@@ -539,15 +503,12 @@ export function DigestView({
   );
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <div className="mx-auto flex h-full max-w-[1180px] overflow-hidden">
       {/* ── Left: timeline ──────────────────────────────────── */}
-      <div className="hidden lg:flex w-[220px] shrink-0 flex-col border-r border-[var(--border-subtle)] overflow-hidden">
+      <div className="hidden lg:flex w-[232px] shrink-0 flex-col border-r border-[var(--border-subtle)] overflow-hidden">
         <div className="px-4 pt-4 pb-3 border-b border-[var(--border-subtle)] shrink-0">
-          <h1 className="flex items-center gap-2.5 text-base font-bold text-[var(--text-primary)] tracking-tight">
-            <CalendarDays className="w-4 h-4 text-[var(--accent-blue)] dark:text-blue-400" />
-            AI 日报
-          </h1>
-          <p className="text-[11px] text-[var(--text-muted)] mt-0.5">AI 行业每日情报</p>
+          <h1 className="text-lg font-bold">AI 日报</h1>
+          <p className="mt-0.5 text-xs text-[var(--text-muted)]">每天早上 8 点出一期</p>
         </div>
 
         <div className="flex-1 overflow-y-scroll">
@@ -570,7 +531,7 @@ export function DigestView({
                   onClick={() => expandable && toggleMonth(month)}
                   disabled={!expandable}
                   className={cn(
-                    'sticky top-0 z-10 w-full flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-base)] border-b border-[var(--border-subtle)] transition-colors',
+                    'sticky top-0 z-10 w-full flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[var(--text-muted)] bg-[var(--bg-base)] border-b border-[var(--border-subtle)] transition-colors',
                     expandable ? 'hover:bg-[var(--card-bg)] cursor-pointer' : 'cursor-default opacity-50',
                   )}
                 >
@@ -579,7 +540,7 @@ export function DigestView({
                     : <span className="w-3 h-3" />}
                   <span className="flex-1 text-left">{monthLabel(month)}</span>
                   {datesWithDigest > 0 && (
-                    <span className="text-[10px] font-normal normal-case tracking-normal text-[var(--text-muted)]">
+                    <span className="text-[11px] font-normal text-[var(--text-muted)]">
                       {datesWithDigest} 期
                     </span>
                   )}
@@ -601,14 +562,14 @@ export function DigestView({
                     className={cn(
                       'block w-full text-left px-4 py-2.5 transition-all border-b border-[var(--border-subtle)]/40',
                       isSelected
-                        ? 'bg-[var(--accent-blue)]/10 border-l-2 border-l-[var(--accent-blue)] dark:bg-blue-500/10 dark:border-l-blue-500'
+                        ? 'bg-[var(--tab-active-bg)] border-l-2 border-l-[var(--accent-blue)]'
                         : 'hover:bg-[var(--card-bg)]',
                     )}
                   >
                     <div className="flex items-center gap-2">
                       {/* Day number */}
                       <span className={cn(
-                        'text-sm font-mono font-bold shrink-0 w-8',
+                        'text-sm font-bold tabular-nums shrink-0 w-8',
                         isSelected ? 'text-[var(--accent-blue)] dark:text-blue-400' : isToday ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]',
                       )}>
                         {dayLabel(date)}
@@ -631,7 +592,7 @@ export function DigestView({
                     {hasDigest && summary ? (
                       <p className={cn(
                         'text-[11px] leading-snug mt-0.5 truncate',
-                        isSelected ? 'text-[var(--accent-blue)]/80 dark:text-blue-300/80' : 'text-[var(--text-muted)]',
+                        isSelected ? 'text-[var(--text-secondary)]' : 'text-[var(--text-muted)]',
                       )}>
                         {summary}
                       </p>
@@ -652,10 +613,10 @@ export function DigestView({
       {/* ── Right: content ──────────────────────────────────── */}
       <div ref={rightColRef} className="flex-1 overflow-y-scroll relative flex flex-col">
         {/* Sticky header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-3 bg-[var(--bg-base)]/90 backdrop-blur border-b border-[var(--border-subtle)]">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 sm:px-8 bg-[var(--bg-base)] border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-3">
             <span className="text-sm font-bold text-[var(--text-primary)]">
-              {selectedDate === today ? '今日日报' : selectedDate}
+              {selectedDate === today ? '今日日报' : `${formatLabel(selectedDate)}日报`}
             </span>
             {data?.itemCount !== undefined && (
               <span className="text-[11px] text-[var(--text-muted)]">基于 {data.itemCount} 条资讯</span>
@@ -675,7 +636,7 @@ export function DigestView({
           )}
         </div>
 
-        <div className="flex-1 flex flex-col px-6 py-6 max-w-3xl">
+        <div className="flex-1 flex flex-col px-4 py-6 sm:px-8 max-w-[760px]">
           {loading ? (
             <LoadingSkeleton />
           ) : !hasContent ? (
@@ -687,19 +648,14 @@ export function DigestView({
             />
           ) : (
             <div className="space-y-8">
-              {/* Summary banner — soft accent bar in light mode, gradient in dark */}
+              {/* The day in one line. */}
               {data!.summary && (
-                <div className="px-4 py-3 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] border-l-4 border-l-[var(--accent-blue)] dark:bg-linear-to-r dark:from-blue-500/10 dark:to-purple-500/8 dark:border dark:border-blue-500/20">
-                  <p className="text-sm text-[var(--text-primary)] leading-relaxed">
-                    <span className="text-[var(--text-muted)] text-xs mr-2 font-medium">今日一句话</span>
-                    {data!.summary}
-                  </p>
-                </div>
+                <p className="text-[17px] font-medium leading-relaxed">{data!.summary}</p>
               )}
 
               {/* 今日重点 */}
               {data!.highlights?.length > 0 && (
-                <Section icon={<Flame className="w-4 h-4" />} title="今日重点" count={data!.highlights.length} accent="red">
+                <Section title="今日重点" count={data!.highlights.length}>
                   <div className="space-y-3">
                     {data!.highlights.map((h) => <HighlightCard key={h.url} item={h} />)}
                   </div>
@@ -708,7 +664,7 @@ export function DigestView({
 
               {/* 模型情报 */}
               {data!.modelIntel?.length > 0 && (
-                <Section icon={<Cpu className="w-4 h-4" />} title="模型情报" count={data!.modelIntel.length} accent="blue">
+                <Section title="模型情报" count={data!.modelIntel.length}>
                   <ModelIntelTable items={data!.modelIntel} />
                 </Section>
               )}
@@ -717,17 +673,17 @@ export function DigestView({
               {(data!.domestic?.length > 0 || data!.international?.length > 0) && (
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                   {data!.domestic?.length > 0 && (
-                    <Section icon={<Globe2 className="w-4 h-4" />} title="国内动态" count={data!.domestic.length} accent="emerald">
-                      <div className="space-y-2">
+                    <Section title="国内动态" count={data!.domestic.length}>
+                      <ul>
                         {data!.domestic.map((item) => <SimpleItem key={item.url} item={item} />)}
-                      </div>
+                      </ul>
                     </Section>
                   )}
                   {data!.international?.length > 0 && (
-                    <Section icon={<Globe className="w-4 h-4" />} title="国外动态" count={data!.international.length} accent="cyan">
-                      <div className="space-y-2">
+                    <Section title="国外动态" count={data!.international.length}>
+                      <ul>
                         {data!.international.map((item) => <SimpleItem key={item.url} item={item} />)}
-                      </div>
+                      </ul>
                     </Section>
                   )}
                 </div>
@@ -735,35 +691,35 @@ export function DigestView({
 
               {/* AI 产品 */}
               {data!.products?.length > 0 && (
-                <Section icon={<Package className="w-4 h-4" />} title="AI 产品动态" count={data!.products.length} accent="purple">
-                  <div className="space-y-2">
+                <Section title="AI 产品动态" count={data!.products.length}>
+                  <ul>
                     {data!.products.map((item) => <SimpleItem key={item.url} item={item} />)}
-                  </div>
+                  </ul>
                 </Section>
               )}
 
               {/* 社区热议 */}
               {data!.community?.length > 0 && (
-                <Section icon={<Users className="w-4 h-4" />} title="社区热议" count={data!.community.length} accent="amber">
-                  <div className="space-y-2">
+                <Section title="社区热议" count={data!.community.length}>
+                  <ul>
                     {data!.community.map((item) => <SimpleItem key={item.url} item={item} />)}
-                  </div>
+                  </ul>
                 </Section>
               )}
 
               {/* 论文趋势 */}
               {data!.papers?.length > 0 && (
-                <Section icon={<BookOpen className="w-4 h-4" />} title="论文 & 技术趋势" count={data!.papers.length} accent="pink">
-                  <div className="space-y-2">
+                <Section title="论文 & 技术趋势" count={data!.papers.length}>
+                  <ul>
                     {data!.papers.map((item) => <PaperItem key={item.url} item={item} />)}
-                  </div>
+                  </ul>
                 </Section>
               )}
 
               {/* 快讯：正文之外、按重要性排在后面的事件，一行一条 */}
               {(data!.briefs?.length ?? 0) > 0 && (
-                <Section icon={<Newspaper className="w-4 h-4" />} title="快讯" count={data!.briefs!.length} accent="blue">
-                  <ul className="px-4 py-1 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)]">
+                <Section title="快讯" count={data!.briefs!.length}>
+                  <ul>
                     {data!.briefs!.map((item) => <BriefItem key={item.url} item={item} />)}
                   </ul>
                 </Section>
@@ -824,14 +780,14 @@ function DateNav({
 
   return (
     <nav className="border-t border-[var(--border-subtle)]">
-      <div className="flex items-center justify-between max-w-3xl px-6 py-3 text-sm gap-2">
+      <div className="flex items-center justify-between max-w-[760px] px-4 py-3 sm:px-8 text-sm gap-2">
         <button
           type="button"
           onClick={() => onSelect(prev)}
           className="group flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors min-w-0"
         >
           <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 shrink-0" />
-          <span className="truncate">前一日 · {formatLabel(prev)}</span>
+          <span className="truncate">前一日 {formatLabel(prev)}</span>
         </button>
 
         <button
@@ -854,13 +810,12 @@ function DateNav({
             onClick={() => onSelect(next)}
             className="group flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors min-w-0"
           >
-            <span className="truncate">后一日 · {formatLabel(next)}</span>
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 shrink-0" />
+            <span className="truncate">后一日 {formatLabel(next)}</span>
+            <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 shrink-0" />
           </button>
         ) : (
           <span className="flex items-center gap-1.5 text-[var(--text-muted)] opacity-50 cursor-default min-w-0">
-            <span className="truncate">后一日 · —</span>
-            <ArrowRight className="w-4 h-4 shrink-0" />
+            <span className="truncate">已是最新一天</span>
           </span>
         )}
       </div>
@@ -884,30 +839,8 @@ function DigestEmptyState({ date, today, onGenerate, generating }: {
 }) {
   const isToday = date === today;
   return (
-    <div className="flex-1 flex flex-col items-center justify-center py-20 px-6 text-center rounded-3xl border border-dashed border-[var(--border-default)] bg-[var(--card-bg)]/40 min-h-[320px]">
-      {/* Calendar illustration with halo */}
-      <div className="relative text-[var(--accent-blue)] dark:text-blue-400 opacity-70">
-        <svg width="84" height="84" viewBox="0 0 96 96" fill="none">
-          <defs>
-            <radialGradient id="digest-empty-halo" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="currentColor" stopOpacity="0.18" />
-              <stop offset="70%" stopColor="currentColor" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          <circle cx="48" cy="48" r="46" fill="url(#digest-empty-halo)" />
-          <rect x="22" y="28" width="52" height="46" rx="6" stroke="currentColor" strokeWidth="1.6" fill="currentColor" fillOpacity="0.08" />
-          <line x1="22" y1="40" x2="74" y2="40" stroke="currentColor" strokeWidth="1.6" />
-          <line x1="34" y1="22" x2="34" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          <line x1="62" y1="22" x2="62" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          <circle cx="35" cy="52" r="1.8" fill="currentColor" />
-          <circle cx="48" cy="52" r="1.8" fill="currentColor" />
-          <circle cx="61" cy="52" r="1.8" fill="currentColor" />
-          <circle cx="35" cy="62" r="1.8" fill="currentColor" fillOpacity="0.5" />
-          <circle cx="48" cy="62" r="1.8" fill="currentColor" fillOpacity="0.5" />
-        </svg>
-      </div>
-
-      <p className="mt-4 text-[15px] font-medium text-[var(--text-primary)]">
+    <div className="flex flex-col items-center py-16 px-6 text-center border-y border-[var(--border-subtle)]">
+      <p className="text-[15px] font-medium text-[var(--text-primary)]">
         {isToday ? '今日日报尚未生成' : `${date} 暂无日报`}
       </p>
       <p className="mt-1.5 text-sm text-[var(--text-muted)] max-w-md">
@@ -919,10 +852,10 @@ function DigestEmptyState({ date, today, onGenerate, generating }: {
           type="button"
           onClick={onGenerate}
           disabled={generating}
-          className="mt-5 flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--accent-blue)]/85 text-[var(--on-accent)] text-sm font-medium hover:bg-[var(--accent-blue)] transition-colors disabled:opacity-50 shadow-sm"
+          className="mt-5 flex items-center gap-2 rounded-lg bg-[var(--accent-blue)] px-5 py-2 text-sm font-medium text-[var(--on-accent)] disabled:opacity-50"
         >
           <RefreshCw className={cn('w-4 h-4', generating && 'animate-spin')} />
-          {generating ? 'AI 正在分析资讯...' : '立即生成日报'}
+          {generating ? '正在生成' : '生成这一天的日报'}
         </button>
       )}
     </div>

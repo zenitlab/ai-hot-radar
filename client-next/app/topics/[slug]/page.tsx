@@ -80,7 +80,7 @@ function Item({ item }: { item: TopicItem }) {
           {getSourceLabel(item.source)}
         </span>
         {item.qualityScore != null && (
-          <span className="font-mono text-[var(--accent-blue)]">AI 评分 {Math.round(item.qualityScore)}</span>
+          <span className="tabular-nums">评分 {Math.round(item.qualityScore)}</span>
         )}
       </div>
       <h3 className="text-[16px] font-semibold leading-snug">
@@ -185,14 +185,14 @@ export default async function TopicPage(props: Props) {
         {d.focus.length > 0 && pagination.page === 1 && (
           <section aria-labelledby="focus" className="mb-8 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4 sm:p-5">
             <h2 id="focus" className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-[var(--text-primary)]">
-              <Flame className="w-4 h-4 text-red-500" aria-hidden="true" />
+              <Flame className="w-4 h-4 text-[var(--heat-5)]" aria-hidden="true" />
               近期焦点
             </h2>
             <p className="mb-3 text-xs text-[var(--text-muted)]">近 14 天 · 按报道来源数</p>
             <ol className="space-y-2">
               {d.focus.map((f, i) => (
                 <li key={f.id} className="flex items-start gap-2.5 text-sm">
-                  <span className="w-4 shrink-0 font-mono font-bold text-[var(--text-muted)]">{i + 1}</span>
+                  <span className="w-4 shrink-0 font-bold tabular-nums text-[var(--text-muted)]">{i + 1}</span>
                   <Link href={`/items/${f.id}`} className="flex-1 text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words">
                     {f.title}
                   </Link>

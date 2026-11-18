@@ -110,10 +110,10 @@ const SOURCE_OPTIONS = [
 
 const IMPORTANCE_OPTIONS = [
   { value: '', label: '全部等级' },
-  { value: 'urgent', label: '🔴 紧急', color: 'text-red-400' },
-  { value: 'high', label: '🟠 高', color: 'text-orange-400' },
-  { value: 'medium', label: '🟡 中', color: 'text-amber-400' },
-  { value: 'low', label: '🟢 低', color: 'text-emerald-400' },
+  { value: 'urgent', label: '紧急', color: 'text-[var(--heat-5)]' },
+  { value: 'high', label: '重要', color: 'text-[var(--heat-4)]' },
+  { value: 'medium', label: '一般', color: 'text-[var(--heat-3)]' },
+  { value: 'low', label: '较低', color: 'text-[var(--heat-2)]' },
 ];
 
 const TIME_RANGE_OPTIONS = [
@@ -313,7 +313,7 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
           <Filter className="w-3.5 h-3.5" />
           筛选
           {activeFilterCount > 0 && (
-            <span className="w-4 h-4 rounded-full bg-[var(--accent-blue)] dark:bg-blue-500 text-[10px] text-[var(--on-accent)] flex items-center justify-center font-bold">
+            <span className="w-4 h-4 rounded-full bg-[var(--accent-blue)] text-[10px] text-[var(--on-accent)] flex items-center justify-center font-bold">
               {activeFilterCount}
             </span>
           )}
@@ -392,7 +392,7 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
 
 function FilterTag({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] dark:bg-blue-500/10 dark:text-blue-400 text-[10px] font-medium border border-[var(--accent-blue)]/20 dark:border-blue-500/20">
+    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]/10 dark:text-blue-400 text-[10px] font-medium border border-[var(--accent-blue)]/20 dark:border-blue-500/20">
       {label}
       <button
         type="button"

@@ -5,6 +5,7 @@ import { hotspotsApi, type TrendingEvent } from "../../services/api";
 import Link from "next/link";
 import { getSourceLabel } from "../../lib/sourceMeta";
 import { displayTitle } from "../../lib/utils";
+import { heatColor, heatIndex } from "../../lib/heat";
 
 /**
  * "多源热议" strip: events reported by 2+ independent sources in the last 48h,
@@ -15,6 +16,9 @@ import { displayTitle } from "../../lib/utils";
  * first HTML (crawlers don't run JS). When it's provided, even as an empty
  * array, the client doesn't refetch on mount.
  */
+/** Outlet names, once each: participants like "hackernews:alice" share their outlet's name. */
+const outlets = (e: TrendingEvent) => [...new Set(e.sources.map((s) => getSourceLabel(s.split(':')[0])))];
+
 export function TrendingStrip({
   limit = 5,
   initialEvents,
@@ -39,9 +43,9 @@ export function TrendingStrip({
   return (
     <section aria-labelledby="trending-heading" className="mb-5 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
       <h2 id="trending-heading" className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text-primary)] mb-3">
-        <Flame className="w-4 h-4 text-orange-500" aria-hidden="true" />
+        <Flame className="w-4 h-4 text-[var(--heat-4)]" aria-hidden="true" />
         多源热议
-        <span className="font-normal text-xs text-[var(--text-muted)]">· 48 小时内多家来源同时报道</span>
+        <span className="font-normal text-xs text-[var(--text-muted)]">48 小时内多家来源同时报道</span>
         <Link href="/hot" className="ml-auto font-normal text-xs text-[var(--accent-blue)] hover:underline">完整榜单</Link>
       </h2>
       <ol className="space-y-2.5">
@@ -53,26 +57,29 @@ export function TrendingStrip({
                 href={`/story/${e.clusterKey}`}
                 className="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent-blue)] line-clamp-2"
               >
-                {displayTitle(e)}
+                {e.overview?.title || displayTitle(e)}
               </Link>
               <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[var(--text-muted)]">
-                <span>{e.sourceCount} 家来源</span>
-                <span aria-hidden="true">·</span>
-                <span className="truncate">{e.sources.slice(0, 3).map(getSourceLabel).join('、')}{e.sources.length > 3 ? ' 等' : ''}</span>
+                <span>{e.sourceCount} 个来源</span>
+                <span className="truncate">{outlets(e).slice(0, 3).join('、')}{outlets(e).length > 3 ? ' 等' : ''}</span>
                 {e.trend === 'new' && (
-                  <span className="inline-flex items-center gap-0.5 rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-emerald-700 dark:text-emerald-400">
+                  <span className="inline-flex items-center gap-0.5 rounded border border-current px-1.5 text-[var(--heat-2)]">
                     <Sparkles className="w-3 h-3" aria-hidden="true" />新
                   </span>
                 )}
                 {e.trend === 'rising' && (
-                  <span className="inline-flex items-center gap-0.5 rounded-md bg-orange-500/10 px-1.5 py-0.5 text-orange-700 dark:text-orange-400">
+                  <span className="inline-flex items-center gap-0.5 rounded border border-current px-1.5 text-[var(--heat-4)]">
                     <TrendingUp className="w-3 h-3" aria-hidden="true" />上升
                   </span>
                 )}
               </div>
             </div>
-            <span className="shrink-0 text-xs tabular-nums text-[var(--text-muted)]" title="热度指数：每家来源按 24 小时半衰期衰减后相加">
-              {e.heat.toFixed(1)}
+            <span
+              className="shrink-0 text-base font-extrabold tabular-nums"
+              style={{ color: heatColor(heatIndex(e.heat)), fontStretch: '80%' }}
+              title="热度指数：每家来源最多 10 分，每 24 小时减半"
+            >
+              {heatIndex(e.heat)}
             </span>
           </li>
         ))}
