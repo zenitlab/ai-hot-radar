@@ -9,8 +9,8 @@ import { safeJsonLd } from '../../lib/structured-data';
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'AI Hot Radar',
-  alternateName: 'AI 热点雷达',
+  name: 'AI 热点雷达',
+  alternateName: 'AI Hot Radar',
   url: 'https://aihotradar.com',
   logo: 'https://aihotradar.com/radar.svg',
   description: '实时聚合 AI 资讯，AI 评分精选，自动生成日报',
@@ -37,8 +37,8 @@ export function OrganizationSchema() {
 const webSiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'AI Hot Radar',
-  alternateName: 'AI 热点雷达',
+  name: 'AI 热点雷达',
+  alternateName: 'AI Hot Radar',
   url: 'https://aihotradar.com',
   description: '实时聚合 AI 资讯，AI 评分精选，自动生成日报',
   potentialAction: {

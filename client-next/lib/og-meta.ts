@@ -6,7 +6,7 @@
  * block so the page keeps the site card from app/opengraph-image.tsx.
  * Routes with their own opengraph-image file (story, items) don't need it.
  */
-const IMAGE = { url: '/opengraph-image', width: 1200, height: 630, alt: 'AI Hot Radar · AI 热点雷达' };
+const IMAGE = { url: '/opengraph-image', width: 1200, height: 630, alt: 'AI 热点雷达（AI Hot Radar）' };
 
 export const ogImages = { images: [IMAGE] };
 export const twitterImages = { card: 'summary_large_image' as const, images: [IMAGE.url] };

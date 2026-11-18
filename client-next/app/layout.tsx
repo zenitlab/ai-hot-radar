@@ -30,8 +30,8 @@ const metadataBase = new URL(safeSiteUrl);
 export const metadata: Metadata = {
   metadataBase,
   title: {
-    default: "AI Hot Radar：AI 新闻资讯与今日 AI 热点",
-    template: "%s | AI Hot Radar",
+    default: "AI 热点雷达：AI 新闻资讯与今日 AI 热点",
+    template: "%s | AI 热点雷达",
   },
   description: "每 30 分钟聚合 70 多个 AI 信息源，AI 评分筛出精选，按多家来源同时报道排出热点，每天早上生成 AI 日报。追踪 OpenAI、Anthropic、Google、DeepSeek 等公司动态与最新论文。",
   keywords: [
@@ -48,9 +48,10 @@ export const metadata: Metadata = {
     "深度学习",
     "AI 聚合",
   ],
-  authors: [{ name: "AI Hot Radar Team" }],
-  creator: "AI Hot Radar",
-  publisher: "AI Hot Radar",
+  applicationName: "AI 热点雷达",
+  authors: [{ name: "AI 热点雷达" }],
+  creator: "AI 热点雷达",
+  publisher: "AI 热点雷达",
   formatDetection: {
     email: false,
     address: false,
@@ -60,15 +61,15 @@ export const metadata: Metadata = {
     type: "website",
     locale: "zh_CN",
     url: siteUrl,
-    siteName: "AI Hot Radar",
-    title: "AI Hot Radar · AI 热点雷达",
+    siteName: "AI 热点雷达",
+    title: "AI 热点雷达（AI Hot Radar）",
     description: "聚合 70 多个 AI 信息源：AI 评分精选、热点榜与每日 AI 日报",
     // Share image comes from app/opengraph-image.tsx (file-based, inherited by
     // every route); the old public/og-image.png was a 1×1 placeholder.
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Hot Radar · AI 热点雷达",
+    title: "AI 热点雷达（AI Hot Radar）",
     description: "聚合 70 多个 AI 信息源：AI 评分精选、热点榜与每日 AI 日报",
     creator: "@aihotradar",
   },
@@ -104,9 +105,9 @@ export const metadata: Metadata = {
  * declared at the root. Emitting the tags directly keeps them on every page.
  */
 const RSS_FEEDS = [
-  { url: `${siteUrl}/api/agent/rss/curated.xml`, title: "AI Hot Radar · 精选资讯" },
-  { url: `${siteUrl}/api/agent/rss/all.xml`, title: "AI Hot Radar · 全部资讯" },
-  { url: `${siteUrl}/api/agent/rss/digest.xml`, title: "AI Hot Radar · AI 日报" },
+  { url: `${siteUrl}/api/agent/rss/curated.xml`, title: "AI 热点雷达 · 精选资讯" },
+  { url: `${siteUrl}/api/agent/rss/all.xml`, title: "AI 热点雷达 · 全部资讯" },
+  { url: `${siteUrl}/api/agent/rss/digest.xml`, title: "AI 热点雷达 · AI 日报" },
 ];
 
 export const viewport: Viewport = {

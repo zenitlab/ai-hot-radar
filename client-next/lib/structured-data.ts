@@ -31,11 +31,11 @@ export function generateOrganizationSchema(): JsonLd {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'AI Hot Radar',
-    alternateName: 'AI 热点雷达',
+    name: 'AI 热点雷达',
+    alternateName: 'AI Hot Radar',
     url: SITE_URL,
     logo: `${SITE_URL}/apple-icon.png`,
-    description: '实时聚合 20+ AI 信息源，AI 双阶段评分识别真伪，自动生成每日日报',
+    description: '70 多个 AI 信息源实时聚合，AI 评分精选、热点榜和每日 AI 日报',
     sameAs: [
       'https://github.com/zenitlab/ai-hot-radar',
       'https://twitter.com/aihotradar',
@@ -56,7 +56,8 @@ export function generateWebSiteSchema(): JsonLd {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'AI Hot Radar',
+    name: 'AI 热点雷达',
+    alternateName: 'AI Hot Radar',
     url: SITE_URL,
     description: '实时聚合 AI 资讯，AI 评分精选，自动生成每日日报',
     inLanguage: 'zh-CN',
@@ -85,11 +86,13 @@ export function generateDigestSchema(date: string, sections: string[]) {
     dateModified: `${date}T08:00:00+08:00`,
     author: {
       '@type': 'Organization',
-      name: 'AI Hot Radar',
+      name: 'AI 热点雷达',
+      alternateName: 'AI Hot Radar',
     },
     publisher: {
       '@type': 'Organization',
-      name: 'AI Hot Radar',
+      name: 'AI 热点雷达',
+      alternateName: 'AI Hot Radar',
       logo: {
         '@type': 'ImageObject',
         url: `${SITE_URL}/opengraph-image`,
@@ -173,7 +176,7 @@ export function generateStorySchema(story: {
   reports: Array<{ title: string; url: string; source: string; publishedAt: string }>;
 }): JsonLd[] {
   const pageUrl = `${SITE_URL}${story.path}`;
-  const org = { '@type': 'Organization', name: 'AI Hot Radar', url: SITE_URL };
+  const org = { '@type': 'Organization', name: 'AI 热点雷达', url: SITE_URL };
   return [
     {
       '@context': 'https://schema.org',
@@ -199,7 +202,7 @@ export function generateStorySchema(story: {
       description: story.description.slice(0, 300),
       inLanguage: 'zh-CN',
       dateModified: story.dateModified,
-      isPartOf: { '@type': 'WebSite', name: 'AI Hot Radar', url: SITE_URL },
+      isPartOf: { '@type': 'WebSite', name: 'AI 热点雷达', url: SITE_URL },
       mainEntity: {
         '@type': 'ItemList',
         name: '报道时间线',
@@ -236,7 +239,7 @@ export function generateItemSchema(item: {
   section?: string;
 }): JsonLd {
   const pageUrl = `${SITE_URL}${item.path}`;
-  const org = { '@type': 'Organization', name: 'AI Hot Radar', url: SITE_URL };
+  const org = { '@type': 'Organization', name: 'AI 热点雷达', url: SITE_URL };
   return {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
@@ -253,6 +256,6 @@ export function generateItemSchema(item: {
     publisher: { ...org, logo: { '@type': 'ImageObject', url: `${SITE_URL}/apple-icon.png` } },
     isAccessibleForFree: true,
     isBasedOn: { '@type': 'NewsArticle', url: item.sourceUrl, publisher: { '@type': 'Organization', name: item.sourceName } },
-    isPartOf: { '@type': 'WebSite', name: 'AI Hot Radar', url: SITE_URL },
+    isPartOf: { '@type': 'WebSite', name: 'AI 热点雷达', url: SITE_URL },
   };
 }

@@ -143,7 +143,7 @@ export default async function TopicPage(props: Props) {
       name: titleOf(d),
       description: topic.description,
       inLanguage: 'zh-CN',
-      isPartOf: { '@type': 'WebSite', name: 'AI Hot Radar', url: SITE_URL },
+      isPartOf: { '@type': 'WebSite', name: 'AI 热点雷达', url: SITE_URL },
       mainEntity: {
         '@type': 'ItemList',
         numberOfItems: d.items.length,
