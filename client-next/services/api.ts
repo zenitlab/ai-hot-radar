@@ -1,4 +1,3 @@
-import { adminHeaders } from '@/lib/admin';
 // Type-only: lib/server-api.ts is server code, but its response shapes are shared.
 import type { TopicResponse, TopicsResponse } from '@/lib/server-api';
 
@@ -64,13 +63,12 @@ export interface Stats {
 }
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const method = (options.method ?? 'GET').toUpperCase();
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      // Writes are admin-only on the backend (server/src/auth/admin.guard.ts).
-      ...(method === 'GET' ? {} : adminHeaders()),
+      // Writes are admin-only on the backend (server/src/auth/admin.guard.ts);
+      // the session cookie goes along automatically on same-origin requests.
       ...options.headers,
     },
   });
@@ -269,7 +267,7 @@ export const digestApi = {
     return r.json();
   }),
   generate: (date?: string) =>
-    fetch(`/api/digest/generate${date ? `?date=${date}` : ''}`, { method: 'POST', headers: adminHeaders() }).then(r => {
+    fetch(`/api/digest/generate${date ? `?date=${date}` : ''}`, { method: 'POST' }).then(r => {
       if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
       return r.json();
     }),

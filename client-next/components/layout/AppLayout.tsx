@@ -5,6 +5,7 @@ import { Bookmark, CalendarDays, Flame, Shapes, Star } from 'lucide-react';
 import { useTheme } from '@/providers/ThemeProvider';
 import { cn } from '@/lib/utils';
 import { SiteHeader, isActive } from './SiteHeader';
+import { FollowSync } from '../follows/FollowSync';
 
 interface AppLayoutProps {
   unreadCount: number;
@@ -35,6 +36,7 @@ export function AppLayout({ unreadCount, children }: AppLayoutProps) {
       <MotionConfig reducedMotion="user">
         <div className="flex h-dvh flex-col overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)]">
           <SiteHeader theme={theme} onThemeToggle={toggleTheme} unreadCount={unreadCount} />
+          <FollowSync />
 
           <main className="flex-1 overflow-y-scroll pb-16 lg:pb-0">{children}</main>
 

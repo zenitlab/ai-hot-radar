@@ -139,3 +139,27 @@ model DailyDigest {
   data      String   // JSON string with categorized digest
   createdAt DateTime @default(now())
 }
+
+/// Reader accounts (email + password). The admin is the account whose email
+/// equals ADMIN_EMAIL; there is no role column.
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique   // stored lower-cased
+  passwordHash String              // scrypt, see src/auth/password.ts
+  follows      String    @default("[]") // JSON array of topic slugs
+  createdAt    DateTime  @default(now())
+  lastLoginAt  DateTime?
+  sessions     Session[]
+}
+
+/// Login sessions. The cookie holds a random token; only its SHA-256 is stored.
+model Session {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId])
+}

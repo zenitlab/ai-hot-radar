@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Bookmark, ChevronDown, Menu, Moon, Rss, Sun, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AdminSignIn } from '../common/AdminSignIn';
+import { AccountMenu } from './AccountMenu';
 import { UpdateStatus } from './UpdateStatus';
 import { TitleModeToggle } from './TitleModeToggle';
 import { useDismiss } from './useDismiss';
@@ -199,6 +199,9 @@ export function SiteHeader({ theme, onThemeToggle, unreadCount }: SiteHeaderProp
           >
             {theme === 'dark' ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
           </button>
+          <span className="ml-1 hidden lg:block">
+            <AccountMenu />
+          </span>
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
@@ -232,8 +235,9 @@ export function SiteHeader({ theme, onThemeToggle, unreadCount }: SiteHeaderProp
           </nav>
           <p className="mt-4 text-xs text-[var(--text-muted)]">RSS 订阅</p>
           <RssMenu items={RSS_FEEDS} />
-          <div className="mt-3 border-t border-[var(--border-subtle)] pt-3">
-            <AdminSignIn />
+          <div className="mt-3 flex items-center justify-between border-t border-[var(--border-subtle)] pt-3 text-sm">
+            <span className="text-[var(--text-muted)]">账号</span>
+            <AccountMenu />
           </div>
         </div>
       )}

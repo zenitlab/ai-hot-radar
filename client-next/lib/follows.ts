@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from 'react';
 
 /**
- * Topics a reader follows, kept in this browser (no account needed). Each entry
+ * Topics a reader follows, kept in this browser (no account needed) and, when
+ * signed in, mirrored to the account by components/follows/FollowSync.tsx. Each entry
  * is a topic slug from server/src/topics/topics.config.ts, so following costs
  * no model calls: the feed is built from topics the site already tracks.
  */
@@ -30,6 +31,11 @@ function read(): string[] {
   }
   cache = { raw, value };
   return value;
+}
+
+/** Replaces the whole list, e.g. with the account's follows after sign-in. */
+export function setFollows(slugs: string[]) {
+  write(slugs.slice(0, MAX_FOLLOWS));
 }
 
 function write(slugs: string[]) {

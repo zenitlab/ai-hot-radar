@@ -23,6 +23,17 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11-18",
+    version: "v0.22.0",
+    tag: "feature",
+    title: "可以注册账号了",
+    items: [
+      "用邮箱和密码注册登录，关注的主题存进账号，换手机、换电脑登录都在；注册前在这台设备上关注的主题会一起带进账号",
+      "右上角的账号菜单里可以修改密码、退出登录",
+      "不想注册也照样能关注，关注只存在当前浏览器",
+    ],
+  },
+  {
+    date: "2026-11-18",
     version: "v0.21.0",
     tag: "feature",
     title: "关注你在意的公司和方向",

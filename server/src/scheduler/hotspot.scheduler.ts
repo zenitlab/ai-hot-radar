@@ -123,6 +123,7 @@ export class HotspotScheduler implements OnApplicationBootstrap {
   }
 
   onApplicationBootstrap() {
+    if (process.env.SCAN_ON_BOOT === 'false') return;
     setTimeout(() => {
       this.logger.log('🚀 Running initial hotspot check on startup...');
       this.runHotspotCheck().catch(err => this.logger.error('❌ Initial hotspot check failed:', err));

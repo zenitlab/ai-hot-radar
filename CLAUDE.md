@@ -46,9 +46,11 @@ Thin feed items (< 300 chars) get their article fetched before scoring. Feed URL
 
 Put `@Cron` directly above the method it should run, with nothing in between. A helper inserted between the decorator and `scheduledDigest` once took the cron, so the daily digest silently stopped. `server/src/__tests__/digestSchedule.test.ts` checks the digest crons; do the same for new ones. Model calls in jobs go through `AiService` (queue + 429 retries), never a raw client.
 
-## Write endpoints are admin-only
+## Accounts and admin
 
-The site has no user accounts. Every route that writes data or spends model/API quota must carry `@UseGuards(AdminGuard)` (`server/src/auth/admin.guard.ts`, checks the `x-admin-token` header against `ADMIN_TOKEN`; unset means closed to everyone). On the frontend, `request()` in `client-next/services/api.ts` adds the header to non-GET calls, and admin-only controls render only when `useIsAdmin()` (`client-next/lib/admin.ts`) is true. Before this, deletes, settings, scans and keyword edits were open to anyone.
+Readers sign up with email + password (`server/src/auth/`: scrypt hashes, sessions as an HttpOnly SameSite=Lax cookie holding a random token whose SHA-256 is stored, per-email and per-IP attempt limits). The admin is the account whose email equals `ADMIN_EMAIL`; there is no role column. Email ownership isn't verified (no outgoing mail yet), so registering `ADMIN_EMAIL` requires `ADMIN_TOKEN` once; keep that check.
+
+Every route that writes data or spends model/API quota must carry `@UseGuards(AdminGuard)` (`server/src/auth/admin.guard.ts`): it accepts the admin's session, or the `x-admin-token` header for scripts, and refuses cookie-authenticated writes whose Origin isn't this site. Neither configured means closed to everyone. On the frontend, admin-only controls render only when `useIsAdmin()` (`client-next/lib/admin.ts`, from the session in `lib/auth.ts`) is true; the cookie travels with same-origin requests, so `services/api.ts` adds nothing. `/admin` is not a secret: its data comes from guarded endpoints.
 
 ## Agent skill
 

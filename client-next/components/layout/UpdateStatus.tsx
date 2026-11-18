@@ -5,7 +5,6 @@ import { RefreshCw } from 'lucide-react';
 import { getScanStatus, triggerHotspotCheck, type ScanStatus } from '@/services/api';
 import { useIsAdmin } from '@/lib/admin';
 import { cn } from '@/lib/utils';
-import { AdminSignIn } from '../common/AdminSignIn';
 import { useDismiss } from './useDismiss';
 
 const POLL_MS = 60_000;
@@ -167,9 +166,6 @@ export function UpdateStatus() {
           </div>
           {note && <p className="mt-2 text-xs text-[var(--text-secondary)]">{note}</p>}
 
-          <div className="mt-3 border-t border-[var(--border-subtle)] pt-3">
-            <AdminSignIn />
-          </div>
         </div>
       )}
     </div>

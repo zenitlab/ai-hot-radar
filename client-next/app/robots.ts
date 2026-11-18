@@ -15,7 +15,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aihotradar.com';
  */
 const RULES = {
   allow: ['/', '/api/agent/', '/api/hotspots/trending'],
-  disallow: ['/api/', '/keywords'],
+  disallow: ['/api/', '/keywords', '/login', '/account', '/admin'],
 };
 
 // International AI / answer engines and Chinese search / AI crawlers. Listed

@@ -12,7 +12,7 @@ import { EntityRelationGraph } from './EntityRelationGraph';
 import { TrendChart } from './TrendChart';
 import { Skeleton, SkeletonList } from '../common/Loader';
 import { ItemTitle } from '../common/ItemTitle';
-import { AdminSignIn } from '../common/AdminSignIn';
+import { SignInLink } from '../common/SignInLink';
 import type { EntityCardSummary, EntityCardDetail, NewsItem, RelatedData } from '../../services/api';
 import { SourceTag } from '@/components/common/SourceTag';
 
@@ -181,8 +181,8 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
             <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">站长持续追踪的公司、模型和产品，点开看简介、关系和最新动态。</p>
             {/* Add / refresh / delete are admin-only (server/src/auth/admin.guard.ts); this is the way in. */}
             <div className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-[var(--text-muted)]">
-              <span>站长登录后可以添加、更新和删除关注。</span>
-              <AdminSignIn />
+              <span>站长登录后可以添加、更新和删除。</span>
+              <SignInLink />
             </div>
           </>
         )}

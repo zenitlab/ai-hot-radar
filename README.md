@@ -279,16 +279,25 @@ BAIDU_PUSH_TOKEN=                 # 搜索资源平台 → 普通收录 → API�
 docker compose logs --since 1h backend | grep -E "Baidu push|IndexNow"
 ```
 
-### 管理员口令（ADMIN_TOKEN）
+### 账号与管理员
 
-站点没有用户账号，所以所有写操作和会消耗模型额度的操作都要求管理员口令：手动扫描（两次之间至少隔 10 分钟）、生成日报、删除资讯、增删关注词、刷新知识卡片、通知已读与删除、系统设置、AI 对话、实时搜索。实现见 `server/src/auth/admin.guard.ts`，前端在 `client-next/lib/admin.ts`。
+读者可以用邮箱和密码注册登录（`/login`），登录后关注的主题存在账号里，换设备也在；不登录也能关注，只是存在当前浏览器。密码用 scrypt 加盐存储，登录状态是 HttpOnly cookie，同一邮箱连续输错 5 次锁 15 分钟。实现见 `server/src/auth/`，前端在 `client-next/lib/auth.ts`。
+
+管理员就是用 `ADMIN_EMAIL` 登录的那个账号，没有单独的角色字段：
 
 ```bash
 # 服务器 .env.production
-ADMIN_TOKEN=$(openssl rand -hex 24)   # 不配置时这些操作对所有人关闭
+ADMIN_EMAIL=you@example.com
+ADMIN_TOKEN=$(openssl rand -hex 24)
 ```
 
-点网站顶栏的更新状态（手机在右上角菜单里），选「管理员登录」输入一次即可，浏览器会记住；访客看不到扫描、生成日报、增删关注词这些按钮。新增写接口时记得加 `@UseGuards(AdminGuard)`。
+1. 部署后打开 `/login` → 注册，填 `ADMIN_EMAIL` 和密码；页面会要求再填一次 `ADMIN_TOKEN`（只有这一次）。线上还不能发邮件，邮箱无法验证，这一步防止别人抢先注册管理员邮箱。
+2. 登录后顶栏右上角的头像菜单里有「管理后台」（`/admin`）：用户列表（可重置密码、删除）、资讯与扫描数据、最近 7 期日报。`/admin` 对其他人显示「页面不存在」，数据接口由后端校验，不靠地址保密。
+3. 手动扫描、生成日报、删除资讯、站长追踪的增删都要求管理员账号。脚本调用写接口时仍可用 `x-admin-token: $ADMIN_TOKEN` 请求头。
+
+忘记密码暂时没有自助找回（还不能发邮件），由管理员在 `/admin` 里重置。新增写接口时记得加 `@UseGuards(AdminGuard)`。
+
+本地开发想连一份数据副本又不想消耗模型额度：`DISABLE_CRON=true SCAN_ON_BOOT=false` 启动后端，所有定时任务停掉，启动时也不扫描。
 
 ### 排查小抄
 
