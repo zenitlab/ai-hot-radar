@@ -12,8 +12,9 @@ import { EntityRelationGraph } from './EntityRelationGraph';
 import { TrendChart } from './TrendChart';
 import { Skeleton, SkeletonList } from '../common/Loader';
 import { ItemTitle } from '../common/ItemTitle';
-import { getSourceLabel } from '../../lib/sourceMeta';
+import { AdminSignIn } from '../common/AdminSignIn';
 import type { EntityCardSummary, EntityCardDetail, NewsItem, RelatedData } from '../../services/api';
+import { SourceTag } from '@/components/common/SourceTag';
 
 interface KeywordsViewProps {
   onToast?: (msg: string, type: 'success' | 'error') => void;
@@ -176,7 +177,14 @@ export function KeywordsView({ onToast }: KeywordsViewProps) {
             </button>
           </form>
         ) : (
-          <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">站长持续追踪的公司、模型和产品，点开看简介、关系和最新动态。</p>
+          <>
+            <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">站长持续追踪的公司、模型和产品，点开看简介、关系和最新动态。</p>
+            {/* Add / refresh / delete are admin-only (server/src/auth/admin.guard.ts); this is the way in. */}
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-[var(--text-muted)]">
+              <span>站长登录后可以添加、更新和删除关注。</span>
+              <AdminSignIn />
+            </div>
+          </>
         )}
 
         <div className="mt-4 border-t border-[var(--border-subtle)] lg:max-h-[calc(100dvh-220px)] lg:overflow-y-auto">
@@ -377,7 +385,7 @@ function DetailPanel({ entity, detail }: { entity: EntityCardSummary; detail: En
                   </Link>
                   {n.summary && <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-[var(--text-secondary)]">{n.summary}</p>}
                   <p className="mt-1 flex flex-wrap gap-x-3 text-[13px] text-[var(--text-muted)]">
-                    <span>{getSourceLabel(n.source)}</span>
+                    <SourceTag source={n.source} />
                     <time dateTime={n.publishedAt || n.createdAt}>{relativeTime(n.publishedAt || n.createdAt)}</time>
                     {imp && <span className="font-medium" style={{ color: imp.color }}>{imp.label}</span>}
                     {n.qualityScore != null && <span className="tabular-nums">评分 {Math.round(n.qualityScore)}</span>}

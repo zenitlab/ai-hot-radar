@@ -9,6 +9,7 @@ import { generateBreadcrumbSchema, generateStorySchema, safeJsonLd } from '@/lib
 import type { Hotspot } from '@/types';
 import { displayTitle } from '@/lib/utils';
 import { ItemTitle } from '@/components/common/ItemTitle';
+import { SourceTag } from '@/components/common/SourceTag';
 
 /**
  * Event page: every report on one story (one cluster), as a timeline.
@@ -261,7 +262,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
               {official.map((h) => (
                 <li key={h.id} className="text-sm">
                   <a href={h.url} target="_blank" rel="noopener noreferrer" className="text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words">
-                    <span className="text-[var(--text-muted)]">{getSourceLabel(h.source)}：</span>
+                    <SourceTag source={h.source} iconClassName="h-3 w-3" className="mr-1 align-[-2px] text-[var(--text-muted)]" />
                     <ItemTitle item={h} />
                   </a>
                 </li>

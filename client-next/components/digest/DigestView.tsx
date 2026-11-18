@@ -20,6 +20,7 @@ import type {
   DigestModelItem,
   DigestPaperItem,
 } from '../../types';
+import { SourceTag } from '@/components/common/SourceTag';
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
 
@@ -153,7 +154,7 @@ function HighlightItem({ item, index }: { item: DigestHighlight; index: number }
           </p>
         )}
         <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-[var(--text-muted)]">
-          <span>{getSourceLabel(item.source)}</span>
+          <SourceTag source={item.source} />
           {item.affects?.length > 0 && <span>影响：{item.affects.join('、')}</span>}
           {item.event && (
             <Link href={`/story/${item.event.key}`} className="text-[var(--accent-blue)] hover:underline">
@@ -171,7 +172,7 @@ function HighlightItem({ item, index }: { item: DigestHighlight; index: number }
 function BriefItem({ item }: { item: DigestBrief }) {
   return (
     <li className="flex items-baseline gap-2 py-2 border-b border-[var(--border-subtle)] last:border-b-0">
-      <span className="w-28 shrink-0 truncate text-xs text-[var(--text-muted)]">{getSourceLabel(item.source)}</span>
+      <SourceTag source={item.source} iconClassName="h-3 w-3" className="w-28 shrink-0 text-xs text-[var(--text-muted)]" />
       <a
         href={item.url}
         target="_blank"
@@ -201,7 +202,7 @@ function SimpleItem({ item }: { item: DigestSimpleItem }) {
       <a href={item.url} target="_blank" rel="noopener noreferrer" className="group block py-3">
         <span className="block text-[15px] font-medium leading-snug group-hover:text-[var(--accent-blue)]">{item.title}</span>
         {item.summary && <span className="mt-1 block text-[13px] leading-relaxed text-[var(--text-secondary)] line-clamp-2">{item.summary}</span>}
-        <span className="mt-1 block text-xs text-[var(--text-muted)]">{getSourceLabel(item.source)}</span>
+        <SourceTag source={item.source} iconClassName="h-3 w-3" className="mt-1 flex text-xs text-[var(--text-muted)]" />
       </a>
     </li>
   );
@@ -291,7 +292,7 @@ function PaperItem({ item }: { item: DigestPaperItem }) {
             {item.impact}
           </span>
         )}
-        <span className="mt-1 block text-xs text-[var(--text-muted)]">{getSourceLabel(item.source)}</span>
+        <SourceTag source={item.source} iconClassName="h-3 w-3" className="mt-1 flex text-xs text-[var(--text-muted)]" />
       </a>
     </li>
   );

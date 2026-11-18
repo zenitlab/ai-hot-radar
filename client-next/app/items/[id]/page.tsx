@@ -10,6 +10,7 @@ import { generateBreadcrumbSchema, generateItemSchema, safeJsonLd } from '@/lib/
 import { displayTitle } from '@/lib/utils';
 import { ItemTitle } from '@/components/common/ItemTitle';
 import { sourceCountColor } from '@/lib/heat';
+import { SourceTag } from '@/components/common/SourceTag';
 
 /**
  * Item page: our summary and recommendation for one external article, its
@@ -184,7 +185,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
                     <Link href={`/items/${o.id}`} className="block break-words text-sm leading-snug hover:text-[var(--accent-blue)]">
                       <ItemTitle item={o} />
                     </Link>
-                    <span className="mt-0.5 block text-xs text-[var(--text-muted)]">{getSourceLabel(o.source)}</span>
+                    <SourceTag source={o.source} iconClassName="h-3 w-3" className="mt-1 flex text-xs text-[var(--text-muted)]" />
                   </li>
                 ))}
               </ul>
@@ -214,7 +215,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
                     <Link href={`/items/${r.id}`} className="block break-words text-sm leading-snug hover:text-[var(--accent-blue)]">
                       <ItemTitle item={r} />
                     </Link>
-                    <span className="mt-0.5 block text-xs text-[var(--text-muted)]">{getSourceLabel(r.source)}</span>
+                    <SourceTag source={r.source} iconClassName="h-3 w-3" className="mt-1 flex text-xs text-[var(--text-muted)]" />
                   </li>
                 ))}
               </ul>

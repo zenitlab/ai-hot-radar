@@ -1,5 +1,7 @@
 'use client';
-import { RefreshCw, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { Building2, Cpu, Package, RefreshCw, Trash2, User, Zap } from 'lucide-react';
+import { ItemTitle } from '../common/ItemTitle';
 import { cn } from '../../lib/utils';
 import { relativeTime } from '../../utils/relativeTime';
 import { Skeleton } from '../common/Loader';
@@ -11,6 +13,14 @@ export const ENTITY_TYPE_LABEL: Record<string, string> = {
   product: '产品',
   technology: '技术',
   person: '人物',
+};
+
+const TYPE_ICON: Record<string, React.ElementType> = {
+  model: Cpu,
+  company: Building2,
+  product: Package,
+  technology: Zap,
+  person: User,
 };
 
 interface EntityCardProps {
@@ -30,7 +40,10 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
   })();
 
   const type = entity.type ?? relData?.type ?? 'technology';
+  const TypeIcon = TYPE_ICON[type] ?? Zap;
   const isLoading = !entity.relatedData;
+  const products = relData?.relatedProducts?.slice(0, 4) ?? [];
+  const tags = relData?.tags?.slice(0, 3) ?? [];
 
   return (
     <div
@@ -52,7 +65,10 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
       <div className="flex items-baseline justify-between gap-2">
         <h3 className={cn('min-w-0 truncate text-[15px] font-semibold', isSelected && 'text-[var(--accent-blue)]')}>
           {entity.name}
-          <span className="ml-2 text-[13px] font-normal text-[var(--text-muted)]">{ENTITY_TYPE_LABEL[type] ?? type}</span>
+          <span className="ml-2 inline-flex items-center gap-1 text-[13px] font-normal text-[var(--text-muted)]">
+            <TypeIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            {ENTITY_TYPE_LABEL[type] ?? type}
+          </span>
         </h3>
         {onRefresh && onDelete && (
           <div className="relative z-20 flex shrink-0 items-center">
@@ -90,7 +106,34 @@ export function EntityCard({ entity, isSelected, isRefreshing, onClick, onRefres
         )
       )}
 
-      <p className="mt-1.5 flex gap-3 text-xs text-[var(--text-muted)]">
+      {(products.length > 0 || tags.length > 0) && (
+        <p className="mt-2 flex flex-wrap gap-1 pr-3">
+          {products.map((p) => (
+            <span key={p} className="rounded bg-[var(--bg-elevated)] px-1.5 py-0.5 text-xs text-[var(--text-secondary)]">
+              {p}
+            </span>
+          ))}
+          {tags.map((t) => (
+            <span key={t} className="px-1 py-0.5 text-xs text-[var(--accent-blue)]">
+              #{t}
+            </span>
+          ))}
+        </p>
+      )}
+
+      {entity.latestNews.length > 0 && (
+        <ul className="relative z-20 mt-2 space-y-1 pr-3">
+          {entity.latestNews.slice(0, 2).map((n) => (
+            <li key={n.id} className="truncate text-[13px] leading-snug">
+              <Link href={`/items/${n.id}`} className="text-[var(--text-secondary)] hover:text-[var(--accent-blue)]">
+                <ItemTitle item={n} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <p className="mt-2 flex gap-3 text-xs text-[var(--text-muted)]">
         <span>
           今天提及{' '}
           <span className={cn('font-semibold tabular-nums', entity.todayMentions > 0 && 'text-[var(--heat-4)]')}>{entity.todayMentions}</span>

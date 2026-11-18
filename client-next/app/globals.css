@@ -306,3 +306,13 @@ time, .tabular-nums { font-variant-numeric: tabular-nums; }
     @apply font-sans;
   }
 }
+/* Site icons of sources. Many are black glyphs on transparent, so in dark mode
+   they sit on a small white tile to stay visible. */
+.source-icon {
+  border-radius: 3px;
+  object-fit: contain;
+}
+:root:not([data-theme="light"]) .source-icon {
+  background: #fff;
+  padding: 1px;
+}

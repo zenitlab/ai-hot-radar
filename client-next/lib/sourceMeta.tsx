@@ -1,12 +1,35 @@
 import { Twitter, Globe, Eye, Activity, Search, Zap, MessageSquare } from 'lucide-react';
+import SOURCE_DOMAINS from './source-domains.json';
 
 /**
  * Source → icon / display-label helpers shared by the hotspot radar, curated
  * view and daily digest so all three read a source string the same way.
  */
 
-/** Icon for a source string. `className` lets callers pick the size. */
+const DOMAINS = SOURCE_DOMAINS as Record<string, string>;
+
+/** Site domain behind a source string, if we have its icon. */
+export function getSourceDomain(source: string): string | undefined {
+  if (source.startsWith('reddit_')) return DOMAINS.reddit;
+  if (source.startsWith('twitter_')) return DOMAINS.twitter;
+  return DOMAINS[source];
+}
+
+/**
+ * Icon for a source string. `className` lets callers pick the size.
+ * Known sources show their own site icon, downloaded into
+ * public/source-icons/ by scripts/fetch-source-icons.mjs (no third-party
+ * requests at runtime); the rest fall back to a generic line icon.
+ */
 export function getSourceIcon(source: string, className = 'w-4 h-4') {
+  const domain = getSourceDomain(source);
+  if (domain) {
+    return (
+      // Tiny static file; next/image would only add a wrapper and an optimizer round trip.
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={`/source-icons/${domain}.png`} alt="" width={16} height={16} loading="lazy" className={`source-icon shrink-0 ${className}`} />
+    );
+  }
   if (source === 'twitter' || source.startsWith('twitter_')) return <Twitter className={className} />;
   if (source === 'bilibili') return <Eye className={className} />;
   if (source === 'weibo') return <Activity className={className} />;

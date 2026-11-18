@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Search, X } from 'lucide-react';
 import { curatedApi } from '../../services/api';
-import { getSourceLabel } from '../../lib/sourceMeta';
 import { CATEGORY_LABEL } from '../../lib/categories';
 import { sourceCountColor } from '../../lib/heat';
 import { CURATED_PAGE_SIZE } from '../../lib/curated';
@@ -12,6 +11,7 @@ import { BackToTop } from '../common/BackToTop';
 import { SkeletonList } from '../common/Loader';
 import type { Hotspot, HotspotTab } from '../../types';
 import { ItemTitle } from '@/components/common/ItemTitle';
+import { SourceTag } from '@/components/common/SourceTag';
 
 const WEEK = '日一二三四五六';
 
@@ -68,7 +68,7 @@ function FeedItem({ item }: { item: Hotspot }) {
           <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)] line-clamp-2">{item.summary}</p>
         )}
         <p className="mt-1.5 flex flex-wrap gap-x-3 text-[13px] text-[var(--text-muted)]">
-          <span>{getSourceLabel(item.source)}</span>
+          <SourceTag source={item.source} />
           {n > 1 && item.clusterKey && (
             <Link href={`/story/${item.clusterKey}`} className="font-medium hover:underline" style={{ color: tick ?? undefined }}>
               {n} 家来源

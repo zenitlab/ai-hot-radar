@@ -4,6 +4,10 @@
 
 Read `DESIGN.md` (repo root) before touching any page or component: palette variables, type scale, layout and the list of things the site deliberately doesn't do. Colors come from the CSS variables in `client-next/app/globals.css`; don't add raw colors or Tailwind `dark:` variants (the theme switches via `data-theme`, so `dark:` never applies). The design skill used for it is in `.claude/skills/frontend-design`.
 
+## Source icons
+
+Source names render with the source's own site icon (`getSourceIcon` / `<SourceTag>` in `client-next/lib/sourceMeta.tsx`, `components/common/SourceTag.tsx`). Icons are static files in `client-next/public/source-icons/<domain>.png`, mapped from `client-next/lib/source-domains.json`. When adding a feed, add its source key and domain there and run `node scripts/fetch-source-icons.mjs` in `client-next/`; the site never fetches icons from third parties at runtime.
+
 ## Changelog entries
 
 `client-next/components/changelog/ChangelogView.tsx` is read by site visitors. Each version has a `title` and a few items saying what readers can now see or do (new sources, pages, redesigns, what was fixed), in plain Chinese, no emoji, no implementation details (cron, prompts, guards, component names). Releases with no visible effect get no entry. Technical detail belongs in the commit message.
