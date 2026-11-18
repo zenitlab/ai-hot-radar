@@ -9,11 +9,12 @@ import {
   ShieldAlert, ChevronDown, ChevronUp, ThermometerSun, FileText,
   ExternalLink,
 } from 'lucide-react';
-import { cn, displayTitle } from '../../lib/utils';
+import { cn } from '../../lib/utils';
 import { getSourceIcon, getSourceLabel } from '../../lib/sourceMeta';
 import { relativeTime, formatDateTime } from '../../utils/relativeTime';
 import { HotspotMedia } from './HotspotMedia';
 import type { Hotspot } from '../../types';
+import { ItemTitle } from '@/components/common/ItemTitle';
 
 /** Compute aggregate heat score (normalised 0-100) */
 function calcHeatScore(h: Hotspot): number {
@@ -152,7 +153,7 @@ export function HotspotCard({
             href={`/items/${hotspot.id}`}
             className="block font-semibold text-[15px] text-[var(--text-primary)] mb-2 line-clamp-2 hover:text-[var(--accent-blue)] transition-colors cursor-pointer leading-snug"
           >
-            {displayTitle(hotspot)}
+            <ItemTitle item={hotspot} />
           </Link>
 
           {/* AI Summary — quote-style block with leading bar makes it

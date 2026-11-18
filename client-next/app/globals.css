@@ -229,6 +229,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Item titles carry both the Chinese translation and the original
+   (components/common/ItemTitle.tsx); the header's 中 / 原 switch sets
+   data-title-mode on <html>. */
+.title-orig { display: none; }
+[data-title-mode="original"] .title-orig { display: inline; }
+[data-title-mode="original"] .title-zh { display: none; }
+
 /* Times, counts and scores line up in columns. */
 time, .tabular-nums { font-variant-numeric: tabular-nums; }
 

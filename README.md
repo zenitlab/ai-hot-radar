@@ -70,6 +70,10 @@ AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统白天每
 
 生成时间：08:05 生成当天这期（定时任务挂在 `DigestService.scheduledDigest` 上，`digestSchedule.test.ts` 会检查它没有挂错方法）。模型调用走 `AiService`，和扫描共用同一个排队与 429 重试。模型失败时先用规则拼一份兜底日报（只收已有中文标题的条目，标记 `fallback: true`），08:35 和 09:35 各自动重试一次。
 
+### 标题中 / 原切换
+
+顶栏右上角的「中 / 原」切换资讯标题显示中文翻译还是信源原文，选择存在读者浏览器里（`aihot-title-mode`），页面加载前由 `app/layout.tsx` 的内联脚本恢复，不闪烁。实现：`components/common/ItemTitle.tsx` 同时输出两种标题，`globals.css` 按 `<html data-title-mode>` 显示其一。不需要额外模型调用。
+
 ### 中文翻译补齐
 
 评分时模型会写中文标题和摘要，但少数英文信源的条目会缺。`server/src/hotspots/translate.job.ts` 每小时 20、50 分把最近 72 小时缺中文标题或中文摘要的条目攒起来，一次调用翻译 20 条（`TRANSLATE_PER_RUN`，默认 20，设 0 关闭），结果过同一套防编造检查，不合格就保留原文。产品名、模型名、人名保留原文写法。

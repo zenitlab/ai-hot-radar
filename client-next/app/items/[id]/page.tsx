@@ -8,6 +8,7 @@ import { getSourceIcon, getSourceLabel } from '@/lib/sourceMeta';
 import { CATEGORY_LABEL } from '@/lib/categories';
 import { generateBreadcrumbSchema, generateItemSchema, safeJsonLd } from '@/lib/structured-data';
 import { displayTitle } from '@/lib/utils';
+import { ItemTitle } from '@/components/common/ItemTitle';
 
 /**
  * Item page: our summary and recommendation for one external article, its
@@ -177,7 +178,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
                 <li key={o.id} className="text-sm">
                   <Link href={`/items/${o.id}`} className="text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words">
                     <span className="text-[var(--text-muted)]">{getSourceLabel(o.source)}：</span>
-                    {displayTitle(o)}
+                    <ItemTitle item={o} />
                   </Link>
                 </li>
               ))}
@@ -207,7 +208,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
               {related.map((r) => (
                 <li key={r.id} className="text-sm">
                   <Link href={`/items/${r.id}`} className="text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words">
-                    {displayTitle(r)}
+                    <ItemTitle item={r} />
                   </Link>
                   <span className="ml-1.5 text-xs text-[var(--text-muted)]">{getSourceLabel(r.source)}</span>
                 </li>

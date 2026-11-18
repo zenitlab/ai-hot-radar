@@ -16,6 +16,14 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11-18",
+    version: "v0.19.1",
+    tag: "feature",
+    items: [
+      "🔤 顶栏右上角新增「中 / 原」：资讯标题可以切换显示中文翻译或信源原文，想对照原话时切到「原」；选择会记住，刷新后不变",
+    ],
+  },
+  {
+    date: "2026-11-18",
     version: "v0.19.0",
     tag: "fix",
     items: [

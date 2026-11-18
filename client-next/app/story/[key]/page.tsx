@@ -8,6 +8,7 @@ import { getSourceIcon, getSourceLabel } from '@/lib/sourceMeta';
 import { generateBreadcrumbSchema, generateStorySchema, safeJsonLd } from '@/lib/structured-data';
 import type { Hotspot } from '@/types';
 import { displayTitle } from '@/lib/utils';
+import { ItemTitle } from '@/components/common/ItemTitle';
 
 /**
  * Event page: every report on one story (one cluster), as a timeline.
@@ -243,7 +244,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
             <p className="mt-3 border-t border-[var(--card-border)] pt-3 text-[13px] text-[var(--text-secondary)]">
               <span className="font-semibold text-[var(--text-primary)]">最新进展：</span>
               <a href={latest.url} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent-blue)]">
-                {displayTitle(latest)}
+                <ItemTitle item={latest} />
               </a>
             </p>
           )}
@@ -261,7 +262,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
                 <li key={h.id} className="text-sm">
                   <a href={h.url} target="_blank" rel="noopener noreferrer" className="text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words">
                     <span className="text-[var(--text-muted)]">{getSourceLabel(h.source)}：</span>
-                    {displayTitle(h)}
+                    <ItemTitle item={h} />
                   </a>
                 </li>
               ))}
@@ -305,7 +306,7 @@ export default async function StoryPage({ params }: { params: Promise<{ key: str
                       rel="noopener noreferrer"
                       className="mt-0.5 inline-flex items-start gap-1 text-[15px] font-medium leading-snug text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words"
                     >
-                      {displayTitle(h)}
+                      <ItemTitle item={h} />
                       <ExternalLink className="mt-1 w-3 h-3 shrink-0 text-[var(--text-muted)]" aria-hidden="true" />
                     </a>
                     {h.summary && (

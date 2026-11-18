@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Search, X } from 'lucide-react';
 import { curatedApi } from '../../services/api';
-import { displayTitle } from '../../lib/utils';
 import { getSourceLabel } from '../../lib/sourceMeta';
 import { CATEGORY_LABEL } from '../../lib/categories';
 import { sourceCountColor } from '../../lib/heat';
@@ -12,6 +11,7 @@ import { HotspotTabs } from '../hotspot/HotspotTabs';
 import { BackToTop } from '../common/BackToTop';
 import { SkeletonList } from '../common/Loader';
 import type { Hotspot, HotspotTab } from '../../types';
+import { ItemTitle } from '@/components/common/ItemTitle';
 
 const WEEK = '日一二三四五六';
 
@@ -61,7 +61,7 @@ function FeedItem({ item }: { item: Hotspot }) {
       <article className="min-w-0">
         <h3 className="text-base font-semibold leading-normal sm:text-[17px]">
           <Link href={`/items/${item.id}`} className="hover:text-[var(--accent-blue)]">
-            {displayTitle(item)}
+            <ItemTitle item={item} />
           </Link>
         </h3>
         {item.summary && (

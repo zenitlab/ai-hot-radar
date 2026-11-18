@@ -6,6 +6,7 @@ import { Bookmark, ChevronDown, Menu, Moon, Rss, Sun, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AdminSignIn } from '../common/AdminSignIn';
 import { UpdateStatus } from './UpdateStatus';
+import { TitleModeToggle } from './TitleModeToggle';
 import { useDismiss } from './useDismiss';
 
 /** Reading: the five content views. */
@@ -168,6 +169,9 @@ export function SiteHeader({ theme, onThemeToggle, unreadCount }: SiteHeaderProp
         </div>
 
         <div className="ml-auto flex items-center gap-0.5">
+          <span className="mr-1">
+            <TitleModeToggle />
+          </span>
           <Link
             href="/keywords"
             onClick={() => onNav('/keywords')}

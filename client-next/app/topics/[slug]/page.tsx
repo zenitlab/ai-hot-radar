@@ -10,6 +10,7 @@ import { ogImages, twitterImages } from '@/lib/og-meta';
 import { getSourceIcon, getSourceLabel } from '@/lib/sourceMeta';
 import { generateBreadcrumbSchema, safeJsonLd } from '@/lib/structured-data';
 import { displayTitle } from '@/lib/utils';
+import { ItemTitle } from '@/components/common/ItemTitle';
 
 /**
  * One topic: its curated items of the last 30 days, newest first and grouped
@@ -85,7 +86,7 @@ function Item({ item }: { item: TopicItem }) {
       </div>
       <h3 className="text-[16px] font-semibold leading-snug">
         <Link href={`/items/${item.id}`} className="text-[var(--text-primary)] hover:text-[var(--accent-blue)] break-words">
-          {displayTitle(item)}
+          <ItemTitle item={item} />
         </Link>
       </h3>
       {item.summary && <p className="mt-1.5 text-[14px] leading-[1.7] text-[var(--text-secondary)]">{item.summary}</p>}

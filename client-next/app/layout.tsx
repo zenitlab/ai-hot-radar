@@ -16,7 +16,8 @@ const archivo = Archivo({
 
 // Runs before first paint: the saved choice, else the system setting. Without
 // it a light-mode visitor would see the dark :root palette flash on load.
-const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('aihot-theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`;
+// Also restores the 中 / 原 title choice (components/layout/TitleModeToggle.tsx).
+const THEME_SCRIPT = `(function(){try{var d=document.documentElement,t=localStorage.getItem('aihot-theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}d.setAttribute('data-theme',t);if(localStorage.getItem('aihot-title-mode')==='original')d.setAttribute('data-title-mode','original')}catch(e){}})()`;
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aihotradar.com";
 
