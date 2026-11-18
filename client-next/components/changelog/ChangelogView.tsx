@@ -16,6 +16,16 @@ interface ChangelogEntry {
 const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11-18",
+    version: "v0.18.2",
+    tag: "tweak",
+    items: [
+      "📰 日报的今日重点改为编号列表，不再是一张张卡片；为什么重要、影响范围和其他来源链接收在每条下面",
+      "⚡ 快讯挪到今日重点后面，先看当天的事，再看模型情报和各板块",
+      "📑 宽屏下日报正文右侧加「本期目录」，列出各板块和条数，点击跳到对应位置；国内、国外动态改为上下排列",
+    ],
+  },
+  {
+    date: "2026-11-18",
     version: "v0.18.1",
     tag: "tweak",
     items: [

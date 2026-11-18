@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { digestApi } from '../../services/api';
 import { digestJobs } from '../../services/digestJobs';
-import { getSourceIcon, getSourceLabel } from '../../lib/sourceMeta';
+import { getSourceLabel } from '../../lib/sourceMeta';
 import { BackToTopFor } from '../common/BackToTop';
 import { Skeleton, SkeletonList } from '../common/Loader';
 import { cn } from '../../lib/utils';
@@ -111,13 +111,14 @@ const CHANGE_COLOR: Record<string, string> = {
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
 
-function Section({ title, count, children }: {
+function Section({ id, title, count, children }: {
+  id: string;
   title: string;
   count?: number;
   children: React.ReactNode;
 }) {
   return (
-    <section>
+    <section id={id} className="scroll-mt-16">
       <h2 className="mb-3 flex items-baseline gap-2 border-b border-[var(--border-default)] pb-2 text-lg font-bold">
         {title}
         {count !== undefined && count > 0 && <span className="text-[13px] font-normal text-[var(--text-muted)]">{count} 条</span>}
@@ -127,73 +128,41 @@ function Section({ title, count, children }: {
   );
 }
 
-// ── Highlight card ────────────────────────────────────────────────────────────
+// ── Highlight (今日重点) ──────────────────────────────────────────────────────
 
-function HighlightCard({ item }: { item: DigestHighlight }) {
-  const card = (
-    <a
-      href={item.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group block rounded-[14px] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 hover:border-[var(--card-border-hover)] sm:p-6"
-    >
-      {/* Source */}
-      <div className="flex items-center gap-1 text-[13px] text-[var(--text-muted)] mb-2">
-        {getSourceIcon(item.source, 'w-3.5 h-3.5')}
-        {getSourceLabel(item.source)}
-      </div>
-
-      {/* Title — large, semibold */}
-      <h3 className="text-[17px] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] dark:group-hover:text-blue-400 transition-colors leading-snug mb-2.5">
-        {item.title}
-        <ExternalLink className="inline-block w-3.5 h-3.5 ml-1 mb-0.5 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
-      </h3>
-
-      {/* Summary */}
-      {item.summary && (
-        <p className="text-[14px] text-[var(--text-secondary)] leading-[1.7]">
-          {item.summary}
-        </p>
-      )}
-
-      {/* Why important — quote-style block */}
-      {item.whyImportant && (
-        <p className="mt-3 border-l-2 border-[var(--accent-blue)] pl-3 text-[13px] leading-[1.7] text-[var(--text-secondary)]">
-          <span className="font-semibold text-[var(--text-primary)]">为什么重要：</span>
-          {item.whyImportant}
-        </p>
-      )}
-
-      {/* Affects — filled chips */}
-      {item.affects?.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {item.affects.map((a) => (
-            <span
-              key={a}
-              className="text-[11px] px-2.5 py-1 rounded-md bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
-            >
-              {a}
-            </span>
-          ))}
-        </div>
-      )}
-    </a>
-  );
-  if (!item.event) return card;
-
-  // Kept outside the card: the card is itself a link, and links can't nest.
-  const others = item.event.otherSources.map(getSourceLabel);
+/** One of the day's key stories: a numbered row in a ruled list, not a card. */
+function HighlightItem({ item, index }: { item: DigestHighlight; index: number }) {
+  const others = item.event?.otherSources.map(getSourceLabel) ?? [];
   return (
-    <div>
-      {card}
-      <Link
-        href={`/story/${item.event.key}`}
-        className="mt-1.5 mx-2 flex items-center gap-1 text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-blue)] transition-colors"
-      >
-        <span className="truncate">同一事件还有 {others.join('、')} 报道</span>
-        <span className="shrink-0 font-medium">看完整时间线</span>
-      </Link>
-    </div>
+    <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-x-3 border-b border-[var(--border-subtle)] py-5 first:pt-2 last:border-b-0">
+      <span className="pt-0.5 text-lg font-bold tabular-nums text-[var(--text-muted)]" style={{ fontStretch: '80%' }}>
+        {index + 1}
+      </span>
+      <div className="min-w-0">
+        <h3 className="text-lg font-bold leading-snug">
+          <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent-blue)]">
+            {item.title}
+            <ExternalLink className="ml-1 inline-block h-3.5 w-3.5 align-baseline text-[var(--text-muted)]" aria-hidden="true" />
+          </a>
+        </h3>
+        {item.summary && <p className="mt-2 text-[15px] leading-[1.75] text-[var(--text-secondary)]">{item.summary}</p>}
+        {item.whyImportant && (
+          <p className="mt-2 text-sm leading-[1.75] text-[var(--text-secondary)]">
+            <span className="font-semibold text-[var(--text-primary)]">为什么重要：</span>
+            {item.whyImportant}
+          </p>
+        )}
+        <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-[var(--text-muted)]">
+          <span>{getSourceLabel(item.source)}</span>
+          {item.affects?.length > 0 && <span>影响：{item.affects.join('、')}</span>}
+          {item.event && (
+            <Link href={`/story/${item.event.key}`} className="text-[var(--accent-blue)] hover:underline">
+              还有 {others.join('、')} 在报道，看完整时间线
+            </Link>
+          )}
+        </p>
+      </div>
+    </li>
   );
 }
 
@@ -202,12 +171,12 @@ function HighlightCard({ item }: { item: DigestHighlight }) {
 function BriefItem({ item }: { item: DigestBrief }) {
   return (
     <li className="flex items-baseline gap-2 py-2 border-b border-[var(--border-subtle)] last:border-b-0">
-      <span className="shrink-0 text-[11px] text-[var(--text-muted)] w-24 truncate">{getSourceLabel(item.source)}</span>
+      <span className="w-28 shrink-0 truncate text-xs text-[var(--text-muted)]">{getSourceLabel(item.source)}</span>
       <a
         href={item.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex-1 min-w-0 text-[14px] leading-snug text-[var(--text-primary)] hover:text-[var(--accent-blue)] dark:hover:text-blue-400 transition-colors break-words"
+        className="min-w-0 flex-1 break-words text-[15px] leading-snug hover:text-[var(--accent-blue)]"
       >
         {item.title}
       </a>
@@ -636,7 +605,8 @@ export function DigestView({
           )}
         </div>
 
-        <div className="flex-1 flex flex-col px-4 py-6 sm:px-8 max-w-[760px]">
+        <div className="flex flex-1 gap-10 px-4 py-6 sm:px-8">
+        <div className="flex min-w-0 max-w-[760px] flex-1 flex-col">
           {loading ? (
             <LoadingSkeleton />
           ) : !hasContent ? (
@@ -653,74 +623,65 @@ export function DigestView({
                 <p className="text-[17px] font-medium leading-relaxed">{data!.summary}</p>
               )}
 
-              {/* 今日重点 */}
+              {/* 今日重点 + 快讯 first: the day's news before the per-category digests. */}
               {data!.highlights?.length > 0 && (
-                <Section title="今日重点" count={data!.highlights.length}>
-                  <div className="space-y-3">
-                    {data!.highlights.map((h) => <HighlightCard key={h.url} item={h} />)}
-                  </div>
+                <Section id="d-highlights" title="今日重点" count={data!.highlights.length}>
+                  <ol>
+                    {data!.highlights.map((h, i) => <HighlightItem key={h.url} item={h} index={i} />)}
+                  </ol>
                 </Section>
               )}
 
-              {/* 模型情报 */}
+              {(data!.briefs?.length ?? 0) > 0 && (
+                <Section id="d-briefs" title="快讯" count={data!.briefs!.length}>
+                  <ul>
+                    {data!.briefs!.map((item) => <BriefItem key={item.url} item={item} />)}
+                  </ul>
+                </Section>
+              )}
+
               {data!.modelIntel?.length > 0 && (
-                <Section title="模型情报" count={data!.modelIntel.length}>
+                <Section id="d-models" title="模型情报" count={data!.modelIntel.length}>
                   <ModelIntelTable items={data!.modelIntel} />
                 </Section>
               )}
 
-              {/* 国内 + 国外 — side by side on wide screens */}
-              {(data!.domestic?.length > 0 || data!.international?.length > 0) && (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                  {data!.domestic?.length > 0 && (
-                    <Section title="国内动态" count={data!.domestic.length}>
-                      <ul>
-                        {data!.domestic.map((item) => <SimpleItem key={item.url} item={item} />)}
-                      </ul>
-                    </Section>
-                  )}
-                  {data!.international?.length > 0 && (
-                    <Section title="国外动态" count={data!.international.length}>
-                      <ul>
-                        {data!.international.map((item) => <SimpleItem key={item.url} item={item} />)}
-                      </ul>
-                    </Section>
-                  )}
-                </div>
+              {data!.domestic?.length > 0 && (
+                <Section id="d-domestic" title="国内动态" count={data!.domestic.length}>
+                  <ul>
+                    {data!.domestic.map((item) => <SimpleItem key={item.url} item={item} />)}
+                  </ul>
+                </Section>
               )}
 
-              {/* AI 产品 */}
+              {data!.international?.length > 0 && (
+                <Section id="d-international" title="国外动态" count={data!.international.length}>
+                  <ul>
+                    {data!.international.map((item) => <SimpleItem key={item.url} item={item} />)}
+                  </ul>
+                </Section>
+              )}
+
               {data!.products?.length > 0 && (
-                <Section title="AI 产品动态" count={data!.products.length}>
+                <Section id="d-products" title="AI 产品动态" count={data!.products.length}>
                   <ul>
                     {data!.products.map((item) => <SimpleItem key={item.url} item={item} />)}
                   </ul>
                 </Section>
               )}
 
-              {/* 社区热议 */}
               {data!.community?.length > 0 && (
-                <Section title="社区热议" count={data!.community.length}>
+                <Section id="d-community" title="社区热议" count={data!.community.length}>
                   <ul>
                     {data!.community.map((item) => <SimpleItem key={item.url} item={item} />)}
                   </ul>
                 </Section>
               )}
 
-              {/* 论文趋势 */}
               {data!.papers?.length > 0 && (
-                <Section title="论文 & 技术趋势" count={data!.papers.length}>
+                <Section id="d-papers" title="论文与技术趋势" count={data!.papers.length}>
                   <ul>
                     {data!.papers.map((item) => <PaperItem key={item.url} item={item} />)}
-                  </ul>
-                </Section>
-              )}
-
-              {/* 快讯：正文之外、按重要性排在后面的事件，一行一条 */}
-              {(data!.briefs?.length ?? 0) > 0 && (
-                <Section title="快讯" count={data!.briefs!.length}>
-                  <ul>
-                    {data!.briefs!.map((item) => <BriefItem key={item.url} item={item} />)}
                   </ul>
                 </Section>
               )}
@@ -735,6 +696,8 @@ export function DigestView({
               )}
             </div>
           )}
+        </div>
+        {hasContent && !loading && <SectionIndex data={data!} />}
         </div>
 
         {/* Date navigation footer — always visible, even in empty state */}
@@ -818,6 +781,49 @@ function DateNav({
             <span className="truncate">已是最新一天</span>
           </span>
         )}
+      </div>
+    </nav>
+  );
+}
+
+/** Sections of the open digest, in page order, for the index beside the text. */
+function digestSections(data: DailyDigest['data']): Array<{ id: string; title: string; count: number }> {
+  return [
+    { id: 'd-highlights', title: '今日重点', count: data.highlights?.length ?? 0 },
+    { id: 'd-briefs', title: '快讯', count: data.briefs?.length ?? 0 },
+    { id: 'd-models', title: '模型情报', count: data.modelIntel?.length ?? 0 },
+    { id: 'd-domestic', title: '国内动态', count: data.domestic?.length ?? 0 },
+    { id: 'd-international', title: '国外动态', count: data.international?.length ?? 0 },
+    { id: 'd-products', title: 'AI 产品动态', count: data.products?.length ?? 0 },
+    { id: 'd-community', title: '社区热议', count: data.community?.length ?? 0 },
+    { id: 'd-papers', title: '论文与技术趋势', count: data.papers?.length ?? 0 },
+  ].filter((s) => s.count > 0);
+}
+
+/**
+ * Section index in the space right of the text on wide screens. Plain anchor
+ * links: the browser scrolls the digest column to the section.
+ */
+function SectionIndex({ data }: { data: DailyDigest['data'] }) {
+  const sections = digestSections(data);
+  if (sections.length < 2) return null;
+  return (
+    <nav aria-label="本期目录" className="hidden w-40 shrink-0 xl:block">
+      <div className="sticky top-16">
+        <p className="mb-2 text-xs text-[var(--text-muted)]">本期目录</p>
+        <ul className="space-y-0.5 border-l border-[var(--border-default)] text-sm">
+          {sections.map((s) => (
+            <li key={s.id}>
+              <a
+                href={`#${s.id}`}
+                className="-ml-px flex justify-between gap-2 border-l border-transparent py-1 pl-3 text-[var(--text-secondary)] hover:border-[var(--accent-blue)] hover:text-[var(--text-primary)]"
+              >
+                {s.title}
+                <span className="tabular-nums text-[var(--text-muted)]">{s.count}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </nav>
   );
