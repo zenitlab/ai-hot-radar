@@ -72,7 +72,7 @@ export function AdminSignIn({ className }: { className?: string }) {
         <button
           type="submit"
           disabled={!token.trim() || state === 'checking'}
-          className="rounded-md bg-[var(--accent-blue)] px-2 py-1 text-xs font-medium text-white disabled:opacity-50"
+          className="rounded-md bg-[var(--accent-blue)] px-2 py-1 text-xs font-medium text-[var(--on-accent)] disabled:opacity-50"
         >
           {state === 'checking' ? '验证中' : '登录'}
         </button>

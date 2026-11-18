@@ -1,53 +1,52 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
-/* Fraunces (light-mode serif headings) is loaded via <link> in index.html
-   instead of @import here — bundlers inline preceding @imports, which would
-   make a Google Fonts @import here violate the "@import must precede all
-   other statements" rule. */
 
 @custom-variant dark (&:is(.dark *));
 
-/* ===== Design Tokens ===== */
+/* ===== Design Tokens =====
+   Direction A「雷达」, see DESIGN.md at the repo root. Variable names are
+   historical (--accent-blue is the pine-green primary); keep using the
+   variables, never raw colors. Dark is the :root default; light lives under
+   [data-theme="light"]. The inline script in app/layout.tsx picks one before
+   first paint. */
 :root {
-  /* Dark palette — recalibrated for warmth and clarity.
-     Previous values were #050510 / #0a0a1a — too purple-blue, made the page
-     feel cold and "tech demo". The new tones are nearly-neutral charcoal
-     with a tiny warm shift, closer to Linear / Notion / Anthropic dark. */
-  --bg-base: #0d0e12;       /* canvas — neutral charcoal */
-  --bg-surface: #14161c;    /* sidebar / topbar */
-  --bg-elevated: #1c1f27;   /* tab bars, inputs */
-  --bg-hover: #232730;
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-default: rgba(255, 255, 255, 0.10);
-  --border-active: rgba(96, 165, 250, 0.4);
-  --text-primary: #ecedf2;
-  --text-secondary: #9ea4b6;
-  --text-muted: #6b7080;
-  --accent-blue: #60a5fa;     /* slightly softer than 500 — easier on eyes */
-  --accent-cyan: #22d3ee;
-  --accent-emerald: #34d399;
-  --accent-amber: #fbbf24;
-  --accent-red: #f87171;
-  /* Adaptive tokens — dark defaults. Cards visibly lifted off the canvas;
-     the previous 0.06 alpha was OK alone but stacked cards bled together.
-     Solid charcoal works better than alpha-overlay for stacking clarity. */
-  --card-bg: #181b22;
-  --card-bg-hover: #1f232c;
-  --card-border: rgba(255,255,255,0.08);
-  --card-border-hover: rgba(255,255,255,0.16);
-  --input-bg: #1c1f27;
-  --input-border: rgba(255,255,255,0.10);
-  --tab-active-bg: rgba(96, 165, 250, 0.16);
-  --tab-active-text: #93c5fd;
-  --tab-active-border: rgba(96, 165, 250, 0.32);
-  --tab-hover-bg: rgba(255,255,255,0.05);
-  --dropdown-bg: #14161c;
-  --dropdown-item-hover: rgba(255,255,255,0.05);
-  --sort-bar-bg: #181b22;
-  --sort-bar-border: rgba(255,255,255,0.06);
-  --toggle-inactive: #3a3f4d;
+  --bg-base: #111614;
+  --bg-surface: #171d1b;
+  --bg-elevated: #1f2724;
+  --bg-hover: #242e2a;
+  --border-subtle: rgba(227, 233, 230, 0.07);
+  --border-default: rgba(227, 233, 230, 0.12);
+  --border-active: rgba(95, 191, 159, 0.5);
+  --text-primary: #e3e9e6;
+  --text-secondary: #a3b1ac;
+  --text-muted: #71807a;
+  --accent-blue: #5fbf9f;     /* primary (pine), historical name */
+  --accent-cyan: #6fb3c8;
+  --accent-emerald: #6cc08a;
+  --accent-amber: #e2b54a;
+  --accent-red: #e5644b;
+  --on-accent: #0d1311;       /* text on a solid --accent-blue fill */
+  --heat-1: #6c9fc2;
+  --heat-2: #5fae7c;
+  --heat-3: #dcb03c;
+  --heat-4: #e5883c;
+  --heat-5: #e5543a;
+  --card-bg: #171d1b;
+  --card-bg-hover: #1c2421;
+  --card-border: rgba(227, 233, 230, 0.09);
+  --card-border-hover: rgba(95, 191, 159, 0.4);
+  --input-bg: #1f2724;
+  --input-border: rgba(227, 233, 230, 0.12);
+  --tab-active-bg: rgba(95, 191, 159, 0.14);
+  --tab-active-text: #7fd3b5;
+  --tab-active-border: rgba(95, 191, 159, 0.35);
+  --tab-hover-bg: rgba(227, 233, 230, 0.05);
+  --dropdown-bg: #171d1b;
+  --dropdown-item-hover: rgba(227, 233, 230, 0.06);
+  --sort-bar-bg: #171d1b;
+  --sort-bar-border: rgba(227, 233, 230, 0.07);
+  --toggle-inactive: #33403b;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -83,109 +82,70 @@
 }
 
 [data-theme="light"] {
-  /* Anthropic-inspired palette — desaturated warm cream so the page reads
-     as "off-white paper", not yellow. Cards use a slightly tinted off-white
-     so they sit naturally on the canvas without the harsh "sticker on paper"
-     look that pure #fff produces. */
-  --bg-base: #efece4;       /* canvas — soft, low-saturation cream */
-  --bg-surface: #f6f3eb;    /* sidebar / topbar */
-  --bg-elevated: #e7e1d2;   /* tab bars, code blocks */
-  --bg-hover: #ddd5c2;
-  --border-subtle: rgba(60, 41, 24, 0.07);
-  --border-default: rgba(60, 41, 24, 0.13);
-  --border-active: rgba(204, 120, 92, 0.4);
-  --text-primary: #1f1d1a;
-  --text-secondary: #5c5650;
-  --text-muted: #8a847d;
-  --accent-blue: #cc785c;
-  --accent-cyan: #b8755a;
-  --accent-emerald: #6e7f4a;
-  --accent-amber: #c08b3f;
-  --accent-red: #b14a3e;
-  /* Cards: tinted off-white — visibly lifted from canvas but not stark white,
-     keeps the page cohesive instead of looking like white stickers on cream */
-  --card-bg: #faf7ef;
-  --card-bg-hover: #f6f1e3;
-  --card-border: rgba(60, 41, 24, 0.09);
-  --card-border-hover: rgba(204, 120, 92, 0.34);
-  --input-bg: #faf7ef;
-  --input-border: rgba(60, 41, 24, 0.14);
-  /* Tabs use warm coral, not blue */
-  --tab-active-bg: rgba(204, 120, 92, 0.13);
-  --tab-active-text: #a85c43;
-  --tab-active-border: rgba(204, 120, 92, 0.32);
-  --tab-hover-bg: rgba(60, 41, 24, 0.04);
-  --dropdown-bg: #faf7ef;
-  --dropdown-item-hover: rgba(60, 41, 24, 0.05);
-  --sort-bar-bg: #f0eadc;
-  --sort-bar-border: rgba(60, 41, 24, 0.09);
-  --toggle-inactive: #d6cdb9;
+  --bg-base: #f3f5f3;
+  --bg-surface: #ffffff;
+  --bg-elevated: #e9eeeb;
+  --bg-hover: #e3e9e6;
+  --border-subtle: rgba(23, 32, 29, 0.08);
+  --border-default: rgba(23, 32, 29, 0.14);
+  --border-active: rgba(31, 111, 92, 0.45);
+  --text-primary: #17201d;
+  --text-secondary: #55625e;
+  --text-muted: #86918d;
+  --accent-blue: #1f6f5c;
+  --accent-cyan: #2f7d92;
+  --accent-emerald: #3f8a5c;
+  --accent-amber: #b0821c;
+  --accent-red: #c5381f;
+  --on-accent: #ffffff;
+  --heat-1: #5b8db0;
+  --heat-2: #4f9a6c;
+  --heat-3: #d6a72c;
+  --heat-4: #dd7a2c;
+  --heat-5: #c5381f;
+  --card-bg: #ffffff;
+  --card-bg-hover: #fafbfa;
+  --card-border: #dfe4e1;
+  --card-border-hover: rgba(31, 111, 92, 0.35);
+  --input-bg: #ffffff;
+  --input-border: #d5dcd8;
+  --tab-active-bg: rgba(31, 111, 92, 0.1);
+  --tab-active-text: #1f6f5c;
+  --tab-active-border: rgba(31, 111, 92, 0.3);
+  --tab-hover-bg: rgba(23, 32, 29, 0.04);
+  --dropdown-bg: #ffffff;
+  --dropdown-item-hover: rgba(23, 32, 29, 0.05);
+  --sort-bar-bg: #ffffff;
+  --sort-bar-border: #dfe4e1;
+  --toggle-inactive: #cdd5d1;
 }
 
-/* Light-mode tints for the bright Tailwind palette so badges stay readable
-   on cream — pure /15 alpha gets washed out against #ebe3d2. We deepen the
-   colors so importance/source/heat chips remain legible. */
-[data-theme="light"] .bg-red-500\/15      { background: rgba(177, 74, 62, 0.18); }
-[data-theme="light"] .text-red-400         { color: #b14a3e; }
-[data-theme="light"] .bg-orange-500\/15   { background: rgba(192, 95, 47, 0.18); }
-[data-theme="light"] .text-orange-400      { color: #b8632c; }
-[data-theme="light"] .bg-amber-500\/15    { background: rgba(180, 130, 60, 0.18); }
-[data-theme="light"] .text-amber-400       { color: #a87c2d; }
-[data-theme="light"] .bg-emerald-500\/15  { background: rgba(96, 113, 65, 0.18); }
-[data-theme="light"] .text-emerald-400     { color: #5d6e3f; }
-[data-theme="light"] .bg-blue-500\/15     { background: rgba(74, 110, 145, 0.18); }
-[data-theme="light"] .text-blue-400        { color: #4a6e91; }
-[data-theme="light"] .bg-purple-500\/15   { background: rgba(120, 88, 130, 0.18); }
-[data-theme="light"] .text-purple-400      { color: #785882; }
-[data-theme="light"] .bg-yellow-500\/10   { background: rgba(180, 130, 60, 0.16); }
-[data-theme="light"] .text-yellow-500      { color: #a87c2d; }
-[data-theme="light"] .border-red-500\/20    { border-color: rgba(177, 74, 62, 0.3); }
-[data-theme="light"] .border-orange-500\/20 { border-color: rgba(192, 95, 47, 0.3); }
-[data-theme="light"] .border-amber-500\/20  { border-color: rgba(180, 130, 60, 0.3); }
-[data-theme="light"] .border-emerald-500\/20 { border-color: rgba(96, 113, 65, 0.3); }
-[data-theme="light"] .border-blue-500\/20   { border-color: rgba(74, 110, 145, 0.28); }
-[data-theme="light"] .border-purple-500\/20 { border-color: rgba(120, 88, 130, 0.3); }
-[data-theme="light"] .border-yellow-500\/20 { border-color: rgba(180, 130, 60, 0.28); }
+/* Older components still use bright Tailwind palette classes for badges.
+   In light mode those wash out on white, so map them to deeper tones that
+   sit with the A palette. New code should use the variables instead. */
+[data-theme="light"] .bg-red-500\/15      { background: rgba(197, 56, 31, 0.12); }
+[data-theme="light"] .text-red-400         { color: #b8361f; }
+[data-theme="light"] .bg-orange-500\/15   { background: rgba(221, 122, 44, 0.14); }
+[data-theme="light"] .text-orange-400      { color: #b45f1c; }
+[data-theme="light"] .bg-amber-500\/15    { background: rgba(214, 167, 44, 0.16); }
+[data-theme="light"] .text-amber-400       { color: #946c12; }
+[data-theme="light"] .bg-emerald-500\/15  { background: rgba(79, 154, 108, 0.14); }
+[data-theme="light"] .text-emerald-400     { color: #2f7a4c; }
+[data-theme="light"] .bg-blue-500\/15     { background: rgba(91, 141, 176, 0.14); }
+[data-theme="light"] .text-blue-400        { color: #3f6f92; }
+[data-theme="light"] .bg-purple-500\/15   { background: rgba(120, 100, 150, 0.12); }
+[data-theme="light"] .text-purple-400      { color: #6a5590; }
+[data-theme="light"] .bg-yellow-500\/10   { background: rgba(214, 167, 44, 0.14); }
+[data-theme="light"] .text-yellow-500      { color: #946c12; }
+[data-theme="light"] .border-red-500\/20    { border-color: rgba(197, 56, 31, 0.28); }
+[data-theme="light"] .border-orange-500\/20 { border-color: rgba(221, 122, 44, 0.3); }
+[data-theme="light"] .border-amber-500\/20  { border-color: rgba(214, 167, 44, 0.32); }
+[data-theme="light"] .border-emerald-500\/20 { border-color: rgba(79, 154, 108, 0.3); }
+[data-theme="light"] .border-blue-500\/20   { border-color: rgba(91, 141, 176, 0.3); }
+[data-theme="light"] .border-purple-500\/20 { border-color: rgba(120, 100, 150, 0.28); }
+[data-theme="light"] .border-yellow-500\/20 { border-color: rgba(214, 167, 44, 0.3); }
 
-/* Subtle paper grain on the canvas — not on cards — for depth without noise */
-[data-theme="light"] body::before {
-  content: '';
-  position: fixed; inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 15% 5%, rgba(204, 120, 92, 0.05) 0%, transparent 35%),
-    radial-gradient(circle at 85% 95%, rgba(110, 127, 74, 0.04) 0%, transparent 35%);
-  z-index: 0;
-}
-
-/* Cards in light mode get a soft drop shadow so they feel lifted */
-[data-theme="light"] .bg-\[var\(--card-bg\)\] {
-  box-shadow: 0 1px 2px rgba(60, 41, 24, 0.04), 0 2px 6px rgba(60, 41, 24, 0.04);
-}
-[data-theme="light"] .bg-\[var\(--card-bg\)\]:hover {
-  box-shadow: 0 1px 2px rgba(60, 41, 24, 0.06), 0 4px 12px rgba(204, 120, 92, 0.08);
-}
-
-/* Dark mode: subtle inner highlight + drop shadow makes solid cards "feel"
-   like they sit above the canvas without relying purely on color alpha. */
-:root .bg-\[var\(--card-bg\)\] {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), 0 1px 2px rgba(0,0,0,0.3);
-}
-:root .bg-\[var\(--card-bg\)\]:hover {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 6px 18px rgba(0,0,0,0.35);
-}
-[data-theme="light"] .bg-\[var\(--card-bg\)\]:hover {
-  box-shadow: 0 1px 2px rgba(60, 41, 24, 0.06), 0 4px 12px rgba(204, 120, 92, 0.08);
-}
-
-/* In light mode, page-level H1s and panel H2s get the Fraunces serif —
-   editorial, reading-first feel. Body text and chrome stay sans-serif. */
-[data-theme="light"] h1,
-[data-theme="light"] .font-serif {
-  font-family: 'Fraunces', 'Source Serif 4', 'Noto Serif SC', Georgia, serif;
-  font-feature-settings: 'ss01' on, 'ss02' on;
-  letter-spacing: -0.015em;
-}
+/* Cards sit on the canvas by their border alone; no drop shadows. */
 
 /* ===== Animations ===== */
 @theme inline {
@@ -209,7 +169,7 @@
     to { --angle: 360deg; }
   }
   --font-heading: var(--font-sans);
-  --font-sans: 'Geist Variable', sans-serif;
+  --font-sans: var(--font-archivo), -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -261,23 +221,22 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', 'Geist Variable', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--font-archivo), -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
   background: var(--bg-base);
   color: var(--text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
+
+/* Times, counts and scores line up in columns. */
+time, .tabular-nums { font-variant-numeric: tabular-nums; }
 
 /* ===== Scrollbar ===== */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.15); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.3); }
-
-[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(60, 41, 24, 0.15); }
-[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(204, 120, 92, 0.4); }
+::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* Hide scrollbar but keep scrollability — used on horizontal tab/sort strips
    so the global thin-scrollbar style doesn't show up under them. */

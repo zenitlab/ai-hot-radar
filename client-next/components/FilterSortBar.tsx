@@ -313,7 +313,7 @@ export default function FilterSortBar({ filters, onChange, keywords }: FilterSor
           <Filter className="w-3.5 h-3.5" />
           筛选
           {activeFilterCount > 0 && (
-            <span className="w-4 h-4 rounded-full bg-[var(--accent-blue)] dark:bg-blue-500 text-[10px] text-white flex items-center justify-center font-bold">
+            <span className="w-4 h-4 rounded-full bg-[var(--accent-blue)] dark:bg-blue-500 text-[10px] text-[var(--on-accent)] flex items-center justify-center font-bold">
               {activeFilterCount}
             </span>
           )}

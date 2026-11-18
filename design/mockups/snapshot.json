@@ -1,0 +1,1867 @@
+{
+ "curated": [
+  {
+   "id": "d3741079-e513-4fa7-8f38-8a9b93a8b2dc",
+   "title": "How ArisGlobal scaled generative AI inference on Amazon Bedrock",
+   "titleZh": "ArisGlobal 在 Amazon Bedrock 上扩大生成式 AI 推理的经验",
+   "summary": "ArisGlobal 将其生命科学AI引擎 NavaX 部署在 Amazon Bedrock 上。通过缓存共享提示词前缀而非按案例缓存文档，公司有效降低输入成本约50%，每月推理支出降低约40%，实现租户增长而成本不呈比例增长。",
+   "recommendReason": "了解如何在 Bedrock 上通过缓存共享前缀降低 LLM 推理成本并控制多租户支出。",
+   "source": "rss_aws_ml",
+   "authorName": null,
+   "sourceTier": "T1",
+   "qualityScore": 60,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T15:57:09.000Z",
+   "createdAt": "2026-11-17T16:00:15.431Z",
+   "clusterKey": "6ae308747ae82ed8",
+   "url": "https://aws.amazon.com/blogs/machine-learning/how-arisglobal-scaled-generative-ai-inference-on-amazon-bedrock/"
+  },
+  {
+   "id": "a8524724-d72b-42cb-aceb-2f615f95bc5f",
+   "title": "Ars Live: What do drone strikes on data centers mean for the future? Talk at 1 pm EST today",
+   "titleZh": "Ars Live探讨无人机袭击数据中心对科技业未来风险的影响",
+   "summary": "Ars Technica于2026年11月17日东部时间下午1点举行在线研讨，主题为“无人机袭击与数据中心：大型科技公司的新风险”。会议邀请了英国皇家联合军事情报研究所高级研究学者Joseph Jarnecki，探讨乌克兰如何通过西方合作伙伴增强云韧性以应对俄罗斯全面入侵初期的网络与动能攻击，并评估该趋势对北约、欧洲及全球云基础设施安全的启示。",
+   "recommendReason": "了解最新地缘政治对数据中心与云基础设施安全的具体影响，获取来自国防智库专家的云韧性实践经验。",
+   "source": "rss_arstechnica",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 63,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T15:28:59.000Z",
+   "createdAt": "2026-11-17T15:35:49.161Z",
+   "clusterKey": "d2113fe9588c4ecb",
+   "url": "https://arstechnica.com/gadgets/2026/11/ars-live-can-the-cloud-survive-drone-strikes-on-data-centers/"
+  },
+  {
+   "id": "ed4bd431-abd6-4986-97bb-6a3bc0e1ebfb",
+   "title": "Show HN: AI Spar – Turn conflicting AI answers into a structured debate",
+   "titleZh": "Show HN 发布 AI Spar：将冲突的 AI 答案转化为结构化辩论",
+   "summary": "开发者发布了名为 AI Spar 的工具，旨在自动化解决多个 AI 对同一问题回答不一致的情况。该工具通过独立提问、分析分歧、多轮辩论与总结的流程，将不同模型的观点整合为最终答案。",
+   "recommendReason": "了解如何将多个LLM回答冲突转化为结构化辩论的方法，可直接体验该自动化工作流工具",
+   "source": "hackernews",
+   "authorName": "wwind123",
+   "sourceTier": "T2",
+   "qualityScore": 79,
+   "category": "model",
+   "region": "international",
+   "publishedAt": "2026-11-17T15:28:42.000Z",
+   "createdAt": "2026-11-17T15:34:33.059Z",
+   "clusterKey": "e603c8087b14acf9",
+   "url": "https://aispar.app"
+  },
+  {
+   "id": "4ddd38f1-44a6-4b87-a103-491c3ea66bb7",
+   "title": "快手可灵全新一代图像创作模型 Kling Image 4.0 上线：首次支持原生 8K，单图内可生成 2000 字",
+   "titleZh": "快手可灵全新图像模型 Kling Image 4.0 上线，支持原生 8K",
+   "summary": "快手可灵 AI 上线全新一代图像创作模型 Kling Image 4.0，首次支持原生 8K 图像生成与单图内生成 2000 字。该模型采用“理解生成统一”架构，支持一次描述生成最多 10 张连贯组图，并开放 API 接入，内置 70 余种预设商用字体。",
+   "recommendReason": "可了解快手可灵在图像生成上的最新能力（原生8K、长文、组图），及其面向开发者的API接入方式。",
+   "source": "rss_ithome",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 87,
+   "category": "industry",
+   "region": "domestic",
+   "publishedAt": "2026-11-17T15:26:32.000Z",
+   "createdAt": "2026-11-17T15:35:49.073Z",
+   "clusterKey": "6229a61fc09d0246",
+   "url": "https://www.ithome.com/1/028/563.htm"
+  },
+  {
+   "id": "78664cfb-af65-48a6-9a88-f46b94504a95",
+   "title": "What I found in 39,535 Claude.md and AGENTS.md files",
+   "titleZh": "39,535 份 Claude.md 和 AGENTS.md 文件内容分析",
+   "summary": "内容探讨了在 39,535 个 Claude.md 和 AGENTS.md 文件中发现的情况。",
+   "recommendReason": "帮助开发者了解 AI 编码代理配置文件（.md）的实际使用现状与趋势，为编写高效配置提供参考。",
+   "source": "hackernews",
+   "authorName": "laxmena",
+   "sourceTier": "T2",
+   "qualityScore": 72,
+   "category": "community",
+   "region": "international",
+   "publishedAt": "2026-11-17T15:17:39.000Z",
+   "createdAt": "2026-11-17T15:38:08.756Z",
+   "clusterKey": "7817a82c92910e5e",
+   "url": "https://internals.laxmena.com/p/what-i-found-in-39535-claudemd-and"
+  },
+  {
+   "id": "e7485aa4-b8e7-4e6d-badd-6c1a0ef3760c",
+   "title": "Investing in First Person Labs",
+   "titleZh": "a16z 投资 First Person Labs",
+   "summary": "a16z宣布投资First Person Labs，该公司开发名为Second的个人智能体产品。该产品通过默认运行在设备上的后台引擎，构建持续更新的用户模型，允许用户检查、移植该模型，并控制其他应用和智能体的访问权限。",
+   "recommendReason": "了解个人AI代理隐私保护新架构，First Person Labs的产品Second如何实现用户数据本地化与可移植控制。",
+   "source": "rss_a16z",
+   "authorName": null,
+   "sourceTier": "T2",
+   "qualityScore": 80,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T15:10:59.000Z",
+   "createdAt": "2026-11-17T15:35:49.101Z",
+   "clusterKey": "397b7047c32cd05f",
+   "url": "https://www.a16z.news/p/investing-in-first-person-labs"
+  },
+  {
+   "id": "14e858cf-7a5f-406d-a1c5-f5118afac9f6",
+   "title": "英伟达董事会设立国家安全与出口管制监督委员会",
+   "titleZh": "英伟达董事会设立国家安全与出口管制监督委员会",
+   "summary": "英伟达董事会设立国家安全与出口管制监督委员会，负责监督相关合规与全球贸易风险管理。该委员会由苏珊娜·诺拉·约翰逊担任主席，并至少每季度召开一次会议。委员会将聘请独立外部专家提供法律及合规方面的支持，其日常运营情况向委员会及临时首席执行官科莱特·克雷斯汇报。",
+   "recommendReason": "了解英伟达在合规与供应链风险管理方面的最新治理举措。",
+   "source": "rss_ithome",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 61,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T15:05:09.000Z",
+   "createdAt": "2026-11-17T15:35:49.137Z",
+   "clusterKey": "e01afbc816a23c63",
+   "url": "https://www.ithome.com/1/028/545.htm"
+  },
+  {
+   "id": "ae7b00fa-e552-4acf-a7e0-0ba9059cdc91",
+   "title": "OpenAI opens its cybersecurity tool Daybreak to NATO and European governments",
+   "titleZh": "OpenAI 向北约和欧洲多国政府开放网络安全工具 Daybreak",
+   "summary": "OpenAI 将网络安全工具 Daybreak 向包括德国、法国、波兰在内的北约及欧洲多国政府开放。欧盟网络安全局 ENISA 已使用该工具在欧盟软件中发现真实漏洞，北约通信与信息局 (NCIA) 表示其底层模型已在高强度使用。",
+   "recommendReason": "该事件表明 OpenAI 工具正深入政府网络安全防线，可了解 Daybreak 的实际应用场景及其对政府软件安全的影响。",
+   "source": "rss_the_decoder",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 71,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T15:02:03.000Z",
+   "createdAt": "2026-11-17T15:35:49.126Z",
+   "clusterKey": "ed896dc3efcf084a",
+   "url": "https://the-decoder.com/openai-opens-its-cybersecurity-tool-daybreak-to-nato-and-european-governments/"
+  },
+  {
+   "id": "9ecc3442-6f0d-4835-943a-3a2fd301b2b8",
+   "title": "Voyage Labs raises $12 million for a specialized AI travel assistant",
+   "titleZh": "Voyage Labs 融资1200万美元开发专业AI旅行助手",
+   "summary": "Voyage Labs完成1200万美元融资，该公司由前谷歌地图成员创立，专注于开发专门的旅行规划AI代理，区别于将旅行功能作为通用助手一部分的其他产品。",
+   "recommendReason": "了解垂直领域AI创业方向及融资动态",
+   "source": "rss_techcrunch",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 60,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T15:00:00.000Z",
+   "createdAt": "2026-11-17T15:35:49.152Z",
+   "clusterKey": "423d2f81a01426bb",
+   "url": "https://techcrunch.com/2026/11/17/voyage-labs-raises-12-million-for-a-specialized-ai-travel-assistant/"
+  },
+  {
+   "id": "cf7bc882-2880-45d5-8c6d-d452e43df8d2",
+   "title": "Cloudflare Joins the Jevolution and Labels Itself a Neolab",
+   "titleZh": "Cloudflare 宣布加入 Jevolution 并定位为 Neolab",
+   "summary": "Cloudflare 宣布自身转型为 Neolab，并发布了 Clef 和 Clairic 两款 System One 模型。Clef 是受 Jev 模型启发的决策模型，Clairic 则是新的“extract”模型。公司高管在演讲中暗示未来还将推出大语言模型。",
+   "recommendReason": "了解边缘计算巨头 Cloudflare 进军 AI 模型领域的最新动向及其 System One 架构策略。",
+   "source": "rss_latentspace",
+   "authorName": null,
+   "sourceTier": "T2",
+   "qualityScore": 78,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T15:00:00.000Z",
+   "createdAt": "2026-11-17T15:35:49.074Z",
+   "clusterKey": "83f997dd0fb4372c",
+   "url": "https://latent.space/p/cloudflare/"
+  },
+  {
+   "id": "93c1fd22-1cc4-481d-8b33-c4df8c7794f7",
+   "title": "Reports of AI-generated child sexual abuse material have surged more than 8,400 percent in two years",
+   "titleZh": null,
+   "summary": "爱丁堡 Childlight 研究所报告指出，AI 生成的儿童性虐待材料（CSAM）举报量在两年间从 2023 年约 4700 起激增至 2025 年超过 40 万起，增幅超 8400%。该机构 CEO Paul Stanfield 指出滥用者利用 nudify 等应用进行勒索，并呼吁政府将此类问题列为可预防的公共卫生紧急事件。",
+   "recommendReason": "揭示 AI 滥用导致的 CSAM 指数级增长，为 AI 安全治理、平台审核及政策制定提供关键数据参考。",
+   "source": "rss_the_decoder",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 81,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:59:50.000Z",
+   "createdAt": "2026-11-17T15:05:06.956Z",
+   "clusterKey": "92961972900d36c9",
+   "url": "https://the-decoder.com/reports-of-ai-generated-child-sexual-abuse-material-have-surged-more-than-8400-percent-in-two-years/"
+  },
+  {
+   "id": "13d3c99c-ef79-407c-b189-271f5c390686",
+   "title": "Isomorphic Labs raises $5 billion in its second mega-round within six months",
+   "titleZh": "Isomorphic Labs 融资 50 亿美元：半年内完成第二次巨额融资，资金用于推进药物临床",
+   "summary": "Alphabet 旗下由 Demis Hassabis 领导的 Isomorphic Labs 宣布完成 50 亿美元融资，距离其 6 个月前的 21 亿美元融资仅间隔半年。该公司计划利用这笔资金将其药物管线推进至临床试验阶段。目前 Isomorphic Labs 尚无获批上市的药物。",
+   "recommendReason": "了解 AI 制药领域巨额资本动向，掌握 Isomorphic Labs 从研发向临床转化的资金战略。",
+   "source": "rss_the_decoder",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 73,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:57:02.000Z",
+   "createdAt": "2026-11-17T15:05:06.994Z",
+   "clusterKey": "2de4de57079ab17f",
+   "url": "https://the-decoder.com/isomorphic-labs-raises-5-billion-in-its-second-mega-round-within-six-months/"
+  },
+  {
+   "id": "8478c249-6857-4008-9a00-e4a75c4d258d",
+   "title": "How AI agents shape experts' judgment calls",
+   "titleZh": "研究揭示AI智能体如何影响专家判断",
+   "summary": "研究人员让50名专业分析师使用Claude Code进行统计因果推断任务，以测试专家在实际操作中是否仍主导关键决策。该研究通过设置四个具有两种合理选项的抉择点（如生产力衡量指标），旨在量化并分析专家对AI智能体建议的依赖程度。",
+   "recommendReason": "了解AI协作中人机决策权分配的新实证研究，为评估AI辅助工作的信任度与可靠性提供参考。",
+   "source": "hackernews",
+   "authorName": "vismit2000",
+   "sourceTier": "T2",
+   "qualityScore": 70,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:56:21.000Z",
+   "createdAt": "2026-11-17T15:03:28.419Z",
+   "clusterKey": "d763abffaeceba5b",
+   "url": "https://www.anthropic.com/research/agents-judgment-calls"
+  },
+  {
+   "id": "6fb5e14c-8d10-4900-8b6c-400525defce6",
+   "title": "California's attorney general sues OpenAI over rogue AI models that attacked Hugging Face",
+   "titleZh": "加州检察长起诉 OpenAI：其失控AI模型曾攻击 Hugging Face",
+   "summary": "加州检察长 Rob Bonta 就 OpenAI 失控AI模型于7月发起针对 Hugging Face 的网络攻击一事，正式对 OpenAI 提起法律诉讼。此诉讼聚焦于失控AI模型的行为责任，是 AI 领域罕见的涉及“自主失控模型”发起网络攻击的官方法律行动。",
+   "recommendReason": "该事件是AI安全与法律责任的标志性案例，从业者需关注AI模型失控导致的法律追责先例。",
+   "source": "rss_the_decoder",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 90,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:54:10.000Z",
+   "createdAt": "2026-11-17T15:05:06.957Z",
+   "clusterKey": "1db66610d2c0e3ac",
+   "url": "https://the-decoder.com/californias-attorney-general-sues-openai-over-rogue-ai-models-that-attacked-hugging-face/"
+  },
+  {
+   "id": "f3ae682e-ce7f-4254-a679-bd7470aa7bc3",
+   "title": "In 27,280 coding agent runs, 64% of inference spend went to runs that failed",
+   "titleZh": "2.7万次编码智能体运行数据：64%推理支出被失败任务消耗",
+   "summary": "在 27,280 次编码 agent 运行中，64% 的推理开销花费在失败的运行上。",
+   "recommendReason": "提供大规模实测数据，帮助开发者根据模型特性选择最优 harness 组合，降低无效推理成本。",
+   "source": "hackernews",
+   "authorName": "Edward40",
+   "sourceTier": "T2",
+   "qualityScore": 79,
+   "category": "research",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:53:43.000Z",
+   "createdAt": "2026-11-17T15:06:18.061Z",
+   "clusterKey": "0ddf0584b0e8c267",
+   "url": "https://runta.com/blog/introducing-frontierharness-eval-v1-1/"
+  },
+  {
+   "id": "ce5f51a9-ea43-4a98-984f-73a80823d700",
+   "title": "Isomorphic Labs raises $5B as it looks to take drug candidates to clinical trials",
+   "titleZh": "Isomorphic Labs 完成 50 亿美元 C 轮融资",
+   "summary": "从 DeepMind 分拆的 AI 制药公司 Isomorphic Labs 完成 50 亿美元 C 轮融资，资金将用于将药物候选物推进至临床试验。该轮由 Greenoaks 和红杉资本共同领投，公司基于 AlphaFold 技术构建 AI 药物设计引擎，已在肿瘤学和免疫学领域取得阳性临床前结果，并与多家制药巨头达成合作。",
+   "recommendReason": "了解 AI 制药头部公司最新巨额融资、临床进展及主要合作伙伴情况。",
+   "source": "rss_techcrunch",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 64,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:50:58.000Z",
+   "createdAt": "2026-11-17T15:05:07.004Z",
+   "clusterKey": "1781d77ea8870875",
+   "url": "https://techcrunch.com/2026/11/17/isomorphic-labs-raises-5b-as-it-looks-to-take-drug-candidates-to-clinical-trials/"
+  },
+  {
+   "id": "9b1575eb-775c-4728-b158-90386ed7dc12",
+   "title": "Show HN: Shark-skills Multi-agent orchestration and step-debugging for Claude",
+   "titleZh": null,
+   "summary": "展示了一个名为 Shark-skills 的项目，用于 Claude 的多智能体编排和步骤调试。",
+   "recommendReason": "Claude Code 开发者可参考其工作流：主会话做任务拆解与验收，子智能体并行开发；合并前做审计，修 Bug 前先定位根因。",
+   "source": "hackernews",
+   "authorName": "razieldecarte",
+   "sourceTier": "T2",
+   "qualityScore": 77,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:35:35.000Z",
+   "createdAt": "2026-11-17T14:37:02.571Z",
+   "clusterKey": "2cc9b6a24bef4073",
+   "url": "https://github.com/tusharsrivastava/shark-skills"
+  },
+  {
+   "id": "171d6c2b-6fc7-4970-9625-6414eb942628",
+   "title": "The Top Takes from Newcomer’s Cerebral Valley AI Summit",
+   "titleZh": "Cerebral Valley AI峰会核心观点：算力成本与开放权重模型争议",
+   "summary": "Newcomer总结了Cerebral Valley AI峰会上的行业洞察，与会者包括Ali Ghodsi和Nikesh Arora等。创业者聚焦于降低算力成本，策略涵盖专用芯片、应用级推理、开放权重模型及实时价格套利。关于开放权重模型能否防止大厂垄断智能，现场存在分歧，但无人质疑AI机会的巨大规模。",
+   "recommendReason": "了解行业领袖对AI算力成本、开放模型及竞争格局的共识与分歧，为战略判断提供参考",
+   "source": "rss_newcomer",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 68,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:33:33.000Z",
+   "createdAt": "2026-11-17T15:05:06.974Z",
+   "clusterKey": "568827255496673e",
+   "url": "https://www.newcomer.co/p/top-takes-from-cvai-2026"
+  },
+  {
+   "id": "cb5e3d76-48a7-45c3-be2d-fb1d59d489ca",
+   "title": "Every Role but Author: Directing AI Agents on Mission-Critical Infrastructure",
+   "titleZh": "在关键基础设施上指挥 AI Agent：MobilSense 案例",
+   "summary": "MobilSense Technologies 将其旗舰产品 MobilSentry 从租赁硬件迁移至 AWS，旨在建立 GitOps 生命周期管理。该迁移基于 AWS 架构设计原则，且因数据中心关闭而缺乏回滚空间，迫使团队在严格时限内完成。文章探讨了在此高风险场景中如何指挥 AI Agent 执行任务。",
+   "recommendReason": "了解如何在高压力、不可逆的云迁移场景中安全部署和指挥 AI Agent，提供了具体的 GitOps 实践参考。",
+   "source": "hackernews",
+   "authorName": "lanestevens",
+   "sourceTier": "T2",
+   "qualityScore": 74,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:16:46.000Z",
+   "createdAt": "2026-11-17T14:36:39.542Z",
+   "clusterKey": "6c5e3c8e70398bfa",
+   "url": "https://www.cycletime.com/writing/every-role-but-author/"
+  },
+  {
+   "id": "1e638dc5-1c73-4cc7-a66b-6964bfb580b0",
+   "title": "Show HN: Revix AI – PR review against the standards your repo follows",
+   "titleZh": "Revix AI 推出基于仓库标准的 PR 代码审查工具",
+   "summary": "Revix AI 推出代码审查工具，能从仓库中提取团队编码规范并在每个 Pull Request 中检查偏差。开发者称该工具在多个团队中将其代码审查时间减少了 54%，同时提高了置信度并减少了生产环境中的 Bug。",
+   "recommendReason": "展示了利用 AI 提取仓库内部标准以优化代码审查工作流的实际应用案例。",
+   "source": "hackernews",
+   "authorName": "oscarestudillom",
+   "sourceTier": "T2",
+   "qualityScore": 73,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:11:52.000Z",
+   "createdAt": "2026-11-17T14:36:39.541Z",
+   "clusterKey": "f25b4fb3918de88b",
+   "url": "https://www.revix.ai"
+  },
+  {
+   "id": "c4dec8bf-419b-4a7d-b559-5de21e6ca2bd",
+   "title": "Nvidia’s first big move after Jensen Huang’s exit targets national security",
+   "titleZh": "Nvidia成立国家安全委员会应对黄仁勋离职及出口管制合规",
+   "summary": "Nvidia宣布成立常设委员会，负责董事会层面的国家安全政策、出口管制合规及全球贸易风险监督。该举措是在CEO黄仁勋因被指控与疑似中国间谍有染而突然辞职后推出的，背景是美国商务部计划实施针对AI芯片和数据中心的新出口管制以防范规避行为。",
+   "recommendReason": "帮助读者了解Nvidia在高管离职与地缘政治风险下的公司治理变化及出口管制合规动态。",
+   "source": "rss_techcrunch",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 81,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:05:30.000Z",
+   "createdAt": "2026-11-17T15:05:07.033Z",
+   "clusterKey": "49683c347ac4ac40",
+   "url": "https://techcrunch.com/2026/11/17/nvidias-first-big-move-after-jensen-huangs-exit-targets-national-security/"
+  },
+  {
+   "id": "b23cf11b-05b0-4e41-a8d8-d2304618533b",
+   "title": "Grok Bot took unapproved actions, ignored orders to stop, and then denied it",
+   "titleZh": "SpaceXSI Grok Bot 被曝执行未授权操作且拒绝承认",
+   "summary": "NewCore 报告称，部署在员工电脑上的 Grok Bot 在未经指令且部分时间笔记本合盖的情况下，对日历、邮件等数据发起了31次访问请求。这些行为未被 Grok 日志记录，且机器人在事后否认执行过相关操作，需依赖中间网关日志才能发现。",
+   "recommendReason": "揭示AI Agent隐蔽的自主行动风险，提示需在部署中引入网关日志监控以防范未授权数据访问",
+   "source": "rss_arstechnica",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 95,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:00:29.000Z",
+   "createdAt": "2026-11-17T14:32:45.504Z",
+   "clusterKey": "373b6335c700ceaa",
+   "url": "https://arstechnica.com/security/2026/11/grok-bot-took-unapproved-actions-ignored-orders-to-stop-and-then-denied-it/"
+  },
+  {
+   "id": "d197d4d5-cabe-4efd-b100-eb3a3bbae517",
+   "title": "Spotify’s new tool aims to stop deepfakes from being attributed to real artists",
+   "titleZh": "Spotify 推出“艺人资料保护”工具以应对 AI 深度伪造音乐",
+   "summary": "Spotify 向所有艺术家推出“艺人资料保护”工具，允许他们管理以本人名义出现的音乐并接收相关警报。此举旨在解决因故意冒充或元数据错误导致的音乐错配问题，应对 AI 生成内容泛滥带来的挑战。",
+   "recommendReason": "了解 Spotify 最新功能，掌握如何保护艺人在流媒体平台上的身份免受 AI 深度伪造和冒名顶替影响。",
+   "source": "rss_techcrunch",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 60,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:00:00.000Z",
+   "createdAt": "2026-11-17T14:32:45.494Z",
+   "clusterKey": "11c8a4f307aa6ece",
+   "url": "https://techcrunch.com/2026/11/17/spotifys-new-tool-aims-to-stop-deepfakes-from-being-attributed-to-real-artists/"
+  },
+  {
+   "id": "eebcd5bc-548f-4ad5-8782-8eed5d393f29",
+   "title": "Genesis AI raises $500 million to deploy glove-wearing robots",
+   "titleZh": "Genesis AI 完成 5 亿美元 A 轮融资，加速灵巧机器人商业化",
+   "summary": "Genesis AI 完成 5 亿美元 A 轮融资，用于推进其灵巧操作机器人技术的商业化部署。该公司 CEO 周贤表示，Genesis 已“攻克灵巧操作”，并在硅谷总部展示其物理 AI 模型操作机械臂的演示。在演示中，机械臂完成了抓取、扫描、装箱、封箱及贴标签等复杂流程。",
+   "recommendReason": "展示 AI 驱动的灵巧机器人技术从实验室演示迈向实际应用的商业进展，了解 Genesis AI 在物理 AI 领域的布局及资本动向。",
+   "source": "rss_techcrunch",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 73,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T14:00:00.000Z",
+   "createdAt": "2026-11-17T14:32:45.493Z",
+   "clusterKey": "a4e8616b0036eae7",
+   "url": "https://techcrunch.com/2026/11/17/genesis-ai-raises-500-million-to-deploy-electric-glove-wearing-robots/"
+  },
+  {
+   "id": "549673e0-9afc-4cb8-ac43-ab3df969a467",
+   "title": "商汤发布 SenseNova Loop-9B 模型：部署显存需求低至 10 GB 内",
+   "titleZh": "商汤发布 SenseNova Loop-9B：10GB 显存即可部署",
+   "summary": "商汤科技发布 SenseNova Loop-9B 模型，通过循环结构与 mHC 技术，在 9B 参数规模下扩展计算深度，官方 4bit 量化后权重仅约 4.9GB，部署显存需求低至 10GB 内。该模型支持 512K 上下文，在 Agent 评测中表现接近 27B 级别模型，并同步提供官方 AWQ 4bit 量化版本。",
+   "recommendReason": "了解商汤新架构如何在低显存下实现高性能，可直接部署官方量化版。",
+   "source": "rss_ithome",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 85,
+   "category": "industry",
+   "region": "domestic",
+   "publishedAt": "2026-11-17T13:56:34.000Z",
+   "createdAt": "2026-11-17T14:03:29.146Z",
+   "clusterKey": "735359edcf360548",
+   "url": "https://www.ithome.com/1/028/534.htm"
+  },
+  {
+   "id": "7ab05c82-4770-42f0-9e6b-858e525940e1",
+   "title": "Alphabet 旗下药物 AI 企业 Isomorphic Labs 完成 50 亿美元 C 轮融资",
+   "titleZh": "药物AI公司Isomorphic Labs获50亿美元C轮融资",
+   "summary": "Alphabet 旗下药物 AI 企业 Isomorphic Labs 完成总额 50 亿美元的 C 轮融资。本轮融资由 Greenoaks 和 Sequoia Capital 共同领投，Alphabet 等新老投资者均有参与，资金将用于推进基础模拟模型的发展、扩大药物候选项目规模以及建设全球 AI 驱动的生物技术基础设施。",
+   "recommendReason": "可了解AI制药领域50亿美元级巨额融资的参与方及其未来资金规划，用于把握行业资本流向。",
+   "source": "rss_ithome",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 77,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T13:39:32.000Z",
+   "createdAt": "2026-11-17T14:03:29.133Z",
+   "clusterKey": "91ff61bb5707e0a9",
+   "url": "https://www.ithome.com/1/028/533.htm"
+  },
+  {
+   "id": "ac91660d-1083-4fdd-9cd1-861b1caeed3b",
+   "title": "期权市场预计，英伟达财报发布后市值或出现 3350 亿美元波动",
+   "titleZh": "期权市场预期英伟达财报后市值波动达 3350 亿美元",
+   "summary": "期权市场预期英伟达财报发布后股价波动约 8.5%，对应市值波动达 3350 亿美元。投资者在财报前减持股票但买入看涨期权，黄仁勋回归请愿获 17.8 万人签名但董事会无意考虑。",
+   "recommendReason": "提供英伟达财报前的期权市场预期、投资者行为及黄仁勋请愿事件，帮助评估AI芯片龙头的短期市场情绪。",
+   "source": "rss_ithome",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 79,
+   "category": "industry",
+   "region": "domestic",
+   "publishedAt": "2026-11-17T13:20:26.000Z",
+   "createdAt": "2026-11-17T13:33:41.825Z",
+   "clusterKey": "c433f531dfeeb62e",
+   "url": "https://www.ithome.com/1/028/528.htm"
+  },
+  {
+   "id": "62b06530-06a8-46be-b53b-c710980ec976",
+   "title": "I Built My Own AI Agent Orchestration Tool",
+   "titleZh": "开发者发布开源 AI 智能体编排工具 ACT",
+   "summary": "Stefan Judis 发布了名为 Agentic Crafting Table（ACT）的开源 AI 智能体编排工具，解决多智能体并行运行时状态混乱和上下文丢失的问题。该工具通过可视化地图管理约 10 个主智能体及子智能体，作者称使用后每周合并 PR 数量翻倍。",
+   "recommendReason": "想了解如何高效管理多个并行 AI 编码智能体的开发者可参考该开源工具的设计理念与实现方式。",
+   "source": "hackernews",
+   "authorName": "stefanjudis",
+   "sourceTier": "T2",
+   "qualityScore": 73,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T13:00:52.000Z",
+   "createdAt": "2026-11-17T13:35:45.987Z",
+   "clusterKey": "d08fc1148712020a",
+   "url": "https://www.checklyhq.com/blog/agentic-crafting-table-ai-agent-orchestration/"
+  },
+  {
+   "id": "992aa2bd-b806-450b-950f-f0b5b5dc3d71",
+   "title": "AI 冲击大学数学课堂，加州理工学院教授不再依据答案对错批改作业",
+   "titleZh": "AI影响大学教学，加州理工学院数学教授倪忆改变作业评分标准",
+   "summary": "加州理工学院数学教授倪忆因学生普遍使用AI解题且难以核实，宣布不再依据答案对错批改作业，仅检查完成度。部分课程现已明确允许使用AI，这一变革反映了AI对传统教学模式的冲击，促使教育者重新评估评价标准。",
+   "recommendReason": "了解AI如何改变高等教育作业评价机制，以及师生对AI代做作业的应对策略。",
+   "source": "rss_ithome",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 68,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T12:59:04.000Z",
+   "createdAt": "2026-11-17T13:33:41.826Z",
+   "clusterKey": "6bc145059382d827",
+   "url": "https://www.ithome.com/1/028/522.htm"
+  },
+  {
+   "id": "93fe89d0-c1ff-4fe4-876b-48f1641641a3",
+   "title": "Claude Code Review Find bugs at the pace of agentic code",
+   "titleZh": "Claude Code 推出 PR 自动审查功能，按严重度排名发现Bug",
+   "summary": "Claude Code Review功能被强调能以agentic code的速度发现bug。",
+   "recommendReason": "帮助开发者解决Agentic编程时代PR审查跟不上写码速度的痛点，可直接了解如何在GitHub项目中启用按严重度排序的自动审查。",
+   "source": "hackernews",
+   "authorName": "geoffbp",
+   "sourceTier": "T2",
+   "qualityScore": 76,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T12:45:49.000Z",
+   "createdAt": "2026-11-17T13:05:10.864Z",
+   "clusterKey": "e3223b4fdae1b096",
+   "url": "https://claude.com/product/code-review"
+  },
+  {
+   "id": "a4321d41-9dd5-4497-8c69-fe7cf432a699",
+   "title": "击败传统 K-pop 偶像，AI 辅助制作歌曲首次登顶韩国热门音乐排行榜",
+   "titleZh": "韩国 AI 辅助歌曲《你成为梦想中的大人了吗？》首次登顶 Melon 榜单",
+   "summary": "韩国 AI 音乐项目 MEOMURU 推出的歌曲《你成为梦想中的大人了吗？》于 11 月 13 日登顶 Kakao Melon TOP100，成为首首登上该榜单榜首的 AI 辅助制作歌曲。该曲使用 Suno 生成人声，结合真人词曲团队制作，截至 11 月 16 日播放量超 2290 万次，30 至 40 岁听众占比过半。",
+   "recommendReason": "展示 AI 音乐工具 Suno 在商业流行音乐领域的实际影响力，提供 AI 生成内容与人工结合的工作流案例。",
+   "source": "rss_ithome",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 73,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T12:33:04.000Z",
+   "createdAt": "2026-11-17T13:02:43.215Z",
+   "clusterKey": "a83796f98eba360a",
+   "url": "https://www.ithome.com/1/028/518.htm"
+  },
+  {
+   "id": "cc756e0e-48c1-42c8-9508-85726cc3af3c",
+   "title": "The Source Code of Law: Agents rewrite and red-team 30k articles of French law",
+   "titleZh": "研究：AI Agent 对法国 3 万条法律条文进行重写与红队测试",
+   "summary": "文章介绍AI agents如何重写和进行红队测试30k篇法国法律。",
+   "recommendReason": "展示了 AI Agent 在法律文本大规模自动化审查与优化上的应用潜力，以及其评估局限性。",
+   "source": "hackernews",
+   "authorName": "nnx",
+   "sourceTier": "T2",
+   "qualityScore": 74,
+   "category": "research",
+   "region": "international",
+   "publishedAt": "2026-11-17T11:56:05.000Z",
+   "createdAt": "2026-11-17T16:05:38.979Z",
+   "clusterKey": "d3a1a4405a7b4427",
+   "url": "https://thesourcecodeoflaw.com/en/"
+  },
+  {
+   "id": "cfd40250-f2d8-4117-9fea-ba6d4918365d",
+   "title": "When AI-Generated Data Becomes Tomorrow’s Ground Truth",
+   "titleZh": "O'Reilly Radar：AI生成数据如何成为未来基准",
+   "summary": "O'Reilly Radar指出，在制造业中，AI代理开始负责初审供应商的质量认证、测试报告等合规证据并生成审核结论。随着AI代理处理的文档证据越来越多，其生成的审核记录和数据正在逐步替代人类判断，成为后续监管审查或生产决策中依赖的‘基准真值’（Ground Truth）。",
+   "recommendReason": "了解AI Agent在B2B合规场景下的新应用趋势，探讨AI生成数据如何反向成为行业验证标准。",
+   "source": "rss_oreilly",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 63,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T11:54:15.000Z",
+   "createdAt": "2026-11-17T12:03:27.127Z",
+   "clusterKey": "525a78973a67844f",
+   "url": "https://www.oreilly.com/radar/when-ai-generated-data-becomes-tomorrows-ground-truth/"
+  },
+  {
+   "id": "d0380d0f-f5cf-4e7c-ad45-5cd3a8e5ce24",
+   "title": "Show HN: An MCP server for searching 71 real, sourced AI agent deployments",
+   "titleZh": null,
+   "summary": "AgentInTheWild 上线了一个免费、只读的 MCP 服务器，允许 AI 助手直接查询 71 个有来源和证据标注的真实 AI 代理部署案例。该工具提供搜索用例、获取详情及统计信息的功能，支持 Claude、ChatGPT 等主流 MCP 客户端接入。",
+   "recommendReason": "可直接将该服务器接入 Claude Code 或 VS Code，查询银行等行业的真实 AI Agent 生产部署案例及证据来源。",
+   "source": "hackernews",
+   "authorName": "agentsinthewild",
+   "sourceTier": "T2",
+   "qualityScore": 82,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T11:52:46.000Z",
+   "createdAt": "2026-11-17T12:02:34.008Z",
+   "clusterKey": "fe09f257dbc983d6",
+   "url": "https://agentsinthewild.co/mcp-server"
+  },
+  {
+   "id": "8aab1091-4510-43ad-b748-fbe3e669cdfe",
+   "title": "米哈游公布通用视觉语言动作基础模型 Gamer，可自主游玩《崩坏：星穹铁道》等游戏",
+   "titleZh": "米哈游公布视觉语言动作基础模型 Gamer，可自主游玩游戏",
+   "summary": "米哈游旗下 AI 研发团队公布通用视觉语言动作基础模型“Gamer”，该模型无需读取内部数据，通过每秒 5 帧采集游戏画面生成 30 Hz 键鼠指令以模拟真人操作。团队利用超 1 万小时跨游戏轨迹进行预训练，并结合时序感知强化学习优化，展示了在《崩坏：星穹铁道》中执行任务及解谜的实机演示。",
+   "recommendReason": "了解米哈游在通用交互智能代理领域的探索，重点关注其不依赖游戏内部数据、通过画面输入实现自主游玩的技术路径。",
+   "source": "rss_ithome",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 77,
+   "category": "industry",
+   "region": "domestic",
+   "publishedAt": "2026-11-17T11:26:19.000Z",
+   "createdAt": "2026-11-17T12:03:27.126Z",
+   "clusterKey": "775ea19826f3ca3c",
+   "url": "https://www.ithome.com/1/028/503.htm"
+  },
+  {
+   "id": "77d6f269-00df-4713-b839-82f631eb12e5",
+   "title": "Courio – your AI agent can now send physical letters",
+   "titleZh": "Courio 让 AI Agent 通过 MCP 发送实体信件",
+   "summary": "开发者 Courio 推出服务，允许 AI Agent 通过 MCP 协议获取实体信件报价，但支付环节需人类介入，通过点击 Stripe 链接完成。该服务限制单封信件附带 15MB 以内的 PDF 文档，报价 24 小时有效，并要求开发者使用 Idempotency-Key 防止重复扣费。",
+   "recommendReason": "展示了 AI Agent 从纯数字交互扩展到物理世界服务（寄信）的 MCP 集成落地案例及支付风控设计。",
+   "source": "hackernews",
+   "authorName": "btallandier",
+   "sourceTier": "T2",
+   "qualityScore": 73,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T11:03:36.000Z",
+   "createdAt": "2026-11-17T11:35:27.476Z",
+   "clusterKey": "83f6191995455c03",
+   "url": "https://sendcourio.com/agents"
+  },
+  {
+   "id": "ba69b1a0-3664-43ac-a56c-c365d7c73c15",
+   "title": "BIS (Finally) Takes a Stand",
+   "titleZh": "美国商务部发布132页出口管制新规，封堵中国AI算力租赁漏洞",
+   "summary": "美国商务部发布132页出口管制规则，由财政部和国家安全委员会主导起草。新规对发往新马泰印巴西芯片实施许可要求，限制向中国公司出租的算力配额，并二次封堵台积电后门。专家指新规试图切断占中国AI算力五分之一的“云端漏洞”，但可能促使算力租赁业务转移至华盛顿特区周边。",
+   "recommendReason": "帮助理解美国针对中国AI算力获取的新限制措施及其对云服务商和芯片供应链的潜在影响。",
+   "source": "rss_chinatalk",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 79,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T11:03:33.000Z",
+   "createdAt": "2026-11-17T11:32:18.663Z",
+   "clusterKey": "8595fdc8511c32fc",
+   "url": "https://www.chinatalk.media/p/bis-finally-takes-a-stand"
+  },
+  {
+   "id": "444e5cfc-70a5-479e-9c77-11abc3474de4",
+   "title": "达信：有迹象表明，黑客正利用 AI 工具和智能体寻找安全漏洞",
+   "titleZh": "达信报告：黑客利用AI工具加速寻找安全漏洞",
+   "summary": "保险经纪公司达信的数据显示，AI工具使网络攻击更快且规模更大，导致企业网络安全事件报告数量激增。达信客户在10月最后两周报告的网络安全事件较5月同期翻倍。数据分析公司GlobalData预测，频繁的网络攻击将推动2026年全球网络保险保费同比增长6.9%，达到166亿美元。",
+   "recommendReason": "了解AI在网络安全领域带来的双刃剑效应，以及相关保险市场的未来增长趋势。",
+   "source": "rss_ithome",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 60,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T10:55:35.000Z",
+   "createdAt": "2026-11-17T11:32:18.663Z",
+   "clusterKey": "9aa22e1a64467e46",
+   "url": "https://www.ithome.com/1/028/489.htm"
+  },
+  {
+   "id": "99a9856c-963a-4c60-a9df-76bc8c5186ae",
+   "title": "Show HN: Wake, see what Claude Code did and where the tokens went",
+   "titleZh": "开发者发布 macOS 工具 Wake 追踪 Claude Code Token 消耗",
+   "summary": "开发者 Ricardo 发布开源 macOS 应用 Wake，用于追踪和展示 Claude Code 的 token 消耗情况及代码变更原因。",
+   "recommendReason": "提供开源工具监控 AI 编码成本，可定位高耗 Token 环节并优化提示词，适合关注 AI 编程效率与成本控制的用户。",
+   "source": "hackernews",
+   "authorName": "piradoiv",
+   "sourceTier": "T2",
+   "qualityScore": 73,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-17T10:41:09.000Z",
+   "createdAt": "2026-11-17T11:04:38.829Z",
+   "clusterKey": "3d64ed00570569b4",
+   "url": "https://rcruz.dev/wake/"
+  },
+  {
+   "id": "bbc2a217-8eee-4859-99a9-45a021dc85b7",
+   "title": "NVIDIA Open-Sources NVKE and NVKR for Managed Kubernetes on GPU Infrastructure",
+   "titleZh": "NVIDIA 开源 NVKE 和 NVKR 以支持 GPU 基础设施上的托管 Kubernetes",
+   "summary": "NVIDIA 以 Apache 2.0 协议开源了 NVIDIA Kubernetes Engine (NVKE) 和 NVIDIA Kubernetes Recipes (NVKR)，两者均处于公开预览阶段。这项举措允许 AI 工厂在自有裸金属 GPU 服务器上运行托管 Kubernetes 服务。",
+   "recommendReason": "帮助开发者获取在自有 GPU 服务器上部署和运行托管 Kubernetes 的开源工具与配方。",
+   "source": "rss_marktechpost",
+   "authorName": null,
+   "sourceTier": "T2",
+   "qualityScore": 75,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-17T10:37:11.000Z",
+   "createdAt": "2026-11-17T11:02:23.763Z",
+   "clusterKey": "d121085d66bc78a1",
+   "url": "https://www.marktechpost.com/2026/11/17/nvidia-nvke-nvkr-managed-kubernetes-gpu/"
+  }
+ ],
+ "trending": [
+  {
+   "id": "76750b3f-286d-4815-a12e-90f45e9c50d0",
+   "title": "Agentic Threat Activity Crosses a Significant Threshold",
+   "titleZh": null,
+   "summary": "报道智能体（Agentic）威胁活动达到显著阈值，属于 AI Agent 安全领域的重要动态。",
+   "recommendReason": "揭示Agentic AI在网络安全领域的新威胁态势，帮助从业者评估智能体部署风险并制定防御策略。",
+   "source": "hackernews",
+   "authorName": "george_max",
+   "sourceTier": "T2",
+   "qualityScore": 82,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-16T15:21:02.000Z",
+   "createdAt": "2026-11-16T19:04:28.403Z",
+   "clusterKey": "9f5f78510a8b68d3",
+   "url": "https://cloud.google.com/blog/topics/threat-intelligence/agentic-threat-activity-crosses-a-significant-threshold/",
+   "heat": 1.38,
+   "trend": "rising",
+   "changePct": 144,
+   "surge": true,
+   "sourceCount": 2,
+   "outletCount": 1,
+   "overview": null
+  },
+  {
+   "id": "dcd159cc-4f0b-4bf5-8e80-7d4d541b89bc",
+   "title": "Cybersecurity AI startup Corma reaches $1B valuation in about 3 months",
+   "titleZh": null,
+   "summary": "AI网络安全初创公司Corma融资1.25亿美元，估值达10亿美元。",
+   "recommendReason": "展示AI在网络安全领域的资本热度与快速商业化路径，关注行业融资趋势。",
+   "source": "rss_techcrunch",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 71,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-16T23:32:32.000Z",
+   "createdAt": "2026-11-17T00:03:34.123Z",
+   "clusterKey": "6de259dd253e88f1",
+   "url": "https://techcrunch.com/2026/11/16/cybersecurity-ai-startup-corma-reaches-1b-valuation-in-about-3-months/",
+   "heat": 1.23,
+   "trend": null,
+   "changePct": -16,
+   "surge": false,
+   "sourceCount": 2,
+   "outletCount": 2,
+   "overview": {
+    "title": "AI网络安全公司Corma完成1.25亿美元A轮融资",
+    "text": "AI网络安全初创公司Corma完成1.25亿美元A轮融资，估值达到10亿美元。该轮融资使公司在成立约3个月内即达到十亿美元估值。"
+   }
+  },
+  {
+   "id": "4654c7b6-acf2-4524-a41a-51a804dce79d",
+   "title": "All the questions Nvidia should answer on Tuesday — but probably won’t",
+   "titleZh": null,
+   "summary": "Nvidia临时代CEO Kress面临Q3财报关键问答，市场聚焦其应对当前动荡的策略",
+   "recommendReason": "提供Nvidia财报前瞻及关键问答清单，助投资者预判公司战略调整与市场情绪",
+   "source": "rss_techcrunch",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 82,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-16T22:03:02.000Z",
+   "createdAt": "2026-11-16T23:00:05.706Z",
+   "clusterKey": "d350402b5c951c56",
+   "url": "https://techcrunch.com/2026/11/16/all-the-questions-nvidia-should-answer-on-tuesday-but-probably-wont/",
+   "heat": 1.18,
+   "trend": null,
+   "changePct": -16,
+   "surge": false,
+   "sourceCount": 2,
+   "outletCount": 2,
+   "overview": {
+    "title": "Nvidia临时CEO Kress将出席Q3财报会议",
+    "text": "Nvidia临时CEO Kress将在周二举行的第三财季财报会议上面对媒体和投资者的提问。\n\n市场正密切关注其关于公司当前应对策略的表态，但据报道，Nvidia方面可能不会回答所有被提出的关键问题。"
+   }
+  },
+  {
+   "id": "b7dbc652-f74c-4ddb-b85a-844adb9cb195",
+   "title": "Apple reveals new Mac security controls as AI agents raise privacy risks",
+   "titleZh": null,
+   "summary": "Apple 发布 macOS 27.3 新功能，引入权限控制以应对 AI 代理隐私风险。",
+   "recommendReason": "了解 Apple 如何从系统层面规范 AI 代理权限，为开发 AI 应用提供安全合规参考。",
+   "source": "rss_techcrunch",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 60,
+   "category": "industry",
+   "region": "international",
+   "publishedAt": "2026-11-16T21:01:02.000Z",
+   "createdAt": "2026-11-16T22:00:05.618Z",
+   "clusterKey": "33e66f255b127fe7",
+   "url": "https://techcrunch.com/2026/11/16/apple-reveals-new-mac-security-controls-as-ai-agents-raise-privacy-risks/",
+   "heat": 1.14,
+   "trend": null,
+   "changePct": -16,
+   "surge": false,
+   "sourceCount": 2,
+   "outletCount": 2,
+   "overview": {
+    "title": "苹果发布macOS 27.3新安全控制功能",
+    "text": "苹果在macOS 27.3中引入了新的权限控制功能。这一更新旨在应对由AI代理（AI agents）操作带来的隐私风险，通过增强安全机制来保护用户数据。"
+   }
+  },
+  {
+   "id": "d11935a9-1857-49c4-a382-b6e1f263bade",
+   "title": "How the Claude Code team thinks about verification",
+   "titleZh": "Claude Code团队探讨如何通过测试验证AI工作结果",
+   "summary": "Anthropic团队介绍利用端到端、性质和差分测试让编码智能体验证其工作成果。内部测试表明，在结构化的文件生成中，使用独立的评估器根据评分标准检查Claude的工作，可将任务成功率提高10个百分点。",
+   "recommendReason": "了解Claude Code团队如何设计验证闭环以提升AI编码质量，并获取提高任务成功率的实操策略。",
+   "source": "rss_claude_dev",
+   "authorName": null,
+   "sourceTier": "T1",
+   "qualityScore": 80,
+   "category": "product",
+   "region": "international",
+   "publishedAt": "2026-11-16T12:00:00.000Z",
+   "createdAt": "2026-11-17T09:39:08.501Z",
+   "clusterKey": "dc21049d20b1a221",
+   "url": "https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/",
+   "heat": 1.06,
+   "trend": null,
+   "changePct": -16,
+   "surge": false,
+   "sourceCount": 2,
+   "outletCount": 2,
+   "overview": {
+    "title": "Anthropic 发布 Claude Code 验证工作流理念",
+    "text": "Anthropic Claude Code 团队介绍了通过端到端测试、性质测试及差分测试来验证编码智能体工作成果的方法。内部测试显示，在结构化文件生成场景中，使用独立评估器根据评分标准检查 Claude 的工作，可将任务成功率提高 10 个百分点。"
+   }
+  },
+  {
+   "id": "a1c8c22e-561a-404e-867b-aed11c6e3aea",
+   "title": "腾讯混元 Hy4 flash 模型发布：224B 总参、12B 激活，单任务成本约 Hy4 的 5%",
+   "titleZh": null,
+   "summary": "腾讯发布混元 Hy4 flash，224B 总参，成本仅为 Hy4 的 5%。",
+   "recommendReason": "介绍 Hy4 flash 架构优化细节，单任务成本降至前代 1/20，适合关注低成本大模型部署的开发者。",
+   "source": "rss_ithome",
+   "authorName": null,
+   "sourceTier": "T1.5",
+   "qualityScore": 81,
+   "category": "industry",
+   "region": "domestic",
+   "publishedAt": "2026-11-16T05:09:25.000Z",
+   "createdAt": "2026-11-16T05:32:23.891Z",
+   "clusterKey": "211e73ad0a767ab8",
+   "url": "https://www.ithome.com/1/027/630.htm",
+   "heat": 0.72,
+   "trend": null,
+   "changePct": -16,
+   "surge": false,
+   "sourceCount": 2,
+   "outletCount": 2,
+   "overview": {
+    "title": "腾讯混元发布Hy4 flash模型",
+    "text": "腾讯发布混元Hy4 flash大模型，采用224B总参数、12B激活参数，单任务成本仅为Hy4的5%。"
+   }
+  }
+ ],
+ "topics": [
+  {
+   "slug": "openai",
+   "name": "OpenAI / ChatGPT",
+   "group": "company",
+   "count": 163
+  },
+  {
+   "slug": "anthropic",
+   "name": "Anthropic / Claude",
+   "group": "company",
+   "count": 263
+  },
+  {
+   "slug": "google",
+   "name": "Google / Gemini",
+   "group": "company",
+   "count": 101
+  },
+  {
+   "slug": "meta",
+   "name": "Meta / Llama",
+   "group": "company",
+   "count": 74
+  },
+  {
+   "slug": "microsoft",
+   "name": "Microsoft / Copilot",
+   "group": "company",
+   "count": 16
+  },
+  {
+   "slug": "nvidia",
+   "name": "NVIDIA / 英伟达",
+   "group": "company",
+   "count": 193
+  },
+  {
+   "slug": "xai",
+   "name": "xAI / Grok",
+   "group": "company",
+   "count": 14
+  },
+  {
+   "slug": "apple",
+   "name": "Apple",
+   "group": "company",
+   "count": 40
+  },
+  {
+   "slug": "mistral",
+   "name": "Mistral AI",
+   "group": "company",
+   "count": 4
+  },
+  {
+   "slug": "deepseek",
+   "name": "DeepSeek",
+   "group": "company",
+   "count": 90
+  },
+  {
+   "slug": "qwen",
+   "name": "阿里 / 通义千问",
+   "group": "company",
+   "count": 36
+  },
+  {
+   "slug": "bytedance",
+   "name": "字节跳动 / 豆包",
+   "group": "company",
+   "count": 15
+  },
+  {
+   "slug": "moonshot",
+   "name": "Kimi / 月之暗面",
+   "group": "company",
+   "count": 15
+  },
+  {
+   "slug": "zhipu",
+   "name": "智谱 / GLM",
+   "group": "company",
+   "count": 5
+  },
+  {
+   "slug": "minimax",
+   "name": "MiniMax",
+   "group": "company",
+   "count": 9
+  },
+  {
+   "slug": "tencent",
+   "name": "腾讯 / 混元",
+   "group": "company",
+   "count": 19
+  },
+  {
+   "slug": "baidu",
+   "name": "百度 / 文心",
+   "group": "company",
+   "count": 10
+  },
+  {
+   "slug": "agent",
+   "name": "Agent 智能体",
+   "group": "direction",
+   "count": 605
+  },
+  {
+   "slug": "coding",
+   "name": "AI 编程",
+   "group": "direction",
+   "count": 154
+  },
+  {
+   "slug": "reasoning",
+   "name": "推理与数学",
+   "group": "direction",
+   "count": 54
+  },
+  {
+   "slug": "inference",
+   "name": "推理部署与 Infra",
+   "group": "direction",
+   "count": 24
+  },
+  {
+   "slug": "multimodal",
+   "name": "多模态",
+   "group": "direction",
+   "count": 106
+  },
+  {
+   "slug": "image",
+   "name": "图像生成",
+   "group": "direction",
+   "count": 11
+  },
+  {
+   "slug": "video",
+   "name": "AI 视频",
+   "group": "direction",
+   "count": 16
+  },
+  {
+   "slug": "audio",
+   "name": "语音与音频",
+   "group": "direction",
+   "count": 41
+  },
+  {
+   "slug": "robotics",
+   "name": "具身智能",
+   "group": "direction",
+   "count": 47
+  },
+  {
+   "slug": "open-source",
+   "name": "开源生态",
+   "group": "direction",
+   "count": 122
+  },
+  {
+   "slug": "chips",
+   "name": "芯片与算力",
+   "group": "direction",
+   "count": 129
+  },
+  {
+   "slug": "safety",
+   "name": "安全与对齐",
+   "group": "direction",
+   "count": 109
+  },
+  {
+   "slug": "policy",
+   "name": "政策监管",
+   "group": "direction",
+   "count": 96
+  },
+  {
+   "slug": "funding",
+   "name": "融资与资本",
+   "group": "direction",
+   "count": 111
+  },
+  {
+   "slug": "model-release",
+   "name": "模型发布",
+   "group": "type",
+   "count": 468
+  },
+  {
+   "slug": "product",
+   "name": "产品动态",
+   "group": "type",
+   "count": 267
+  },
+  {
+   "slug": "research",
+   "name": "论文研究",
+   "group": "type",
+   "count": 822
+  },
+  {
+   "slug": "industry",
+   "name": "行业动态",
+   "group": "type",
+   "count": 829
+  },
+  {
+   "slug": "tutorial",
+   "name": "教程实践",
+   "group": "type",
+   "count": 15
+  },
+  {
+   "slug": "community",
+   "name": "社区讨论",
+   "group": "type",
+   "count": 86
+  }
+ ],
+ "digest": {
+  "date": "2026-11-17",
+  "summary": "Qwen4-Max正式发布：2.4万亿新架构、16项评测与真实工作演示｜2026-11-16 AI快讯；Sakana AI 发布 JFinBench：基于日本金融资格考试的日语金融基准（共 12 条）",
+  "highlights": [
+   {
+    "title": "Qwen4-Max正式发布：2.4万亿新架构、16项评测与真实工作演示｜2026-11-16 AI快讯",
+    "source": "bilibili"
+   },
+   {
+    "title": "Sakana AI 发布 JFinBench：基于日本金融资格考试的日语金融基准",
+    "source": "rss_sakana"
+   },
+   {
+    "title": "Our first phase of embedded assessments",
+    "source": "rss_openai"
+   },
+   {
+    "title": "2.4 万亿参数阿里通义千问 Qwen4-Max 正式上线：任务成本降低超 60%，后续将开源小尺寸模型",
+    "source": "rss_ithome"
+   },
+   {
+    "title": "华为云发布并开源昇腾原生具身世界模型 CloudRobo-WM1.2",
+    "source": "rss_ithome"
+   }
+  ]
+ },
+ "stories": {
+  "6ae308747ae82ed8": {
+   "sources": [
+    "rss_aws_ml"
+   ],
+   "reports": [
+    {
+     "source": "rss_aws_ml",
+     "title": "ArisGlobal 在 Amazon Bedrock 上扩大生成式 AI 推理的经验",
+     "url": "https://aws.amazon.com/blogs/machine-learning/how-arisglobal-scaled-generative-ai-inference-on-amazon-bedrock/",
+     "tier": "T1"
+    }
+   ],
+   "digest": null
+  },
+  "d2113fe9588c4ecb": {
+   "sources": [
+    "rss_arstechnica"
+   ],
+   "reports": [
+    {
+     "source": "rss_arstechnica",
+     "title": "Ars Live探讨无人机袭击数据中心对科技业未来风险的影响",
+     "url": "https://arstechnica.com/gadgets/2026/11/ars-live-can-the-cloud-survive-drone-strikes-on-data-centers/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "e603c8087b14acf9": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "Show HN 发布 AI Spar：将冲突的 AI 答案转化为结构化辩论",
+     "url": "https://aispar.app",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "6229a61fc09d0246": {
+   "sources": [
+    "rss_ithome"
+   ],
+   "reports": [
+    {
+     "source": "rss_ithome",
+     "title": "快手可灵全新图像模型 Kling Image 4.0 上线，支持原生 8K",
+     "url": "https://www.ithome.com/1/028/563.htm",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "7817a82c92910e5e": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "39,535 份 Claude.md 和 AGENTS.md 文件内容分析",
+     "url": "https://internals.laxmena.com/p/what-i-found-in-39535-claudemd-and",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "397b7047c32cd05f": {
+   "sources": [
+    "rss_a16z"
+   ],
+   "reports": [
+    {
+     "source": "rss_a16z",
+     "title": "a16z 投资 First Person Labs",
+     "url": "https://www.a16z.news/p/investing-in-first-person-labs",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "e01afbc816a23c63": {
+   "sources": [
+    "rss_ithome"
+   ],
+   "reports": [
+    {
+     "source": "rss_ithome",
+     "title": "英伟达董事会设立国家安全与出口管制监督委员会",
+     "url": "https://www.ithome.com/1/028/545.htm",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "ed896dc3efcf084a": {
+   "sources": [
+    "rss_the_decoder"
+   ],
+   "reports": [
+    {
+     "source": "rss_the_decoder",
+     "title": "OpenAI 向北约和欧洲多国政府开放网络安全工具 Daybreak",
+     "url": "https://the-decoder.com/openai-opens-its-cybersecurity-tool-daybreak-to-nato-and-european-governments/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "423d2f81a01426bb": {
+   "sources": [
+    "rss_techcrunch"
+   ],
+   "reports": [
+    {
+     "source": "rss_techcrunch",
+     "title": "Voyage Labs 融资1200万美元开发专业AI旅行助手",
+     "url": "https://techcrunch.com/2026/11/17/voyage-labs-raises-12-million-for-a-specialized-ai-travel-assistant/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "83f997dd0fb4372c": {
+   "sources": [
+    "rss_latentspace"
+   ],
+   "reports": [
+    {
+     "source": "rss_latentspace",
+     "title": "Cloudflare 宣布加入 Jevolution 并定位为 Neolab",
+     "url": "https://latent.space/p/cloudflare/",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "92961972900d36c9": {
+   "sources": [
+    "rss_the_decoder"
+   ],
+   "reports": [
+    {
+     "source": "rss_the_decoder",
+     "title": "Reports of AI-generated child sexual abuse material have surged more than 8,400 percent in two years",
+     "url": "https://the-decoder.com/reports-of-ai-generated-child-sexual-abuse-material-have-surged-more-than-8400-percent-in-two-years/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "2de4de57079ab17f": {
+   "sources": [
+    "rss_the_decoder"
+   ],
+   "reports": [
+    {
+     "source": "rss_the_decoder",
+     "title": "Isomorphic Labs 融资 50 亿美元：半年内完成第二次巨额融资，资金用于推进药物临床",
+     "url": "https://the-decoder.com/isomorphic-labs-raises-5-billion-in-its-second-mega-round-within-six-months/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "d763abffaeceba5b": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "研究揭示AI智能体如何影响专家判断",
+     "url": "https://www.anthropic.com/research/agents-judgment-calls",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "1db66610d2c0e3ac": {
+   "sources": [
+    "rss_the_decoder"
+   ],
+   "reports": [
+    {
+     "source": "rss_the_decoder",
+     "title": "加州检察长起诉 OpenAI：其失控AI模型曾攻击 Hugging Face",
+     "url": "https://the-decoder.com/californias-attorney-general-sues-openai-over-rogue-ai-models-that-attacked-hugging-face/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "0ddf0584b0e8c267": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "2.7万次编码智能体运行数据：64%推理支出被失败任务消耗",
+     "url": "https://runta.com/blog/introducing-frontierharness-eval-v1-1/",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "1781d77ea8870875": {
+   "sources": [
+    "rss_techcrunch"
+   ],
+   "reports": [
+    {
+     "source": "rss_techcrunch",
+     "title": "Isomorphic Labs 完成 50 亿美元 C 轮融资",
+     "url": "https://techcrunch.com/2026/11/17/isomorphic-labs-raises-5b-as-it-looks-to-take-drug-candidates-to-clinical-trials/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "2cc9b6a24bef4073": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "Show HN: Shark-skills Multi-agent orchestration and step-debugging for Claude",
+     "url": "https://github.com/tusharsrivastava/shark-skills",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "568827255496673e": {
+   "sources": [
+    "rss_newcomer"
+   ],
+   "reports": [
+    {
+     "source": "rss_newcomer",
+     "title": "Cerebral Valley AI峰会核心观点：算力成本与开放权重模型争议",
+     "url": "https://www.newcomer.co/p/top-takes-from-cvai-2026",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "6c5e3c8e70398bfa": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "在关键基础设施上指挥 AI Agent：MobilSense 案例",
+     "url": "https://www.cycletime.com/writing/every-role-but-author/",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "f25b4fb3918de88b": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "Revix AI 推出基于仓库标准的 PR 代码审查工具",
+     "url": "https://www.revix.ai",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "49683c347ac4ac40": {
+   "sources": [
+    "rss_techcrunch"
+   ],
+   "reports": [
+    {
+     "source": "rss_techcrunch",
+     "title": "Nvidia成立国家安全委员会应对黄仁勋离职及出口管制合规",
+     "url": "https://techcrunch.com/2026/11/17/nvidias-first-big-move-after-jensen-huangs-exit-targets-national-security/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "373b6335c700ceaa": {
+   "sources": [
+    "rss_arstechnica"
+   ],
+   "reports": [
+    {
+     "source": "rss_arstechnica",
+     "title": "SpaceXSI Grok Bot 被曝执行未授权操作且拒绝承认",
+     "url": "https://arstechnica.com/security/2026/11/grok-bot-took-unapproved-actions-ignored-orders-to-stop-and-then-denied-it/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "11c8a4f307aa6ece": {
+   "sources": [
+    "rss_techcrunch"
+   ],
+   "reports": [
+    {
+     "source": "rss_techcrunch",
+     "title": "Spotify 推出“艺人资料保护”工具以应对 AI 深度伪造音乐",
+     "url": "https://techcrunch.com/2026/11/17/spotifys-new-tool-aims-to-stop-deepfakes-from-being-attributed-to-real-artists/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "a4e8616b0036eae7": {
+   "sources": [
+    "rss_techcrunch"
+   ],
+   "reports": [
+    {
+     "source": "rss_techcrunch",
+     "title": "Genesis AI 完成 5 亿美元 A 轮融资，加速灵巧机器人商业化",
+     "url": "https://techcrunch.com/2026/11/17/genesis-ai-raises-500-million-to-deploy-electric-glove-wearing-robots/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "735359edcf360548": {
+   "sources": [
+    "rss_ithome"
+   ],
+   "reports": [
+    {
+     "source": "rss_ithome",
+     "title": "商汤发布 SenseNova Loop-9B：10GB 显存即可部署",
+     "url": "https://www.ithome.com/1/028/534.htm",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "91ff61bb5707e0a9": {
+   "sources": [
+    "rss_ithome"
+   ],
+   "reports": [
+    {
+     "source": "rss_ithome",
+     "title": "药物AI公司Isomorphic Labs获50亿美元C轮融资",
+     "url": "https://www.ithome.com/1/028/533.htm",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "c433f531dfeeb62e": {
+   "sources": [
+    "rss_ithome"
+   ],
+   "reports": [
+    {
+     "source": "rss_ithome",
+     "title": "期权市场预期英伟达财报后市值波动达 3350 亿美元",
+     "url": "https://www.ithome.com/1/028/528.htm",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "d08fc1148712020a": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "开发者发布开源 AI 智能体编排工具 ACT",
+     "url": "https://www.checklyhq.com/blog/agentic-crafting-table-ai-agent-orchestration/",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "6bc145059382d827": {
+   "sources": [
+    "rss_ithome"
+   ],
+   "reports": [
+    {
+     "source": "rss_ithome",
+     "title": "AI影响大学教学，加州理工学院数学教授倪忆改变作业评分标准",
+     "url": "https://www.ithome.com/1/028/522.htm",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "e3223b4fdae1b096": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "Claude Code 推出 PR 自动审查功能，按严重度排名发现Bug",
+     "url": "https://claude.com/product/code-review",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "a83796f98eba360a": {
+   "sources": [
+    "rss_ithome"
+   ],
+   "reports": [
+    {
+     "source": "rss_ithome",
+     "title": "韩国 AI 辅助歌曲《你成为梦想中的大人了吗？》首次登顶 Melon 榜单",
+     "url": "https://www.ithome.com/1/028/518.htm",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "d3a1a4405a7b4427": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "研究：AI Agent 对法国 3 万条法律条文进行重写与红队测试",
+     "url": "https://thesourcecodeoflaw.com/en/",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "525a78973a67844f": {
+   "sources": [
+    "rss_oreilly"
+   ],
+   "reports": [
+    {
+     "source": "rss_oreilly",
+     "title": "O'Reilly Radar：AI生成数据如何成为未来基准",
+     "url": "https://www.oreilly.com/radar/when-ai-generated-data-becomes-tomorrows-ground-truth/",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "fe09f257dbc983d6": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "Show HN: An MCP server for searching 71 real, sourced AI agent deployments",
+     "url": "https://agentsinthewild.co/mcp-server",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "775ea19826f3ca3c": {
+   "sources": [
+    "rss_ithome"
+   ],
+   "reports": [
+    {
+     "source": "rss_ithome",
+     "title": "米哈游公布视觉语言动作基础模型 Gamer，可自主游玩游戏",
+     "url": "https://www.ithome.com/1/028/503.htm",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "83f6191995455c03": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "Courio 让 AI Agent 通过 MCP 发送实体信件",
+     "url": "https://sendcourio.com/agents",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "8595fdc8511c32fc": {
+   "sources": [
+    "rss_chinatalk"
+   ],
+   "reports": [
+    {
+     "source": "rss_chinatalk",
+     "title": "美国商务部发布132页出口管制新规，封堵中国AI算力租赁漏洞",
+     "url": "https://www.chinatalk.media/p/bis-finally-takes-a-stand",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "9aa22e1a64467e46": {
+   "sources": [
+    "rss_ithome"
+   ],
+   "reports": [
+    {
+     "source": "rss_ithome",
+     "title": "达信报告：黑客利用AI工具加速寻找安全漏洞",
+     "url": "https://www.ithome.com/1/028/489.htm",
+     "tier": "T1.5"
+    }
+   ],
+   "digest": null
+  },
+  "3d64ed00570569b4": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "开发者发布 macOS 工具 Wake 追踪 Claude Code Token 消耗",
+     "url": "https://rcruz.dev/wake/",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "d121085d66bc78a1": {
+   "sources": [
+    "rss_marktechpost"
+   ],
+   "reports": [
+    {
+     "source": "rss_marktechpost",
+     "title": "NVIDIA 开源 NVKE 和 NVKR 以支持 GPU 基础设施上的托管 Kubernetes",
+     "url": "https://www.marktechpost.com/2026/11/17/nvidia-nvke-nvkr-managed-kubernetes-gpu/",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "9f5f78510a8b68d3": {
+   "sources": [
+    "hackernews"
+   ],
+   "reports": [
+    {
+     "source": "hackernews",
+     "title": "Agentic Threat Activity Crosses a Significant Threshold",
+     "url": "https://cloud.google.com/blog/topics/threat-intelligence/agentic-threat-activity-crosses-a-significant-threshold/",
+     "tier": "T2"
+    },
+    {
+     "source": "hackernews",
+     "title": "GTIG AI威胁追踪：代理式威胁活动跨越关键阈值",
+     "url": "https://cloud.google.com/blog/topics/threat-intelligence/agentic-threat-activity-crosses-a-significant-threshold",
+     "tier": "T2"
+    }
+   ],
+   "digest": null
+  },
+  "6de259dd253e88f1": {
+   "sources": [
+    "bing",
+    "rss_techcrunch"
+   ],
+   "reports": [
+    {
+     "source": "rss_techcrunch",
+     "title": "Cybersecurity AI startup Corma reaches $1B valuation in about 3 months",
+     "url": "https://techcrunch.com/2026/11/16/cybersecurity-ai-startup-corma-reaches-1b-valuation-in-about-3-months/",
+     "tier": "T1.5"
+    },
+    {
+     "source": "bing",
+     "title": "Cybersecurity AI startup Corma reaches $1B valuation in about ...",
+     "url": "https://www.bing.com/ck/a?!&&p=f1c1fa79915e1f0f4c52cbf30b8d8a600eb7cc8cd5cd1cddaf91e091490405e1JmltdHM9MTc5NDc4NzIwMA&ptn=3&ver=2&hsh=4&fclid=0316b6e1-c2de-63e9-10b4-aef5c3da626a&u=a1aHR0cHM6Ly90ZWNoY3J1bmNoLmNvbS8yMDI2LzExLzE2L2N5YmVyc2VjdXJpdHktYWktc3RhcnR1cC1jb3JtYS1yZWFjaGVzLTFiLXZhbHVhdGlvbi1pbi1hYm91dC0zLW1vbnRocy8&ntb=1",
+     "tier": "T2"
+    },
+    {
+     "source": "bing",
+     "title": "Cybersecurity AI startup Corma reaches $1B valuation in about ...",
+     "url": "https://www.bing.com/ck/a?!&&p=8e7f6d2b68599d9a1d843dce821aeef9cd81f554d857378fb8086b2ee55a45ceJmltdHM9MTc5NDc4NzIwMA&ptn=3&ver=2&hsh=4&fclid=3f428c1a-fa74-6dc0-0228-940efb7e6c61&u=a1aHR0cHM6Ly90ZWNoY3J1bmNoLmNvbS8yMDI2LzExLzE2L2N5YmVyc2VjdXJpdHktYWktc3RhcnR1cC1jb3JtYS1yZWFjaGVzLTFiLXZhbHVhdGlvbi1pbi1hYm91dC0zLW1vbnRocy8&ntb=1",
+     "tier": "T2"
+    }
+   ],
+   "digest": {
+    "title": "AI网络安全公司Corma完成1.25亿美元A轮融资",
+    "text": "AI网络安全初创公司Corma完成1.25亿美元A轮融资，估值达到10亿美元。该轮融资使公司在成立约3个月内即达到十亿美元估值。",
+    "updatedAt": "2026-11-17T09:40:33.657Z"
+   }
+  },
+  "d350402b5c951c56": {
+   "sources": [
+    "bing",
+    "rss_techcrunch"
+   ],
+   "reports": [
+    {
+     "source": "rss_techcrunch",
+     "title": "All the questions Nvidia should answer on Tuesday — but probably won’t",
+     "url": "https://techcrunch.com/2026/11/16/all-the-questions-nvidia-should-answer-on-tuesday-but-probably-wont/",
+     "tier": "T1.5"
+    },
+    {
+     "source": "bing",
+     "title": "All the questions Nvidia should answer on Tuesday — but ...",
+     "url": "https://www.bing.com/ck/a?!&&p=32bc8c7769a9d16d64acbb41573d4244035ba4f93a976361aba85e2ca8f13d11JmltdHM9MTc5NDc4NzIwMA&ptn=3&ver=2&hsh=4&fclid=0316b6e1-c2de-63e9-10b4-aef5c3da626a&u=a1aHR0cHM6Ly90ZWNoY3J1bmNoLmNvbS8yMDI2LzExLzE2L2FsbC10aGUtcXVlc3Rpb25zLW52aWRpYS1zaG91bGQtYW5zd2VyLW9uLXR1ZXNkYXktYnV0LXByb2JhYmx5LXdvbnQv&ntb=1",
+     "tier": "T2"
+    }
+   ],
+   "digest": {
+    "title": "Nvidia临时CEO Kress将出席Q3财报会议",
+    "text": "Nvidia临时CEO Kress将在周二举行的第三财季财报会议上面对媒体和投资者的提问。\n\n市场正密切关注其关于公司当前应对策略的表态，但据报道，Nvidia方面可能不会回答所有被提出的关键问题。",
+    "updatedAt": "2026-11-17T09:43:24.819Z"
+   }
+  },
+  "33e66f255b127fe7": {
+   "sources": [
+    "bing",
+    "rss_techcrunch"
+   ],
+   "reports": [
+    {
+     "source": "rss_techcrunch",
+     "title": "Apple reveals new Mac security controls as AI agents raise privacy risks",
+     "url": "https://techcrunch.com/2026/11/16/apple-reveals-new-mac-security-controls-as-ai-agents-raise-privacy-risks/",
+     "tier": "T1.5"
+    },
+    {
+     "source": "bing",
+     "title": "Apple reveals new Mac security controls as AI agents raise ...",
+     "url": "https://www.bing.com/ck/a?!&&p=4049e01b16b3a6a2e5e0be9e3c29fd0ba9f95aa34e43218ccb2afcb055cf878cJmltdHM9MTc5NDc4NzIwMA&ptn=3&ver=2&hsh=4&fclid=3f428c1a-fa74-6dc0-0228-940efb7e6c61&u=a1aHR0cHM6Ly90ZWNoY3J1bmNoLmNvbS8yMDI2LzExLzE2L2FwcGxlLXJldmVhbHMtbmV3LW1hYy1zZWN1cml0eS1jb250cm9scy1hcy1haS1hZ2VudHMtcmFpc2UtcHJpdmFjeS1yaXNrcy8&ntb=1",
+     "tier": "T2"
+    },
+    {
+     "source": "bing",
+     "title": "Apple reveals new Mac security controls as AI agents raise ...",
+     "url": "https://www.bing.com/ck/a?!&&p=659648e43b93e06bb3e1c263f87edb48fdcdaa10bc0f830344c2d9ae70c5e562JmltdHM9MTc5NDc4NzIwMA&ptn=3&ver=2&hsh=4&fclid=0316b6e1-c2de-63e9-10b4-aef5c3da626a&u=a1aHR0cHM6Ly90ZWNoY3J1bmNoLmNvbS8yMDI2LzExLzE2L2FwcGxlLXJldmVhbHMtbmV3LW1hYy1zZWN1cml0eS1jb250cm9scy1hcy1haS1hZ2VudHMtcmFpc2UtcHJpdmFjeS1yaXNrcy8&ntb=1",
+     "tier": "T2"
+    }
+   ],
+   "digest": {
+    "title": "苹果发布macOS 27.3新安全控制功能",
+    "text": "苹果在macOS 27.3中引入了新的权限控制功能。这一更新旨在应对由AI代理（AI agents）操作带来的隐私风险，通过增强安全机制来保护用户数据。",
+    "updatedAt": "2026-11-17T09:45:49.687Z"
+   }
+  },
+  "dc21049d20b1a221": {
+   "sources": [
+    "hackernews",
+    "rss_claude_dev"
+   ],
+   "reports": [
+    {
+     "source": "rss_claude_dev",
+     "title": "Claude Code团队探讨如何通过测试验证AI工作结果",
+     "url": "https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/",
+     "tier": "T1"
+    },
+    {
+     "source": "hackernews",
+     "title": "How the Claude Code team thinks about verification",
+     "url": "https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/",
+     "tier": "T2"
+    }
+   ],
+   "digest": {
+    "title": "Anthropic 发布 Claude Code 验证工作流理念",
+    "text": "Anthropic Claude Code 团队介绍了通过端到端测试、性质测试及差分测试来验证编码智能体工作成果的方法。内部测试显示，在结构化文件生成场景中，使用独立评估器根据评分标准检查 Claude 的工作，可将任务成功率提高 10 个百分点。",
+    "updatedAt": "2026-11-17T10:08:02.518Z"
+   }
+  }
+ },
+ "labels": {
+  "twitter": "X",
+  "bing": "Bing",
+  "google": "Google",
+  "sogou": "搜狗",
+  "bilibili": "Bilibili",
+  "weibo": "微博热搜",
+  "hackernews": "HackerNews",
+  "duckduckgo": "DuckDuckGo",
+  "rss_openai": "OpenAI Blog",
+  "rss_anthropic": "Anthropic",
+  "rss_google_ai": "Google AI Blog",
+  "rss_deepmind": "Google DeepMind",
+  "rss_hugging_face": "Hugging Face",
+  "rss_microsoft_ai": "Microsoft AI",
+  "rss_nvidia": "NVIDIA",
+  "rss_meta_ai": "Meta AI",
+  "rss_hf_papers": "HuggingFace Daily Papers",
+  "rss_mit_tech": "MIT Technology Review",
+  "rss_the_decoder": "The Decoder",
+  "rss_venturebeat": "VentureBeat",
+  "rss_techcrunch": "TechCrunch",
+  "rss_synced": "Synced",
+  "rss_github": "GitHub Blog",
+  "rss_infoq": "InfoQ",
+  "rss_hacker_news": "Hacker News Best",
+  "rss_v2ex": "V2EX 热帖",
+  "rss_juejin": "掘金",
+  "rss_cls": "财联社",
+  "rss_xueqiu": "雪球热门",
+  "rss_36kr": "36氪",
+  "rss_chinanews": "中国新闻网",
+  "rss_ithome": "IT之家",
+  "rss_arxiv_ai": "arXiv cs.AI",
+  "rss_arxiv_lg": "arXiv cs.LG",
+  "rss_arxiv_cl": "arXiv cs.CL",
+  "rss_arxiv_cv": "arXiv cs.CV",
+  "rss_wheresyoured": "Where's Your Ed At",
+  "rss_google_research": "Google Research",
+  "rss_aws_ml": "AWS Machine Learning",
+  "rss_mistral": "Mistral AI",
+  "rss_bair": "Berkeley AI Research",
+  "rss_theverge": "The Verge",
+  "rss_arstechnica": "Ars Technica",
+  "rss_simonwillison": "Simon Willison",
+  "rss_importai": "Import AI",
+  "rss_latentspace": "Latent Space",
+  "rss_nvidia_dev": "NVIDIA Technical Blog",
+  "rss_langchain": "LangChain",
+  "rss_openrouter": "OpenRouter",
+  "rss_pytorch": "PyTorch",
+  "rss_msr": "Microsoft Research",
+  "rss_together": "Together AI",
+  "rss_sakana": "Sakana AI",
+  "rss_apple_ml": "Apple ML Research",
+  "rss_ai2": "Ai2",
+  "rss_openai_alignment": "OpenAI Alignment",
+  "rss_openai_safety": "OpenAI 部署安全",
+  "rss_claude_dev": "Claude.dev",
+  "rss_databricks": "Databricks",
+  "rss_oreilly": "O'Reilly Radar",
+  "rss_mit_news": "MIT News",
+  "rss_meta_eng": "Meta Engineering",
+  "rss_chinatalk": "ChinaTalk",
+  "rss_modal": "Modal",
+  "rss_amazon_science": "Amazon Science",
+  "rss_platformer": "Platformer",
+  "rss_newcomer": "Newcomer",
+  "rss_recode_china": "Recode China AI",
+  "rss_semianalysis": "SemiAnalysis",
+  "rss_epoch": "Epoch AI",
+  "rss_marktechpost": "MarkTechPost",
+  "rss_garymarcus": "Gary Marcus",
+  "rss_a16z": "a16z",
+  "rss_dwarkesh": "Dwarkesh Patel",
+  "rss_interconnects": "Interconnects",
+  "rss_raschka": "Ahead of AI"
+ }
+}

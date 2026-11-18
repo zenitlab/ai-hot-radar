@@ -159,7 +159,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
           href={item.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="mb-6 flex w-full items-center justify-center gap-1.5 rounded-xl bg-[var(--accent-blue)] px-4 py-3 text-sm font-semibold text-white hover:opacity-90 sm:w-auto sm:inline-flex"
+          className="mb-6 flex w-full items-center justify-center gap-1.5 rounded-xl bg-[var(--accent-blue)] px-4 py-3 text-sm font-semibold text-[var(--on-accent)] hover:opacity-90 sm:w-auto sm:inline-flex"
         >
           阅读原文 · {sourceLabel}
           <ExternalLink className="w-4 h-4" aria-hidden="true" />

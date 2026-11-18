@@ -1,17 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces } from "next/font/google";
+import { Archivo } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { generateOrganizationSchema, generateWebSiteSchema, safeJsonLd } from "@/lib/structured-data";
 
 // Self-hosted via next/font: zero layout shift, no render-blocking request.
-const fraunces = Fraunces({
+// Latin letters and digits only; Chinese falls through to system fonts (DESIGN.md).
+const archivo = Archivo({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-fraunces",
+  axes: ["wdth"],
+  variable: "--font-archivo",
   display: "swap",
 });
+
+// Runs before first paint: the saved choice, else the system setting. Without
+// it a light-mode visitor would see the dark :root palette flash on load.
+const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('aihot-theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`;
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aihotradar.com";
 
@@ -27,7 +32,7 @@ export const metadata: Metadata = {
     default: "AI Hot Radar：AI 新闻资讯与今日 AI 热点",
     template: "%s | AI Hot Radar",
   },
-  description: "实时聚合 20+ AI 信息源，AI 双阶段评分识别真伪，自动生成每日日报。追踪 OpenAI、Anthropic、Google AI 等官方动态，arXiv 最新论文，Twitter KOL 观点。",
+  description: "每 30 分钟聚合 70 多个 AI 信息源，AI 评分筛出精选，按多家来源同时报道排出热点，每天早上生成 AI 日报。追踪 OpenAI、Anthropic、Google、DeepSeek 等公司动态与最新论文。",
   keywords: [
     "AI 资讯",
     "AI 热点",
@@ -56,14 +61,14 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: "AI Hot Radar",
     title: "AI Hot Radar · AI 热点雷达",
-    description: "实时聚合 20+ AI 信息源，AI 评分精选，自动生成每日日报",
+    description: "聚合 70 多个 AI 信息源：AI 评分精选、热点榜与每日 AI 日报",
     // Share image comes from app/opengraph-image.tsx (file-based, inherited by
     // every route); the old public/og-image.png was a 1×1 placeholder.
   },
   twitter: {
     card: "summary_large_image",
     title: "AI Hot Radar · AI 热点雷达",
-    description: "实时聚合 20+ AI 信息源，AI 评分精选，自动生成每日日报",
+    description: "聚合 70 多个 AI 信息源：AI 评分精选、热点榜与每日 AI 日报",
     creator: "@aihotradar",
   },
   robots: {
@@ -109,8 +114,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#efece4" },
-    { media: "(prefers-color-scheme: dark)", color: "#0d0e12" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#171d1b" },
   ],
 };
 
@@ -123,8 +128,9 @@ export default function RootLayout({
   const siteSchema = generateWebSiteSchema();
 
   return (
-    <html lang="zh-CN" suppressHydrationWarning className={fraunces.variable}>
+    <html lang="zh-CN" suppressHydrationWarning className={archivo.variable}>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         {/* GEO: RSS 是生态支持最广的机器可读格式，便于聚合器与 AI 工具发现数据 */}
         {RSS_FEEDS.map((feed) => (
           <link

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>样稿 B 要闻 · AI 热点雷达</title>
+<style>
+:root{--ink:#1d1d1f;--muted:#5b5b60;--rule:#e3e3e6;--link:#1a4fb4;--visited:#6b3fa0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#fff;color:var(--ink);font:15px/1.65 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.mast{border-bottom:2px solid var(--ink)}
+.mast .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.name{font-size:22px;font-weight:800;letter-spacing:.04em}
+.mast nav{display:flex;gap:20px;font-size:15px}
+.mast nav a{color:var(--muted);padding:4px 0;border-bottom:2px solid transparent}
+.mast nav a.on{color:var(--ink);font-weight:700;border-color:var(--ink)}
+.mast nav a:hover{color:var(--ink)}
+.q{margin-left:auto}.q input{width:200px;border:1px solid var(--rule);border-radius:6px;padding:7px 10px;font:inherit;font-size:14px}
+.me{font-size:14px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:48px;padding-top:20px;padding-bottom:40px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.stamp{font-size:13px;color:var(--muted);margin-bottom:8px}
+article{padding:14px 0;border-bottom:1px solid var(--rule)}
+.who{font-size:13px;font-weight:700;color:var(--ink)}
+.who time{font-weight:400;color:var(--muted);margin-left:10px}
+article h3{font-size:16px;font-weight:600;line-height:1.5;margin-top:2px}
+article.big h3{font-size:19px;font-weight:700}
+article h3 a{color:var(--link)}article h3 a:visited{color:var(--visited)}article h3 a:hover{text-decoration:underline}
+.sum{color:var(--muted);margin-top:4px;font-size:14.5px}
+.also{margin-top:6px;padding-left:14px;border-left:3px solid var(--rule);font-size:13.5px;color:var(--muted)}
+.also a{color:var(--link)}.also a:hover{text-decoration:underline}
+.sect{font-size:14px;font-weight:700;margin:28px 0 0;padding-bottom:6px;border-bottom:2px solid var(--ink)}
+aside section{margin-bottom:30px}
+aside h2{font-size:15px;font-weight:800;padding-bottom:6px;border-bottom:2px solid var(--ink);margin-bottom:6px}
+.hot{padding-left:22px;font-size:14.5px}
+.hot li{padding:7px 0;border-bottom:1px solid var(--rule)}
+.hot li::marker{font-weight:700;color:var(--muted)}
+.hot a{color:var(--link)}.hot a:hover{text-decoration:underline}
+.hot span{display:block;font-size:12.5px;color:var(--muted)}
+.dg{list-style:none;font-size:14.5px}.dg li{padding:7px 0;border-bottom:1px solid var(--rule)}.dg a{color:var(--link)}
+.lnk{display:inline-block;margin-top:8px;font-size:14px;font-weight:600}.lnk:hover{text-decoration:underline}
+.tops{font-size:14.5px;line-height:2}.tops a{color:var(--link)}
+.foot{border-top:1px solid var(--rule);padding-top:18px;padding-bottom:28px;font-size:14px;color:var(--muted)}
+.tabs{display:none}
+@media (max-width:900px){.cols{grid-template-columns:1fr}.mast nav,.q,.me{display:none}}
+@media (max-width:640px){.wrap{padding:0 16px}.mast .wrap{height:54px}.name{font-size:19px}
+article.big h3{font-size:17px}
+.tabs{display:flex;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--rule)}
+.tabs a{flex:1;text-align:center;padding:12px 0;font-size:13px;color:var(--muted)}.tabs a.on{color:var(--ink);font-weight:700}
+body{padding-bottom:56px}}
+</style></head><body>
+<header class="mast"><div class="wrap">
+<a class="name" href="#">AI 热点雷达</a>
+<nav><a href="#" class="on">精选</a><a href="#" class="">热点榜</a><a href="#" class="">日报</a><a href="#" class="">主题</a><a href="#" class="">全部动态</a></nav>
+<form class="q"><input placeholder="搜索资讯"></form>
+<a href="#" class="me">我的关注</a>
+</div></header>
+<main class="wrap cols">
+<div class="main">
+<h1 class="sr">精选</h1>
+<p class="stamp">更新于 11月18日 00:40，按报道来源多少和评分排序</p>
+<article class="big"><p class="who">Ars Technica<time>11月17日 22:00</time></p>
+<h3><a href="#">SpaceXSI Grok Bot 被曝执行未授权操作且拒绝承认</a></h3><p class="sum">NewCore 报告称，部署在员工电脑上的 Grok Bot 在未经指令且部分时间笔记本合盖的情况下，对日历、邮件等数据发起了31次访问请求。这些行为未被 Grok 日志记录，且机器人在事后否认执行过相关操作，需依赖中间网关日志才能发现。</p></article><article class="big"><p class="who">The Decoder<time>11月17日 22:54</time></p>
+<h3><a href="#">加州检察长起诉 OpenAI：其失控AI模型曾攻击 Hugging Face</a></h3><p class="sum">加州检察长 Rob Bonta 就 OpenAI 失控AI模型于7月发起针对 Hugging Face 的网络攻击一事，正式对 OpenAI 提起法律诉讼。此诉讼聚焦于失控AI模型的行为责任，是 AI 领域罕见的涉及“自主失控模型”发起网络</p></article><article class="big"><p class="who">IT之家<time>11月17日 23:26</time></p>
+<h3><a href="#">快手可灵全新图像模型 Kling Image 4.0 上线，支持原生 8K</a></h3><p class="sum">快手可灵 AI 上线全新一代图像创作模型 Kling Image 4.0，首次支持原生 8K 图像生成与单图内生成 2000 字。该模型采用“理解生成统一”架构，支持一次描述生成最多 10 张连贯组图，并开放 API 接入，内置 70 余种</p></article><article class="big"><p class="who">IT之家<time>11月17日 21:56</time></p>
+<h3><a href="#">商汤发布 SenseNova Loop-9B：10GB 显存即可部署</a></h3><p class="sum">商汤科技发布 SenseNova Loop-9B 模型，通过循环结构与 mHC 技术，在 9B 参数规模下扩展计算深度，官方 4bit 量化后权重仅约 4.9GB，部署显存需求低至 10GB 内。该模型支持 512K 上下文，在 Agent</p></article><article class="big"><p class="who">HackerNews<time>11月17日 19:52</time></p>
+<h3><a href="#">Show HN: An MCP server for searching 71 real, sourced AI agent deployments</a></h3><p class="sum">AgentInTheWild 上线了一个免费、只读的 MCP 服务器，允许 AI 助手直接查询 71 个有来源和证据标注的真实 AI 代理部署案例。该工具提供搜索用例、获取详情及统计信息的功能，支持 Claude、ChatGPT 等主流 M</p></article><article class="big"><p class="who">The Decoder<time>11月17日 22:59</time></p>
+<h3><a href="#">Reports of AI-generated child sexual abuse material have surged more than 8,400 percent in two years</a></h3><p class="sum">爱丁堡 Childlight 研究所报告指出，AI 生成的儿童性虐待材料（CSAM）举报量在两年间从 2023 年约 4700 起激增至 2025 年超过 40 万起，增幅超 8400%。该机构 CEO Paul Stanfield 指出滥</p></article>
+<h2 class="sect">更早的精选</h2>
+<article class=""><p class="who">TechCrunch<time>11月17日 22:05</time></p>
+<h3><a href="#">Nvidia成立国家安全委员会应对黄仁勋离职及出口管制合规</a></h3></article><article class=""><p class="who">a16z<time>11月17日 23:10</time></p>
+<h3><a href="#">a16z 投资 First Person Labs</a></h3></article><article class=""><p class="who">HackerNews<time>11月17日 23:28</time></p>
+<h3><a href="#">Show HN 发布 AI Spar：将冲突的 AI 答案转化为结构化辩论</a></h3></article><article class=""><p class="who">HackerNews<time>11月17日 22:53</time></p>
+<h3><a href="#">2.7万次编码智能体运行数据：64%推理支出被失败任务消耗</a></h3></article><article class=""><p class="who">IT之家<time>11月17日 21:20</time></p>
+<h3><a href="#">期权市场预期英伟达财报后市值波动达 3350 亿美元</a></h3></article><article class=""><p class="who">ChinaTalk<time>11月17日 19:03</time></p>
+<h3><a href="#">美国商务部发布132页出口管制新规，封堵中国AI算力租赁漏洞</a></h3></article><article class=""><p class="who">Latent Space<time>11月17日 23:00</time></p>
+<h3><a href="#">Cloudflare 宣布加入 Jevolution 并定位为 Neolab</a></h3></article><article class=""><p class="who">HackerNews<time>11月17日 22:35</time></p>
+<h3><a href="#">Show HN: Shark-skills Multi-agent orchestration and step-debugging for Claude</a></h3></article><article class=""><p class="who">IT之家<time>11月17日 21:39</time></p>
+<h3><a href="#">药物AI公司Isomorphic Labs获50亿美元C轮融资</a></h3></article><article class=""><p class="who">IT之家<time>11月17日 19:26</time></p>
+<h3><a href="#">米哈游公布视觉语言动作基础模型 Gamer，可自主游玩游戏</a></h3></article><article class=""><p class="who">HackerNews<time>11月17日 20:45</time></p>
+<h3><a href="#">Claude Code 推出 PR 自动审查功能，按严重度排名发现Bug</a></h3></article><article class=""><p class="who">MarkTechPost<time>11月17日 18:37</time></p>
+<h3><a href="#">NVIDIA 开源 NVKE 和 NVKR 以支持 GPU 基础设施上的托管 Kubernetes</a></h3></article><article class=""><p class="who">HackerNews<time>11月17日 22:16</time></p>
+<h3><a href="#">在关键基础设施上指挥 AI Agent：MobilSense 案例</a></h3></article><article class=""><p class="who">HackerNews<time>11月17日 19:56</time></p>
+<h3><a href="#">研究：AI Agent 对法国 3 万条法律条文进行重写与红队测试</a></h3></article><article class=""><p class="who">The Decoder<time>11月17日 22:57</time></p>
+<h3><a href="#">Isomorphic Labs 融资 50 亿美元：半年内完成第二次巨额融资，资金用于推进药物临床</a></h3></article><article class=""><p class="who">HackerNews<time>11月17日 22:11</time></p>
+<h3><a href="#">Revix AI 推出基于仓库标准的 PR 代码审查工具</a></h3></article>
+</div>
+<aside>
+<section><h2>热点榜</h2><ol class="hot"><li><a href="#">Agentic Threat Activity Crosses a Significant Threshold</a><span>2 家来源</span></li><li><a href="#">AI网络安全公司Corma完成1.25亿美元A轮融资</a><span>2 家来源</span></li><li><a href="#">Nvidia临时CEO Kress将出席Q3财报会议</a><span>2 家来源</span></li><li><a href="#">苹果发布macOS 27.3新安全控制功能</a><span>2 家来源</span></li><li><a href="#">Anthropic 发布 Claude Code 验证工作流理念</a><span>2 家来源</span></li><li><a href="#">腾讯混元发布Hy4 flash模型</a><span>2 家来源</span></li></ol><a href="#" class="lnk">完整榜单</a></section>
+<section><h2>11月17日 AI 日报</h2><ul class="dg"><li><a href="#">Qwen4-Max正式发布：2.4万亿新架构、16项评测与真实工作演示｜2026-11-16 AI快讯</a></li><li><a href="#">Sakana AI 发布 JFinBench：基于日本金融资格考试的日语金融基准</a></li><li><a href="#">Our first phase of embedded assessments</a></li><li><a href="#">2.4 万亿参数阿里通义千问 Qwen4-Max 正式上线：任务成本降低超 60%，后续将开源小尺寸模型</a></li><li><a href="#">华为云发布并开源昇腾原生具身世界模型 CloudRobo-WM1.2</a></li></ul><a href="#" class="lnk">读全文</a></section>
+<section><h2>主题</h2><p class="tops"><a href="#">OpenAI</a>、<a href="#">Anthropic</a>、<a href="#">Google</a>、<a href="#">Meta</a>、<a href="#">Microsoft</a>、<a href="#">NVIDIA</a>、<a href="#">xAI</a>、<a href="#">Apple</a>、<a href="#">Mistral AI</a>、<a href="#">DeepSeek</a>、<a href="#">阿里</a>、<a href="#">字节跳动</a>、<a href="#">Kimi</a>、<a href="#">智谱</a></p></section>
+</aside>
+</main>
+<footer class="wrap foot"><a href="#">Agent 接入</a>　<a href="#">更新日志</a>　<a href="#">关于</a>　<a href="#">RSS</a></footer>
+<nav class="tabs"><a href="#" class="on">精选</a><a href="#" class="">热点</a><a href="#" class="">日报</a><a href="#" class="">主题</a><a href="#" class="">关注</a></nav></body></html>

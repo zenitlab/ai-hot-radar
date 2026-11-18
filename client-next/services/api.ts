@@ -209,20 +209,20 @@ const settingsApi = {
     })
 };
 
-// Manual trigger
-export const triggerHotspotCheck = () =>
-  request<{ message: string; isScanning: boolean; lastScanStartedAt?: string; lastScanFinishedAt?: string }>(
-    '/check-hotspots',
-    { method: 'POST' },
-  );
+export interface ScanStatus {
+  isScanning: boolean;
+  lastScanStartedAt: string | null;
+  lastScanFinishedAt: string | null;
+  lastScanError: string | null;
+  /** When the next admin-triggered scan is allowed (10-minute cooldown). */
+  nextManualScanAt?: string | null;
+}
 
-export const getScanStatus = () =>
-  request<{
-    isScanning: boolean;
-    lastScanStartedAt: string | null;
-    lastScanFinishedAt: string | null;
-    lastScanError: string | null;
-  }>('/scan-status');
+// Manual trigger (admin only). `reason` is set when no scan started.
+export const triggerHotspotCheck = () =>
+  request<ScanStatus & { message: string; reason?: 'already_running' | 'cooldown' }>('/check-hotspots', { method: 'POST' });
+
+export const getScanStatus = () => request<ScanStatus>('/scan-status');
 
 // Curated
 export const curatedApi = {

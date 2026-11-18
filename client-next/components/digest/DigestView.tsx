@@ -919,7 +919,7 @@ function DigestEmptyState({ date, today, onGenerate, generating }: {
           type="button"
           onClick={onGenerate}
           disabled={generating}
-          className="mt-5 flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--accent-blue)]/85 text-white text-sm font-medium hover:bg-[var(--accent-blue)] transition-colors disabled:opacity-50 shadow-sm"
+          className="mt-5 flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--accent-blue)]/85 text-[var(--on-accent)] text-sm font-medium hover:bg-[var(--accent-blue)] transition-colors disabled:opacity-50 shadow-sm"
         >
           <RefreshCw className={cn('w-4 h-4', generating && 'animate-spin')} />
           {generating ? 'AI 正在分析资讯...' : '立即生成日报'}

@@ -1,5 +1,9 @@
 # AI Hot Radar — notes for Claude
 
+## UI changes follow DESIGN.md
+
+Read `DESIGN.md` (repo root) before touching any page or component: palette variables, type scale, layout and the list of things the site deliberately doesn't do. Colors come from the CSS variables in `client-next/app/globals.css`; don't add raw colors or Tailwind `dark:` variants (the theme switches via `data-theme`, so `dark:` never applies). The design skill used for it is in `.claude/skills/frontend-design`.
+
 ## Baidu site verification (do not remove)
 
 aihotradar.com is verified on 百度搜索资源平台 with:

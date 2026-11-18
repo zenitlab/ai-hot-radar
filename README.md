@@ -36,6 +36,8 @@ AI Hot Radar 是一个面向 AI 行业从业者的热点雷达。系统白天每
 
 ## 二、核心功能
 
+界面设计规范见根目录 [DESIGN.md](DESIGN.md)：顶部导航、冷灰绿配色、热度色阶，以及刻意不用的做法（渐变、彩色图标、装饰小标签等）。首页改版样稿在 `design/mockups/`（`python3 design/mockups/build.py` 用线上数据重新生成）。
+
 ### 1. 热点雷达（多源聚合 + AI 评分）
 
 - 20+ 信息源持续抓取，关键词预过滤跳过非 AI 内容（IT之家 / 36氪 / 财联社等综合源）
@@ -272,7 +274,7 @@ docker compose logs --since 1h backend | grep -E "Baidu push|IndexNow"
 ADMIN_TOKEN=$(openssl rand -hex 24)   # 不配置时这些操作对所有人关闭
 ```
 
-在网站侧栏底部点「管理员登录」输入一次即可，浏览器会记住；访客看不到扫描、生成日报、增删关注词这些按钮。新增写接口时记得加 `@UseGuards(AdminGuard)`。
+点网站顶栏的更新状态（手机在右上角菜单里），选「管理员登录」输入一次即可，浏览器会记住；访客看不到扫描、生成日报、增删关注词这些按钮。新增写接口时记得加 `@UseGuards(AdminGuard)`。
 
 ### 排查小抄
 

@@ -291,8 +291,8 @@ export function HotspotView({
             className={cn(
               "flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-opacity",
               isChecking
-                ? "bg-[var(--accent-blue)]/40 text-white cursor-wait"
-                : "bg-[var(--accent-blue)]/85 text-white hover:bg-[var(--accent-blue)] shadow-sm",
+                ? "bg-[var(--accent-blue)]/40 text-[var(--on-accent)] cursor-wait"
+                : "bg-[var(--accent-blue)]/85 text-[var(--on-accent)] hover:bg-[var(--accent-blue)] shadow-sm",
             )}
           >
             <RefreshCw

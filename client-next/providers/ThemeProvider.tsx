@@ -1,16 +1,18 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, useSyncExternalStore, type ReactNode } from 'react';
 
 /**
- * Theme provider — behavior mirrors the original client/src/hooks/useTheme.ts:
- * storage key 'aihot-theme', default 'dark', theme applied via the
- * `data-theme` attribute on <html> (light palette lives under
- * [data-theme="light"] in globals.css).
+ * Theme lives in the `data-theme` attribute on <html>. An inline script in
+ * app/layout.tsx sets it before first paint (saved choice, else the system
+ * setting); this provider only reads it and writes it on toggle. A choice is
+ * saved to localStorage only when the reader toggles, so visitors who never
+ * do keep following their system setting.
  */
 
 type Theme = 'dark' | 'light';
 const STORAGE_KEY = 'aihot-theme';
+const CHANGE_EVENT = 'aihot-theme-change';
 
 interface ThemeContextType {
   theme: Theme;
@@ -22,35 +24,31 @@ const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {},
 });
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  // SSR-safe: start with 'dark' (matches :root defaults), then sync from
-  // localStorage after mount.
-  const [theme, setTheme] = useState<Theme>('dark');
+const readTheme = (): Theme =>
+  document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
 
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) as Theme | null;
-    if (saved === 'light' || saved === 'dark') setTheme(saved);
+function subscribe(onChange: () => void) {
+  window.addEventListener(CHANGE_EVENT, onChange);
+  return () => window.removeEventListener(CHANGE_EVENT, onChange);
+}
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const theme = useSyncExternalStore(subscribe, readTheme, () => 'dark' as Theme);
+
+  const toggleTheme = useCallback(() => {
+    const next: Theme = readTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try {
+      localStorage.setItem(STORAGE_KEY, next);
+    } catch {
+      /* private mode: the choice lasts for this page only */
+    }
+    window.dispatchEvent(new Event(CHANGE_EVENT));
   }, []);
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme]);
-
-  const toggleTheme = useCallback(
-    () => setTheme(t => (t === 'dark' ? 'light' : 'dark')),
-    [],
-  );
-
-  // Memoize the context value so consumers only re-render when theme
-  // actually changes, not on every ThemeProvider render.
   const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {
