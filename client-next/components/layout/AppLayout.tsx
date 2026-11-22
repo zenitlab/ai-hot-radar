@@ -1,5 +1,6 @@
 'use client';
-import { usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { LazyMotion, domAnimation, MotionConfig } from 'framer-motion';
 import { Bookmark, CalendarDays, Flame, Shapes, Star } from 'lucide-react';
 import { useTheme } from '@/providers/ThemeProvider';
@@ -27,7 +28,6 @@ const MOBILE_TABS = [
  */
 export function AppLayout({ unreadCount, children }: AppLayoutProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -47,14 +47,19 @@ export function AppLayout({ unreadCount, children }: AppLayoutProps) {
             {MOBILE_TABS.map(({ path, label, Icon }) => {
               const active = isActive(pathname, path);
               return (
-                <button
-                  type="button"
+                // A real link, not a button + router.push: it still navigates
+                // before hydration or if client JS is stale/broken, and Next
+                // prefetches it.
+                <Link
                   key={path}
+                  href={path}
                   aria-current={active ? 'page' : undefined}
-                  onClick={() => {
+                  onClick={(e) => {
                     // Tapping the current tab resets that view (e.g. 日报 back to today).
-                    if (pathname === path) window.dispatchEvent(new CustomEvent('nav:reset', { detail: { path } }));
-                    else router.push(path);
+                    if (pathname === path) {
+                      e.preventDefault();
+                      window.dispatchEvent(new CustomEvent('nav:reset', { detail: { path } }));
+                    }
                   }}
                   className={cn(
                     'flex flex-1 flex-col items-center justify-center gap-1 py-2 text-xs',
@@ -63,7 +68,7 @@ export function AppLayout({ unreadCount, children }: AppLayoutProps) {
                 >
                   <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
                   {label}
-                </button>
+                </Link>
               );
             })}
           </nav>
