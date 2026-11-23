@@ -27,7 +27,7 @@ Topics: artificial-intelligence, machine-learning, llm, openai, anthropic, ai-ne
 Target-Audience: AI practitioners, researchers, developers in China and globally
 
 # Contact
-Contact-Email: support@aihotradar.com
+Contact-Email: gundam_zzc@126.com
 GitHub: https://github.com/zenitlab/ai-hot-radar
 
 # Supported AI Search Engines
