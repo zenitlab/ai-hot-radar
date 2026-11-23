@@ -71,7 +71,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "AI 热点雷达（AI Hot Radar）",
     description: "聚合 70 多个 AI 信息源：AI 评分精选、热点榜与每日 AI 日报",
-    creator: "@aihotradar",
   },
   robots: {
     index: true,

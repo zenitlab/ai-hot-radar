@@ -20,7 +20,7 @@ export async function GET() {
 # About
 Site-Name: AI Hot Radar
 Site-URL: ${siteUrl}
-Description: 实时聚合 60+ AI 信息源（官方博客、媒体、HackerNews、arXiv、社区等），通过 AI 双阶段评分筛选高质量资讯，按跨来源热度排出多家同时报道的事件，每日自动生成 AI 行业日报。
+Description: 实时聚合 70 多个 AI 信息源（官方博客、媒体、HackerNews、arXiv、社区等），通过 AI 双阶段评分筛选高质量资讯，按跨来源热度排出多家同时报道的事件，每日自动生成 AI 行业日报。
 Language: zh-CN
 Purpose: news-aggregation, ai-content-curation
 Topics: artificial-intelligence, machine-learning, llm, openai, anthropic, ai-news
@@ -37,10 +37,10 @@ Optimized-For: ChatGPT Search, Perplexity, Claude, Google Gemini, You.com
 Optimized-For-CN: 豆包搜索, 百度 AI 搜索, 360 AI 搜索, 搜狗 AI 问答, 秘塔 AI 搜索, Kimi, 通义千问, 文心一言
 
 # Crawling Policy
-Allow-AI-Training: no
+Allow-AI-Training: yes
 Allow-AI-Indexing: yes
 Preferred-Crawl-Rate: 1 req/sec
-Last-Updated: 2026-11-17
+Last-Updated: 2026-11-23
 
 # API Access (for AI agents)
 API-Endpoint: ${siteUrl}/api/agent

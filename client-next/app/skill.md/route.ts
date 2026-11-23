@@ -22,7 +22,7 @@ description: 从 AI Hot Radar（${site.replace(/^https?:\/\//, '')}）获取中�
 
 # AI Hot Radar 资讯接入 · v${SKILL_VERSION}
 
-AI Hot Radar 是中文 AI 资讯聚合站：每 30 分钟抓取 60 多个官方博客、媒体、社区和论文信源，用 AI 评分筛出精选，把多家来源报道的同一件事聚成事件，每天早上 8 点生成日报。
+AI Hot Radar 是中文 AI 资讯聚合站：每 30 分钟抓取 70 多个官方博客、媒体、社区和论文信源，用 AI 评分筛出精选，把多家来源报道的同一件事聚成事件，每天早上 8 点生成日报。
 
 接口是公开的，**不需要 API key**，返回 JSON。日期一律按北京时间（Asia/Shanghai）。
 

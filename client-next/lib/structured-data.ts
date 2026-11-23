@@ -38,7 +38,6 @@ export function generateOrganizationSchema(): JsonLd {
     description: '70 多个 AI 信息源实时聚合，AI 评分精选、热点榜和每日 AI 日报',
     sameAs: [
       'https://github.com/zenitlab/ai-hot-radar',
-      'https://twitter.com/aihotradar',
     ],
     contactPoint: {
       '@type': 'ContactPoint',
@@ -111,11 +110,14 @@ export function generateDigestSchema(date: string, sections: string[]) {
  *
  * `name` / `description` 由调用方传入：精选页与热点页的语义不同，共用一段
  * 描述会让 AI 无法区分两者。
+ *
+ * 条目链接指向本站的 /items/{id}（那里有导读和原文链接），不用原文 URL：
+ * 部分信源给的是相对路径，写进 JSON-LD 就成了本站的死链。
  */
 export function generateHotspotListSchema(
   items: Array<{
+    id: string;
     title: string;
-    url: string;
     publishedAt: string;
     description?: string;
   }>,
@@ -136,9 +138,9 @@ export function generateHotspotListSchema(
       item: {
         '@type': 'Article',
         headline: item.title,
-        url: item.url,
+        url: `${SITE_URL}/items/${item.id}`,
         datePublished: item.publishedAt,
-        description: item.description,
+        ...(item.description ? { description: item.description } : {}),
       },
     })),
   };

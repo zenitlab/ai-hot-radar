@@ -41,11 +41,11 @@ export default async function CuratedPage() {
   const digest = recent[0] ? await fetchDigestSSR(recent[0].date) : null;
 
   // ItemList tells AI engines this page is an aggregated feed rather than one
-  // article, so individual entries can be attributed to their own source.
+  // article, each entry links to its /items page.
   const listSchema = generateHotspotListSchema(
     items.map((item) => ({
+      id: item.id,
       title: displayTitle(item),
-      url: item.url,
       // publishedAt is optional on Hotspot; createdAt is always present.
       publishedAt: item.publishedAt || item.createdAt,
       description: item.summary,
